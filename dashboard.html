@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>BIPE — Tableau de bord</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="shared.js"></script>
+<style>
+  :root{
+    --black:#000000; --black-2:#0a0a0a; --black-3:#141414;
+    --line:#2a2a2a; --line-soft:#1f1f1f;
+    --gold:#d4af37; --gold-bright:#f0d060; --gold-soft:#e8c96a;
+    --gold-dim:#8a7433; --gold-deep:#5a4a1f;
+    --txt:#f5f0e1; --txt-muted:#9a9384; --txt-dim:#5a564e;
+    --ok:#6b9a5a; --warn:#c9a040; --bad:#b84040; --info:#7cc4e8;
+    --radius:16px; --radius-sm:12px;
+    --groupe-couleur:#d4af37;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overscroll-behavior:none}
+  body{
+    font-family:'Baloo Bhaijaan 2', -apple-system, "Segoe UI", sans-serif;
+    background:var(--black); color:var(--txt); line-height:1.6; font-weight:500;
+    -webkit-font-smoothing:antialiased; min-height:100vh;
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(212,175,55,.05) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(212,175,55,.02) 0%, transparent 40%);
+    background-attachment:fixed;
+  }
+  .app{max-width:min(1100px,92vw);margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding-bottom:clamp(24px,4vw,40px)}
+
+  .header{
+    position:sticky;top:0;z-index:50;background:rgba(0,0,0,.92);
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--line-soft);
+    padding:clamp(12px,2vw,16px) clamp(16px,3vw,20px);
+    display:flex;align-items:center;gap:clamp(8px,1.5vw,16px);
+  }
+  .header .back{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;text-decoration:none;transition:transform .15s;
+  }
+  .header .back:active{transform:scale(.92)}
+  .header .title-block{flex:1;min-width:0}
+  .header .logo{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2.5vw,1.5rem);
+    font-weight:700;color:#f0d060;line-height:1.2;letter-spacing:.02em;
+  }
+  .header .logo .b,.header .logo .pe{color:var(--txt)}
+  .header .logo .excl{color:var(--gold);font-size:1.3em;vertical-align:middle;text-shadow:0 0 20px rgba(212,175,55,.5)}
+  .header .subtitle{
+    font-size:clamp(.6rem,1vw,.7rem);color:var(--txt-muted);
+    font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  }
+  
+  /* LANG SWITCHER */
+  .lang-switch {
+    display: flex; background: var(--black-3); border-radius: 8px; padding: 2px; border: 1px solid var(--line);
+  }
+  .lang-btn {
+    padding: 4px 8px; border-radius: 6px; border: none; background: transparent;
+    color: var(--txt-muted); font-size: .75rem; font-weight: 700; cursor: pointer; transition: all .2s;
+    font-family: 'Baloo Bhaijaan 2', sans-serif;
+  }
+  .lang-btn.active { background: var(--gold); color: #000; }
+
+  .header .menu{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;transition:transform .15s;
+  }
+  .header .menu:active{transform:scale(.92)}
+
+  .content{flex:1;padding:clamp(16px,3vw,24px) clamp(16px,3vw,20px)}
+
+  .hero{
+    background:linear-gradient(135deg,var(--black-2) 0%,var(--black-3) 100%);
+    border:2px solid var(--gold-deep);border-radius:var(--radius);
+    padding:clamp(18px,3vw,24px);margin-bottom:clamp(16px,3vw,20px);
+    position:relative;overflow:hidden;
+  }
+  .hero::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--gold);opacity:.9;
+  }
+  .hero h1{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.3rem,2.2vw,1.7rem);
+    font-weight:700;color:var(--gold-bright);line-height:1.2;margin-bottom:4px;
+  }
+  .hero .sub{
+    font-size:clamp(.85rem,1.1vw,1rem);color:var(--txt-muted);font-weight:500;
+    margin-bottom:14px;
+  }
+  .hero .actions{
+    display:flex;gap:8px;flex-wrap:wrap;
+  }
+  .btn{
+    padding:clamp(10px,1.3vw,12px) clamp(14px,1.8vw,18px);
+    border-radius:999px;border:none;cursor:pointer;
+    font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:clamp(.82rem,1vw,.92rem);font-weight:700;
+    display:inline-flex;align-items:center;gap:6px;transition:all .2s;
+    text-decoration:none;
+  }
+  .btn-gold{
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold));
+    color:#0a0a0a;box-shadow:0 4px 16px rgba(212,175,55,.25);
+  }
+  .btn-gold:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  .btn-gold:active{transform:scale(.97)}
+  .btn-ghost{background:var(--black-3);border:2px solid var(--line);color:var(--txt)}
+  .btn-ghost:hover{border-color:var(--gold-dim)}
+
+  .section{ margin-bottom:clamp(20px,3.5vw,28px); }
+  .section-title{
+    display:flex;justify-content:space-between;align-items:baseline;
+    margin-bottom:clamp(10px,1.8vw,14px); padding:0 4px;
+  }
+  .section-title h2{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.05rem,1.7vw,1.3rem);
+    font-weight:700;color:var(--gold-soft);
+    display:flex;align-items:center;gap:8px;
+  }
+  .section-title h2 .ico{font-size:1.1em}
+  .section-title .sub{
+    font-size:clamp(.72rem,.9vw,.8rem);color:var(--txt-dim);font-weight:600;
+  }
+
+  .kpi-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(clamp(150px,18vw,190px), 1fr));
+    gap:clamp(8px,1.5vw,12px);
+  }
+
+  .kpi{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(14px,2vw,18px) clamp(12px,1.8vw,16px);
+    transition:transform .15s,border-color .15s;
+    text-decoration:none;color:var(--txt);
+    display:flex;flex-direction:column;gap:4px;
+    position:relative;overflow:hidden;
+  }
+  .kpi:hover{border-color:var(--gold-dim);transform:translateY(-2px)}
+  .kpi:active{transform:scale(.97)}
+  .kpi .ico{font-size:clamp(1.2rem,1.8vw,1.5rem);line-height:1;margin-bottom:2px}
+  .kpi .val{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.3rem,2.2vw,1.6rem);
+    font-weight:700;line-height:1;color:var(--gold-bright);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .kpi .val small{ font-size:.6em;color:var(--txt-muted);font-weight:600;margin-left:2px; }
+  .kpi .lab{ font-size:clamp(.7rem,.9vw,.78rem);color:var(--txt-muted); font-weight:600;line-height:1.3; }
+  .kpi .sub{ font-size:clamp(.65rem,.85vw,.72rem);color:var(--txt-dim); font-weight:500;margin-top:2px; }
+
+  .kpi.ok .val{color:#8fc47a}
+  .kpi.warn .val{color:var(--warn)}
+  .kpi.bad .val{color:#e08a8a}
+  .kpi.info .val{color:var(--info)}
+
+  .kpi.alerte{
+    border-color:rgba(184,64,64,.5);
+    background:linear-gradient(135deg, rgba(184,64,64,.08) 0%, var(--black-2) 100%);
+  }
+  .kpi.alerte::before{ content:'';position:absolute;top:0;left:0;width:4px;height:100%; background:var(--bad); }
+
+  .kpi.bon{
+    border-color:rgba(107,154,90,.5);
+    background:linear-gradient(135deg, rgba(107,154,90,.08) 0%, var(--black-2) 100%);
+  }
+  .kpi.bon::before{ content:'';position:absolute;top:0;left:0;width:4px;height:100%; background:var(--ok); }
+
+  .footer{
+    text-align:center;padding:clamp(20px,3vw,28px) 16px 16px;
+    font-size:clamp(.72rem,.9vw,.8rem);color:var(--txt-dim);
+    line-height:1.8;font-weight:500;border-top:1px solid var(--line-soft);margin-top:auto;
+  }
+  .footer .brand{color:var(--gold-soft);font-weight:700}
+
+  @media (max-width:600px){ .kpi-grid{grid-template-columns:repeat(2,1fr)} }
+  @media (max-width:380px){ .kpi-grid{grid-template-columns:1fr} }
+</style>
+</head>
+<body data-groupe="structure">
+
+<div class="app">
+
+  <div class="header">
+    <a href="index.html" class="back">←</a>
+    <div class="title-block">
+      <div class="logo"><span class="b">B</span><span class="excl">!</span><span class="pe">PE</span></div>
+      <div class="subtitle" data-i18n="subtitle">Tableau de bord</div>
+    </div>
+    
+    <!-- LANG SWITCHER -->
+    <div class="lang-switch">
+      <button class="lang-btn active" id="btn-lang-fr" onclick="setLang('fr')">FR</button>
+      <button class="lang-btn" id="btn-lang-tn" onclick="setLang('tn')">TN</button>
+    </div>
+
+    <button class="menu" onclick="BIPE.openMenu()">⋮</button>
+  </div>
+
+  <div class="content">
+
+    <div class="hero">
+      <h1 data-i18n="hero_title">📊 Vue d'ensemble</h1>
+      <div class="sub" data-i18n="hero_sub">Tous tes indicateurs clés en temps réel.</div>
+      <div class="actions">
+        <button class="btn btn-gold" onclick="reload()" data-i18n="btn_actualiser">🔄 Actualiser</button>
+        <a href="diagnostic.html" class="btn btn-ghost" data-i18n="btn_diagnostic">🩺 Diagnostic</a>
+        <a href="sauvegarde.html" class="btn btn-ghost" data-i18n="btn_sauvegarder">💾 Sauvegarder</a>
+      </div>
+    </div>
+
+    <!-- COMMERCIAL -->
+    <div class="section">
+      <div class="section-title">
+        <h2><span class="ico">🛒</span> <span data-i18n="sec_commercial">Commercial</span></h2>
+        <div class="sub" data-i18n="sec_commercial_sub">Ventes, clients, devis</div>
+      </div>
+      <div class="kpi-grid">
+        <a href="f-ventes.html" class="kpi">
+          <div class="ico">💰</div>
+          <div class="val" id="kpiCA">0 <small>DT</small></div>
+          <div class="lab" data-i18n="kpi_ca_total">Chiffre d'affaires total</div>
+        </a>
+        <a href="f-ventes.html" class="kpi">
+          <div class="ico">📅</div>
+          <div class="val" id="kpiCAMois">0 <small>DT</small></div>
+          <div class="lab" data-i18n="kpi_ca_mois">CA ce mois-ci</div>
+        </a>
+        <a href="f-ventes.html" class="kpi">
+          <div class="ico">🛍</div>
+          <div class="val" id="kpiVentes">0</div>
+          <div class="lab" data-i18n="kpi_ventes">Ventes enregistrées</div>
+        </a>
+        <a href="f-clients.html" class="kpi">
+          <div class="ico">👤</div>
+          <div class="val" id="kpiClients">0</div>
+          <div class="lab" data-i18n="kpi_clients">Clients</div>
+        </a>
+        <a href="f-devis.html" class="kpi" id="kpiDevisCard">
+          <div class="ico">📋</div>
+          <div class="val" id="kpiDevis">0</div>
+          <div class="lab" data-i18n="kpi_devis">Devis en cours</div>
+          <div class="sub" id="kpiDevisSub" data-i18n="a_convertir">À convertir</div>
+        </a>
+        <a href="f-achats.html" class="kpi">
+          <div class="ico">🧾</div>
+          <div class="val" id="kpiAchats">0 <small>DT</small></div>
+          <div class="lab" data-i18n="kpi_achats">Dépenses achats</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- MARGES -->
+    <div class="section">
+      <div class="section-title">
+        <h2><span class="ico">📈</span> <span data-i18n="sec_marges">Marges</span></h2>
+        <div class="sub" data-i18n="sec_marges_sub">Le vrai chiffre</div>
+      </div>
+      <div class="kpi-grid">
+        <a href="f-marges.html" class="kpi" id="kpiMargeJourCard">
+          <div class="ico">💰</div>
+          <div class="val" id="kpiMargeJour">0 <small>DT</small></div>
+          <div class="lab" data-i18n="kpi_marge_jour">Marge du jour</div>
+          <div class="sub" data-i18n="kpi_marge_jour_sub">CA - Charges - Coût</div>
+        </a>
+        <a href="f-marges.html" class="kpi" id="kpiMargeMoisCard">
+          <div class="ico">📅</div>
+          <div class="val" id="kpiMargeMois">0 <small>DT</small></div>
+          <div class="lab" data-i18n="kpi_marge_mois">Marge ce mois</div>
+          <div class="sub" data-i18n="kpi_marge_mois_sub">Bénéfice réel</div>
+        </a>
+        <a href="f-marges.html" class="kpi">
+          <div class="ico">📦</div>
+          <div class="val" id="kpiCoutMatiereMois">0 <small>DT</small></div>
+          <div class="lab" data-i18n="kpi_cout_matiere">Coût matière</div>
+          <div class="sub" data-i18n="kpi_cout_matiere_sub">Produits vendus</div>
+        </a>
+        <a href="f-marges.html" class="kpi info">
+          <div class="ico">🏦</div>
+          <div class="val" id="kpiValeurStock">0 <small>DT</small></div>
+          <div class="lab" data-i18n="kpi_valeur_stock">Valeur du stock</div>
+          <div class="sub" data-i18n="kpi_valeur_stock_sub">Argent immobilisé</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- FLUX -->
+    <div class="section">
+      <div class="section-title">
+        <h2><span class="ico">💧</span> <span data-i18n="sec_flux">Flux</span></h2>
+        <div class="sub" data-i18n="sec_flux_sub">Trésorerie, stock, banque</div>
+      </div>
+      <div class="kpi-grid">
+        <a href="f-tresorerie.html" class="kpi" id="kpiTresoCard">
+          <div class="ico">💵</div>
+          <div class="val" id="kpiTreso">0 <small>DT</small></div>
+          <div class="lab" data-i18n="kpi_treso">Solde trésorerie</div>
+          <div class="sub" id="kpiTresoSub" data-i18n="kpi_treso_sub">Espèces + banque</div>
+        </a>
+        <a href="f-banque.html" class="kpi">
+          <div class="ico">🏦</div>
+          <div class="val" id="kpiBanque">0 <small>DT</small></div>
+          <div class="lab" data-i18n="kpi_banque">Solde bancaire</div>
+          <div class="sub" id="kpiBanqueSub" data-i18n="kpi_banque_sub">Tous comptes</div>
+        </a>
+        <a href="f-stock.html" class="kpi">
+          <div class="ico">📦</div>
+          <div class="val" id="kpiProduits">0</div>
+          <div class="lab" data-i18n="kpi_produits">Produits en catalogue</div>
+        </a>
+        <a href="f-stock.html" class="kpi" id="kpiRuptureCard">
+          <div class="ico">⚠️</div>
+          <div class="val" id="kpiRuptures">0</div>
+          <div class="lab" data-i18n="kpi_ruptures">Produits en rupture</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- PILOTAGE -->
+    <div class="section">
+      <div class="section-title">
+        <h2><span class="ico">🎯</span> <span data-i18n="sec_pilotage">Pilotage</span></h2>
+        <div class="sub" data-i18n="sec_pilotage_sub">Rappels et objectifs</div>
+      </div>
+      <div class="kpi-grid">
+        <a href="f-rappels.html" class="kpi">
+          <div class="ico">🔔</div>
+          <div class="val" id="kpiRappels">0</div>
+          <div class="lab" data-i18n="kpi_rappels">Rappels actifs</div>
+        </a>
+        <a href="f-rappels.html" class="kpi" id="kpiRappelsRetardCard">
+          <div class="ico">⏰</div>
+          <div class="val" id="kpiRappelsRetard">0</div>
+          <div class="lab" data-i18n="kpi_rappels_retard">Rappels en retard</div>
+        </a>
+        <a href="f-objectifs.html" class="kpi">
+          <div class="ico">🎯</div>
+          <div class="val" id="kpiObjectifs">0</div>
+          <div class="lab" data-i18n="kpi_objectifs">Objectifs actifs</div>
+        </a>
+        <a href="f-objectifs.html" class="kpi ok" id="kpiObjectifsOkCard">
+          <div class="ico">🏆</div>
+          <div class="val" id="kpiObjectifsOk">0</div>
+          <div class="lab" data-i18n="kpi_objectifs_ok">Objectifs atteints</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- FINANCE -->
+    <div class="section">
+      <div class="section-title">
+        <h2><span class="ico">📒</span> <span data-i18n="sec_finance">Finance</span></h2>
+        <div class="sub" data-i18n="sec_finance_sub">Comptabilité, RH, sauvegarde</div>
+      </div>
+      <div class="kpi-grid">
+        <a href="f-compta.html" class="kpi">
+          <div class="ico">📝</div>
+          <div class="val" id="kpiEcritures">0</div>
+          <div class="lab" data-i18n="kpi_ecritures">Écritures comptables</div>
+        </a>
+        <a href="f-rh.html" class="kpi">
+          <div class="ico">👥</div>
+          <div class="val" id="kpiEquipe">0</div>
+          <div class="lab" data-i18n="kpi_equipe">Membres d'équipe</div>
+        </a>
+        <a href="f-rh.html" class="kpi">
+          <div class="ico">💼</div>
+          <div class="val" id="kpiMasse">0 <small>DT</small></div>
+          <div class="lab" data-i18n="kpi_masse">Masse salariale / mois</div>
+        </a>
+        <a href="sauvegarde.html" class="kpi" id="kpiBackupCard">
+          <div class="ico">💾</div>
+          <div class="val" id="kpiBackup">—</div>
+          <div class="lab" data-i18n="kpi_backup">Dernière sauvegarde</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- MARKETING -->
+    <div class="section">
+      <div class="section-title">
+        <h2><span class="ico">📣</span> <span data-i18n="sec_marketing">Marketing</span></h2>
+        <div class="sub" data-i18n="sec_marketing_sub">Prospects, campagnes, relances</div>
+      </div>
+      <div class="kpi-grid">
+        <a href="f-prospects.html" class="kpi">
+          <div class="ico">🎯</div>
+          <div class="val" id="kpiProspects">0</div>
+          <div class="lab" data-i18n="kpi_prospects">Prospects actifs</div>
+        </a>
+        <a href="f-prospects.html" class="kpi ok" id="kpiConvertiCard">
+          <div class="ico">✅</div>
+          <div class="val" id="kpiConvertis">0</div>
+          <div class="lab" data-i18n="kpi_convertis">Prospects convertis</div>
+        </a>
+        <a href="f-campagnes.html" class="kpi">
+          <div class="ico">📢</div>
+          <div class="val" id="kpiCampagnes">0</div>
+          <div class="lab" data-i18n="kpi_campagnes">Campagnes actives</div>
+        </a>
+        <a href="f-relances.html" class="kpi" id="kpiRelancesCard">
+          <div class="ico">🔔</div>
+          <div class="val" id="kpiRelances">0</div>
+          <div class="lab" data-i18n="kpi_relances">Relances à faire</div>
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <span class="brand">BIPE</span> · <span data-i18n="footer_version">Tableau de bord · Version 1.2 · Actualisé à</span> <span id="lastUpdate">—</span>
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   BIPE — dashboard.html v1.2 (Bilingue FR/TN)
+   ============================================================ */
+
+// --- DICTIONNAIRE DE TRADUCTION ---
+const I18N = {
+  fr: {
+    subtitle: "Tableau de bord",
+    hero_title: "📊 Vue d'ensemble",
+    hero_sub: "Tous tes indicateurs clés en temps réel.",
+    btn_actualiser: "🔄 Actualiser",
+    btn_diagnostic: "🩺 Diagnostic",
+    btn_sauvegarder: "💾 Sauvegarder",
+    sec_commercial: "Commercial",
+    sec_commercial_sub: "Ventes, clients, devis",
+    sec_marges: "Marges",
+    sec_marges_sub: "Le vrai chiffre",
+    sec_flux: "Flux",
+    sec_flux_sub: "Trésorerie, stock, banque",
+    sec_pilotage: "Pilotage",
+    sec_pilotage_sub: "Rappels et objectifs",
+    sec_finance: "Finance",
+    sec_finance_sub: "Comptabilité, RH, sauvegarde",
+    sec_marketing: "Marketing",
+    sec_marketing_sub: "Prospects, campagnes, relances",
+    // KPI
+    kpi_ca_total: "Chiffre d'affaires total",
+    kpi_ca_mois: "CA ce mois-ci",
+    kpi_ventes: "Ventes enregistrées",
+    kpi_clients: "Clients",
+    kpi_devis: "Devis en cours",
+    a_convertir: "À convertir",
+    kpi_achats: "Dépenses achats",
+    kpi_marge_jour: "Marge du jour",
+    kpi_marge_jour_sub: "CA - Charges - Coût",
+    kpi_marge_mois: "Marge ce mois",
+    kpi_marge_mois_sub: "Bénéfice réel",
+    kpi_cout_matiere: "Coût matière",
+    kpi_cout_matiere_sub: "Produits vendus",
+    kpi_valeur_stock: "Valeur du stock",
+    kpi_valeur_stock_sub: "Argent immobilisé",
+    kpi_treso: "Solde trésorerie",
+    kpi_treso_sub: "Espèces + banque",
+    kpi_banque: "Solde bancaire",
+    kpi_banque_sub: "Tous comptes",
+    kpi_produits: "Produits en catalogue",
+    kpi_ruptures: "Produits en rupture",
+    kpi_rappels: "Rappels actifs",
+    kpi_rappels_retard: "Rappels en retard",
+    kpi_objectifs: "Objectifs actifs",
+    kpi_objectifs_ok: "Objectifs atteints",
+    kpi_ecritures: "Écritures comptables",
+    kpi_equipe: "Membres d'équipe",
+    kpi_masse: "Masse salariale / mois",
+    kpi_backup: "Dernière sauvegarde",
+    kpi_prospects: "Prospects actifs",
+    kpi_convertis: "Prospects convertis",
+    kpi_campagnes: "Campagnes actives",
+    kpi_relances: "Relances à faire",
+    footer_version: "Tableau de bord · Version 1.2 · Actualisé à",
+    // Statuts dynamiques
+    solde_pos: "Solde positif",
+    solde_neg: "⚠️ Solde négatif",
+    comptes: "compte(s)",
+    sav_jamais: "Jamais",
+    sav_aujourdhui: "Aujourd'hui",
+    sav_hier: "Hier",
+    sav_il_y_a: "Il y a {j} j",
+    devis_acceptes: "{n} accepté(s) à convertir"
+  },
+  tn: {
+    subtitle: "لوحة القيادة",
+    hero_title: "📊 نظرة عامة",
+    hero_sub: "الكل الأرقام المهمة متاعك في وقت واحد.",
+    btn_actualiser: "🔄 حدّث",
+    btn_diagnostic: "🩺 تشخيص",
+    btn_sauvegarder: "💾 سوفغارد",
+    sec_commercial: "التجاري",
+    sec_commercial_sub: "البيوع، الكلين، الدفيس",
+    sec_marges: "الربح",
+    sec_marges_sub: "الرقم الحقيقي",
+    sec_flux: "الفلوس",
+    sec_flux_sub: "الكاش، الستوك، البانكة",
+    sec_pilotage: "القيادة",
+    sec_pilotage_sub: "الفكرني والأهداف",
+    sec_finance: "المحاسبة",
+    sec_finance_sub: "المحاسبة، الموارد البشرية، السوفغارد",
+    sec_marketing: "التسويق",
+    sec_marketing_sub: "الكلين الجدد، الحملات، المتابعة",
+    // KPI
+    kpi_ca_total: "المدخول الكلي",
+    kpi_ca_mois: "مدخول هذا الشهر",
+    kpi_ventes: "البيوع المسجلة",
+    kpi_clients: "الكلين",
+    kpi_devis: "الدفيس في الانتظار",
+    a_convertir: "لازم يتحول لبيعة",
+    kpi_achats: "مصاريف الشراء",
+    kpi_marge_jour: "ربح اليوم",
+    kpi_marge_jour_sub: "مدخول - مصاريف - كلفة",
+    kpi_marge_mois: "ربح الشهر",
+    kpi_marge_mois_sub: "الربح الحقيقي",
+    kpi_cout_matiere: "كلفة السلعة",
+    kpi_cout_matiere_sub: "المنتوجات اللي تبيعت",
+    kpi_valeur_stock: "قيمة الستوك",
+    kpi_valeur_stock_sub: "فلوس موقفة",
+    kpi_treso: "رصيد الكاش",
+    kpi_treso_sub: "كاش + بانكة",
+    kpi_banque: "رصيد البانكة",
+    kpi_banque_sub: "الكل الحسابات",
+    kpi_produits: "المنتوجات في الكاتالوغ",
+    kpi_ruptures: "منتوجات وفات",
+    kpi_rappels: "الفكرني النشيطين",
+    kpi_rappels_retard: "فكرني متأخرين",
+    kpi_objectifs: "الأهداف النشيطة",
+    kpi_objectifs_ok: "أهداف تحققت",
+    kpi_ecritures: "القيود المحاسبية",
+    kpi_equipe: "أعضاء الفريق",
+    kpi_masse: "كتلة الأجور / شهر",
+    kpi_backup: "آخر سوفغارد",
+    kpi_prospects: "الكلين الجدد النشيطين",
+    kpi_convertis: "ولاو كلين",
+    kpi_campagnes: "الحملات النشيطة",
+    kpi_relances: "متابعات لازم تتعمل",
+    footer_version: "لوحة القيادة · نسخة 1.2 · تحدثت في",
+    // Statuts dynamiques
+    solde_pos: "الرصيد إيجابي",
+    solde_neg: "⚠️ الرصيد سلبي",
+    comptes: "حساب",
+    sav_jamais: "ما صارش",
+    sav_aujourdhui: "اليوم",
+    sav_hier: "البارح",
+    sav_il_y_a: "من {j} أيام",
+    devis_acceptes: "{n} مقبولين لازم يتحولو لبيعة"
+  }
+};
+
+let currentLang = BIPE.storage.get('bipe_langue') || 'fr';
+
+function setLang(lang) {
+  currentLang = lang;
+  BIPE.storage.set('bipe_langue', lang);
+  
+  document.getElementById('btn-lang-fr').classList.toggle('active', lang === 'fr');
+  document.getElementById('btn-lang-tn').classList.toggle('active', lang === 'tn');
+  
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if(I18N[lang][key]) el.innerHTML = I18N[lang][key];
+  });
+
+  // Recalculer les KPI pour appliquer les textes dynamiques (solde, backup, etc.)
+  init();
+}
+
+function t(key, vars = {}) {
+  let text = I18N[currentLang][key] || key;
+  for(const k in vars) {
+    text = text.replace(`{${k}}`, vars[k]);
+  }
+  return text;
+}
+
+/* ---------- Helpers ---------- */
+function getData(key){ return BIPE.storage.get(key, []) || []; }
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function currentMonth(){
+  const d = new Date();
+  return { year: d.getFullYear(), month: d.getMonth() };
+}
+function estDansMoisEnCours(dateStr){
+  if(!dateStr) return false;
+  const d = new Date(dateStr);
+  const now = currentMonth();
+  return d.getFullYear() === now.year && d.getMonth() === now.month;
+}
+function reload(){ window.location.reload(); }
+
+/* ---------- Calculs ---------- */
+function calcCommercial(){
+  const ventes = getData(BIPE.KEYS.ventes);
+  const clients = getData(BIPE.KEYS.clients);
+  const devis = getData(BIPE.KEYS.devis);
+  const achats = getData(BIPE.KEYS.achats);
+
+  const ca = ventes.reduce((s, v) => s + (Number(v.montant) || 0), 0);
+  const caMois = ventes.filter(v => estDansMoisEnCours(v.date)).reduce((s, v) => s + (Number(v.montant) || 0), 0);
+  const depensesAchats = achats.reduce((s, a) => s + (Number(a.montant) || 0), 0);
+
+  const devisEnCours = devis.filter(d => d.statut !== 'converti' && d.statut !== 'refuse').length;
+  const devisAcceptes = devis.filter(d => d.statut === 'accepte').length;
+
+  document.getElementById('kpiCA').innerHTML = BIPE.fmt(ca) + ' <small>DT</small>';
+  document.getElementById('kpiCAMois').innerHTML = BIPE.fmt(caMois) + ' <small>DT</small>';
+  document.getElementById('kpiVentes').textContent = ventes.length;
+  document.getElementById('kpiClients').textContent = clients.length;
+  document.getElementById('kpiDevis').textContent = devisEnCours;
+  
+  document.getElementById('kpiDevisSub').textContent = devisAcceptes > 0
+    ? t('devis_acceptes', {n: devisAcceptes})
+    : t('a_convertir');
+
+  document.getElementById('kpiAchats').innerHTML = BIPE.fmt(depensesAchats) + ' <small>DT</small>';
+
+  if(devisAcceptes > 0){
+    document.getElementById('kpiDevisCard').classList.add('warn');
+  }
+}
+
+function getPid(m){ return m.produitId || m.produit || m.produit_id || m.id_produit || ('nom:' + (m.nom || '')); }
+function isEntree(m){
+  const t = (m.type || m.sens || '').toLowerCase();
+  return t === 'entree' || t === 'entrée' || t === 'in' || t === 'achat';
+}
+function isSortie(m){
+  const t = (m.type || m.sens || '').toLowerCase();
+  return t === 'sortie' || t === 'out' || t === 'vente';
+}
+
+function getPrixAchatMoyenParProduit(achats){
+  const map = new Map();
+  achats.forEach(a => {
+    const pid = a.produitId || ('nom:' + (a.produitNom || '').toLowerCase().trim());
+    const qte = Number(a.quantite) || 0;
+    const prix = Number(a.prix) || 0;
+    if(qte <= 0 || prix <= 0) return;
+    if(!map.has(pid)) map.set(pid, { nom: a.produitNom || pid, totalQte: 0, totalVal: 0 });
+    const p = map.get(pid);
+    p.totalQte += qte;
+    p.totalVal += qte * prix;
+  });
+  const res = new Map();
+  map.forEach((v, pid) => res.set(pid, { nom: v.nom, prixAchatMoyen: v.totalQte > 0 ? v.totalVal / v.totalQte : 0 }));
+  return res;
+}
+
+function getPrixAchatPourProduit(produitId, produitNom, map){
+  if(produitId && map.has(produitId)) return map.get(produitId).prixAchatMoyen;
+  if(produitNom){
+    const nomTrim = produitNom.toLowerCase().trim();
+    const nomKey = 'nom:' + nomTrim;
+    if(map.has(nomKey)) return map.get(nomKey).prixAchatMoyen;
+    for(const [pid, data] of map.entries()){
+      if((data.nom || '').toLowerCase().trim() === nomTrim) return data.prixAchatMoyen;
+    }
+  }
+  return 0;
+}
+
+function calcCoutMatiere(ventes, achats, dateDebutISO = null, dateFinISO = null){
+  const prixAchatMap = getPrixAchatMoyenParProduit(achats);
+  let total = 0;
+  ventes.forEach(v => {
+    const vd = v.date || v.createdAt || '';
+    if(dateDebutISO && dateFinISO){
+      const d = new Date(vd).toISOString().slice(0,10);
+      if(d < dateDebutISO || d > dateFinISO) return;
+    }
+    const qte = Number(v.quantite) || 0;
+    const px = getPrixAchatPourProduit(v.produitId, v.produitNom, prixAchatMap);
+    total += qte * px;
+  });
+  return total;
+}
+
+function calcValeurStock(stock, achats){
+  const prixAchatMap = getPrixAchatMoyenParProduit(achats);
+  const stockMap = new Map();
+  stock.forEach(m => {
+    const pid = getPid(m);
+    const qte = Number(m.quantite) || Number(m.qte) || 0;
+    if(!stockMap.has(pid)) stockMap.set(pid, { nom: m.nom || pid, qte: 0 });
+    const p = stockMap.get(pid);
+    if(isEntree(m)) p.qte += qte;
+    else if(isSortie(m)) p.qte -= qte;
+  });
+  let total = 0;
+  stockMap.forEach((v, pid) => {
+    if(v.qte > 0){
+      const px = getPrixAchatPourProduit(pid, v.nom, prixAchatMap);
+      total += v.qte * px;
+    }
+  });
+  return total;
+}
+
+function calcMarges(){
+  const ventes = getData(BIPE.KEYS.ventes);
+  const achats = getData(BIPE.KEYS.achats);
+  const charges = getData(BIPE.KEYS.charges);
+  const stock = getData(BIPE.KEYS.stock);
+
+  const now = new Date();
+  const today = todayISO();
+  const d1 = new Date(now.getFullYear(), now.getMonth(), 1);
+  const d2 = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  const debutMois = d1.toISOString().slice(0,10);
+  const finMois = d2.toISOString().slice(0,10);
+
+  let chargesFixesMois = 0;
+  charges.forEach(c => {
+    const d = new Date(c.date || c.createdAt || '');
+    if(!isNaN(d) && d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()){
+      chargesFixesMois += (Number(c.montant) || 0);
+    }
+  });
+  const chargesFixesJour = chargesFixesMois / 30;
+
+  let caJour = 0, caMois = 0;
+  ventes.forEach(v => {
+    const vd = v.date || v.createdAt || '';
+    const ds = new Date(vd).toISOString().slice(0,10);
+    const m = Number(v.montant) || 0;
+    if(ds === today) caJour += m;
+    if(ds >= debutMois && ds <= finMois) caMois += m;
+  });
+
+  const coutMatiereJour = calcCoutMatiere(ventes, achats, today, today);
+  const coutMatiereMois = calcCoutMatiere(ventes, achats, debutMois, finMois);
+
+  const margeJour = caJour - chargesFixesJour - coutMatiereJour;
+  const margeMois = caMois - chargesFixesMois - coutMatiereMois;
+  const valeurStock = calcValeurStock(stock, achats);
+
+  document.getElementById('kpiMargeJour').innerHTML = BIPE.fmt(margeJour) + ' <small>DT</small>';
+  document.getElementById('kpiMargeMois').innerHTML = BIPE.fmt(margeMois) + ' <small>DT</small>';
+  document.getElementById('kpiCoutMatiereMois').innerHTML = BIPE.fmt(coutMatiereMois) + ' <small>DT</small>';
+  document.getElementById('kpiValeurStock').innerHTML = BIPE.fmt(valeurStock) + ' <small>DT</small>';
+
+  const cardJour = document.getElementById('kpiMargeJourCard');
+  const cardMois = document.getElementById('kpiMargeMoisCard');
+  if(margeJour > 0) cardJour.classList.add('ok');
+  else if(margeJour < 0) cardJour.classList.add('bad');
+  if(margeMois > 0) cardMois.classList.add('ok');
+  else if(margeMois < 0) cardMois.classList.add('bad');
+}
+
+function calcFlux(){
+  const tresorerie = getData(BIPE.KEYS.tresorerie);
+  const banque = getData(BIPE.KEYS.banque);
+  const stock = getData(BIPE.KEYS.stock);
+
+  const entreesTreso = tresorerie.filter(m => m.sens === 'entree').reduce((s, m) => s + (Number(m.montant) || 0), 0);
+  const sortiesTreso = tresorerie.filter(m => m.sens === 'sortie').reduce((s, m) => s + (Number(m.montant) || 0), 0);
+  const soldeTreso = entreesTreso - sortiesTreso;
+
+  const comptes = banque.filter(b => b.type === 'compte');
+  const mouvements = banque.filter(b => b.type === 'mouvement');
+  const soldeBanque = comptes.reduce((s, c) => s + (Number(c.soldeInitial) || 0), 0)
+    + mouvements.reduce((s, m) => s + (m.sens === 'credit' ? (Number(m.montant) || 0) : -(Number(m.montant) || 0)), 0);
+
+  const produitsMap = new Map();
+  stock.forEach(m => {
+    const pid = getPid(m);
+    if(!pid) return;
+    if(!produitsMap.has(pid)) produitsMap.set(pid, { nom: m.nom || m.produit || pid });
+  });
+
+  const produits = Array.from(produitsMap.entries()).map(([pid, info]) => {
+    const dispo = stock.filter(m => getPid(m) === pid).reduce((s, m) => {
+        const qte = Number(m.quantite) || Number(m.qte) || 0;
+        if(isEntree(m)) return s + qte;
+        if(isSortie(m)) return s - qte;
+        return s;
+      }, 0);
+    return { ...info, stock: dispo };
+  });
+
+  const ruptures = produits.filter(p => p.stock <= 0).length;
+
+  document.getElementById('kpiTreso').innerHTML = BIPE.fmt(soldeTreso) + ' <small>DT</small>';
+  document.getElementById('kpiTresoSub').textContent = soldeTreso >= 0 ? t('solde_pos') : t('solde_neg');
+  document.getElementById('kpiBanque').innerHTML = BIPE.fmt(soldeBanque) + ' <small>DT</small>';
+  document.getElementById('kpiBanqueSub').textContent = comptes.length + ' ' + t('comptes');
+  document.getElementById('kpiProduits').textContent = produits.length;
+  document.getElementById('kpiRuptures').textContent = ruptures;
+
+  if(soldeTreso < 0) document.getElementById('kpiTresoCard').classList.add('bad');
+  else if(soldeTreso > 0) document.getElementById('kpiTresoCard').classList.add('ok');
+
+  if(ruptures > 0) document.getElementById('kpiRuptureCard').classList.add('warn');
+}
+
+function calcPilotage(){
+  const rappels = getData(BIPE.KEYS.rappels);
+  const objectifs = getData(BIPE.KEYS.objectifs);
+
+  const rappelsActifs = rappels.filter(r => !r.fait);
+  const rappelsRetard = rappelsActifs.filter(r => r.date && r.date < todayISO());
+
+  const ventes = getData(BIPE.KEYS.ventes);
+  const clients = getData(BIPE.KEYS.clients);
+
+  function estDansPeriode(dateStr, periode){
+    if(!dateStr) return false;
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    let debut, fin;
+
+    if(periode === 'mois'){
+      debut = new Date(year, month, 1);
+      fin = new Date(year, month + 1, 0);
+    } else if(periode === 'trimestre'){
+      const trimestre = Math.floor(month / 3);
+      debut = new Date(year, trimestre * 3, 1);
+      fin = new Date(year, trimestre * 3 + 3, 0);
+    } else {
+      debut = new Date(year, 0, 1);
+      fin = new Date(year, 11, 31);
+    }
+    const d = new Date(dateStr);
+    return d >= debut && d <= fin;
+  }
+
+  let objAtteints = 0;
+  objectifs.forEach(o => {
+    let actuel = 0;
+    if(o.type === 'ca') actuel = ventes.filter(v => estDansPeriode(v.date, o.periode)).reduce((s, v) => s + (Number(v.montant) || 0), 0);
+    else if(o.type === 'ventes') actuel = ventes.filter(v => estDansPeriode(v.date, o.periode)).length;
+    else if(o.type === 'clients') actuel = clients.filter(c => estDansPeriode(c.createdAt, o.periode)).length;
+    if(actuel >= (Number(o.cible) || 1)) objAtteints++;
+  });
+
+  document.getElementById('kpiRappels').textContent = rappelsActifs.length;
+  document.getElementById('kpiRappelsRetard').textContent = rappelsRetard.length;
+  document.getElementById('kpiObjectifs').textContent = objectifs.length;
+  document.getElementById('kpiObjectifsOk').textContent = objAtteints;
+
+  if(rappelsRetard.length > 0) document.getElementById('kpiRappelsRetardCard').classList.add('bad');
+  if(objAtteints > 0) document.getElementById('kpiObjectifsOkCard').classList.add('bon');
+}
+
+function calcFinance(){
+  const compta = getData(BIPE.KEYS.compta);
+  const rh = getData(BIPE.KEYS.rh);
+
+  const actifs = rh.filter(m => m.statut !== 'inactif');
+  const masse = actifs.reduce((s, m) => s + (Number(m.salaire) || 0), 0);
+
+  document.getElementById('kpiEcritures').textContent = compta.length;
+  document.getElementById('kpiEquipe').textContent = actifs.length;
+  document.getElementById('kpiMasse').innerHTML = BIPE.fmt(masse) + ' <small>DT</small>';
+
+  const lastBackup = BIPE.storage.get(BIPE.KEYS.lastBackup);
+  let backupText = '—';
+  let backupCls = '';
+
+  if(lastBackup){
+    const date = new Date(lastBackup);
+    const diff = Math.round((new Date() - date) / 86400000);
+    if(diff === 0) backupText = t('sav_aujourdhui');
+    else if(diff === 1) backupText = t('sav_hier');
+    else if(diff <= 7) backupText = t('sav_il_y_a', {j: diff});
+    else backupText = `⚠️ ${diff} j`;
+
+    if(diff > 7) backupCls = 'bad';
+    else if(diff > 1) backupCls = 'warn';
+    else backupCls = 'ok';
+  } else {
+    backupText = t('sav_jamais');
+    backupCls = 'bad';
+  }
+
+  document.getElementById('kpiBackup').textContent = backupText;
+  const card = document.getElementById('kpiBackupCard');
+  if(backupCls) card.classList.add(backupCls);
+}
+
+function calcMarketing(){
+  const prospects = getData(BIPE.KEYS.prospects);
+  const campagnes = getData(BIPE.KEYS.campagnes);
+  const relances = getData(BIPE.KEYS.relances);
+
+  const prospectsActifs = prospects.filter(p => p.statut === 'nouveau' || p.statut === 'en_cours').length;
+  const convertis = prospects.filter(p => p.statut === 'converti').length;
+  const campagnesActives = campagnes.filter(c => c.statut === 'active').length;
+  const relancesAFaire = relances.filter(r => !r.fait).length;
+
+  document.getElementById('kpiProspects').textContent = prospectsActifs;
+  document.getElementById('kpiConvertis').textContent = convertis;
+  document.getElementById('kpiCampagnes').textContent = campagnesActives;
+  document.getElementById('kpiRelances').textContent = relancesAFaire;
+
+  if(convertis > 0) document.getElementById('kpiConvertiCard').classList.add('bon');
+  if(relancesAFaire > 0) document.getElementById('kpiRelancesCard').classList.add('warn');
+}
+
+/* ---------- Init ---------- */
+function init(){
+  try {
+    calcCommercial();
+    calcMarges();
+    calcFlux();
+    calcPilotage();
+    calcFinance();
+    calcMarketing();
+
+    document.getElementById('lastUpdate').textContent =
+      new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  } catch(e){
+    console.error('Dashboard error:', e);
+    BIPE.toast('⚠ Erreur de chargement du tableau de bord', true);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  setLang(currentLang);
+});
+</script>
+</body>
+</html>

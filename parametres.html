@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>B!PE by MCE — Paramètres</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="shared.js"></script>
+<style>
+  :root{
+    --black:#000000;
+    --black-2:#0a0a0a;
+    --black-3:#141414;
+    --line:#2a2a2a;
+    --line-soft:#1f1f1f;
+    --gold:#d4af37;
+    --gold-bright:#f0d060;
+    --gold-soft:#e8c96a;
+    --gold-dim:#8a7433;
+    --gold-deep:#5a4a1f;
+    --txt:#f5f0e1;
+    --txt-muted:#9a9384;
+    --txt-dim:#5a564e;
+    --ok:#6b9a5a;
+    --warn:#c9a040;
+    --bad:#b84040;
+    --info:#7cc4e8;
+    --radius:16px;
+    --radius-sm:12px;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+
+  html,body{height:100%;overscroll-behavior:none}
+
+  body{
+    font-family:'Baloo Bhaijaan 2', -apple-system, "Segoe UI", sans-serif;
+    background:var(--black);
+    color:var(--txt);
+    line-height:1.6;
+    font-weight:500;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(212,175,55,.04) 0%, transparent 60%);
+    background-attachment:fixed;
+  }
+
+  .app{
+    max-width:min(1100px, 92vw);
+    margin:0 auto;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    padding-bottom:clamp(24px, 4vw, 40px);
+  }
+
+  /* ===== HEADER ===== */
+  .header{
+    position:sticky;
+    top:0;
+    z-index:50;
+    background:rgba(0,0,0,.92);
+    backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--line-soft);
+    padding:clamp(12px, 2vw, 16px) clamp(16px, 3vw, 20px);
+    display:flex;
+    align-items:center;
+    gap:clamp(8px, 1.5vw, 16px);
+  }
+  .header .back{
+    width:clamp(40px, 6vw, 48px);
+    height:clamp(40px, 6vw, 48px);
+    border-radius:14px;
+    background:var(--black-3);
+    border:1px solid var(--line);
+    color:var(--gold-soft);
+    font-size:clamp(1.2rem, 2vw, 1.6rem);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    flex-shrink:0;
+    text-decoration:none;
+    transition:transform .15s;
+  }
+  .header .back:active{transform:scale(.92)}
+  .header .title-block{flex:1; min-width:0;}
+  .header .logo{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(1.4rem, 3vw, 1.8rem);
+    font-weight:700;
+    color:#f0d060;
+    line-height:1.2;
+    letter-spacing:.02em;
+  }
+  .header .logo .b,
+  .header .logo .pe{color:var(--txt);}
+  .header .logo .excl{
+    color:var(--gold);
+    font-size:1.3em;
+    vertical-align:middle;
+    text-shadow:0 0 20px rgba(212,175,55,.5);
+  }
+  .header .subtitle{
+    font-size:clamp(.6rem, 1vw, .7rem);
+    color:var(--txt-muted);
+    font-weight:600;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+  }
+  .header .menu{
+    width:clamp(40px, 6vw, 48px);
+    height:clamp(40px, 6vw, 48px);
+    border-radius:14px;
+    background:var(--black-3);
+    border:1px solid var(--line);
+    color:var(--gold-soft);
+    font-size:clamp(1.1rem, 2vw, 1.4rem);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    flex-shrink:0;
+    transition:transform .15s;
+  }
+  .header .menu:active{transform:scale(.92)}
+
+  /* ===== CONTENT ===== */
+  .content{
+    flex:1;
+    padding:clamp(16px, 3vw, 24px) clamp(16px, 3vw, 20px);
+  }
+
+  /* ===== TABS ===== */
+  .tabs{
+    display:flex;
+    gap:6px;
+    background:var(--black-3);
+    border:2px solid var(--line);
+    border-radius:999px;
+    padding:5px;
+    margin-bottom:clamp(18px, 3vw, 24px);
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{
+    flex:1;
+    padding:clamp(10px, 1.5vw, 12px) clamp(10px, 1.8vw, 16px);
+    border-radius:999px;
+    background:transparent;
+    border:none;
+    color:var(--txt-muted);
+    font-family:'Baloo Bhaijaan 2', sans-serif;
+    font-size:clamp(.78rem, 1vw, .95rem);
+    font-weight:700;
+    cursor:pointer;
+    transition:all .2s;
+    white-space:nowrap;
+  }
+  .tab.active{
+    background:linear-gradient(180deg, var(--gold-soft), var(--gold));
+    color:#0a0a0a;
+  }
+  .tab:hover:not(.active){
+    color:var(--gold-soft);
+  }
+
+  /* ===== CARD ===== */
+  .card{
+    background:var(--black-2);
+    border:2px solid var(--line);
+    border-radius:var(--radius);
+    padding:clamp(18px, 3vw, 28px);
+    margin-bottom:clamp(14px, 2vw, 20px);
+  }
+  .card h2{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(1.1rem, 1.8vw, 1.4rem);
+    font-weight:700;
+    color:var(--gold-soft);
+    margin-bottom:clamp(14px, 2vw, 20px);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+
+  /* ===== FORM ===== */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(clamp(180px, 28vw, 240px), 1fr));
+    gap:clamp(10px, 2vw, 16px);
+  }
+  .field{
+    margin-bottom:clamp(12px, 2vw, 16px);
+  }
+  .field.full{
+    grid-column:1/-1;
+  }
+  label{
+    display:block;
+    font-size:clamp(.8rem, 1vw, .92rem);
+    color:var(--txt-muted);
+    margin-bottom:6px;
+    font-weight:600;
+  }
+  input, select, textarea{
+    width:100%;
+    padding:clamp(11px, 1.5vw, 14px) clamp(13px, 1.8vw, 16px);
+    border-radius:var(--radius-sm);
+    border:2px solid var(--line);
+    background:var(--black-3);
+    color:var(--txt);
+    font-size:clamp(.88rem, 1.1vw, 1rem);
+    font-family:'Baloo Bhaijaan 2', sans-serif;
+    font-weight:500;
+    transition:all .2s;
+  }
+  input:focus, select:focus, textarea:focus{
+    outline:none;
+    border-color:var(--gold);
+    box-shadow:0 0 0 4px rgba(212,175,55,.12);
+  }
+  input::placeholder, textarea::placeholder{color:var(--txt-dim);}
+  textarea{resize:vertical; min-height:60px;}
+
+  /* ===== LOGO ===== */
+  .logo-upload{
+    display:flex;
+    gap:clamp(14px, 2vw, 20px);
+    align-items:flex-start;
+    flex-wrap:wrap;
+  }
+  .logo-preview{
+    width:clamp(80px, 12vw, 120px);
+    height:clamp(80px, 12vw, 120px);
+    border-radius:12px;
+    border:2px dashed var(--line);
+    background:var(--black-3);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--txt-muted);
+    font-size:clamp(.7rem, .9vw, .75rem);
+    text-align:center;
+    overflow:hidden;
+    flex-shrink:0;
+  }
+  .logo-preview img{
+    max-width:100%;
+    max-height:100%;
+    object-fit:contain;
+  }
+  .logo-upload .upload-zone{
+    flex:1;
+    min-width:200px;
+  }
+
+  /* ===== BOUTON ===== */
+  .btn-gold{
+    width:100%;
+    padding:clamp(14px, 1.8vw, 18px);
+    border-radius:999px;
+    background:linear-gradient(180deg, var(--gold-soft), var(--gold));
+    color:#0a0a0a;
+    border:none;
+    font-family:'Baloo Bhaijaan 2', sans-serif;
+    font-size:clamp(1rem, 1.2vw, 1.15rem);
+    font-weight:700;
+    cursor:pointer;
+    transition:all .2s;
+    margin-top:clamp(8px, 1.5vw, 12px);
+    box-shadow:0 4px 16px rgba(212,175,55,.25);
+  }
+  .btn-gold:hover{filter:brightness(1.08); transform:translateY(-2px);}
+  .btn-gold:active{transform:scale(.98);}
+
+  .btn-sec{
+    padding:clamp(10px, 1.5vw, 12px) clamp(16px, 2vw, 20px);
+    border-radius:999px;
+    background:var(--black-3);
+    border:2px solid var(--line);
+    color:var(--txt);
+    font-family:'Baloo Bhaijaan 2', sans-serif;
+    font-size:clamp(.85rem, 1vw, .95rem);
+    font-weight:600;
+    cursor:pointer;
+    transition:all .2s;
+  }
+  .btn-sec:hover{border-color:var(--gold);}
+  .btn-sec:active{transform:scale(.97);}
+
+  .btn-bad{
+    padding:clamp(10px, 1.5vw, 12px) clamp(16px, 2vw, 20px);
+    border-radius:999px;
+    background:transparent;
+    border:2px solid var(--bad);
+    color:var(--bad);
+    font-family:'Baloo Bhaijaan 2', sans-serif;
+    font-size:clamp(.85rem, 1vw, .95rem);
+    font-weight:600;
+    cursor:pointer;
+    transition:all .2s;
+  }
+  .btn-bad:hover{background:var(--bad); color:#fff;}
+
+  /* ===== INFO BOX ===== */
+  .info-box{
+    background:rgba(124,196,232,.06);
+    border:1px solid var(--info);
+    border-radius:12px;
+    padding:clamp(12px, 1.5vw, 14px) clamp(14px, 2vw, 18px);
+    font-size:clamp(.78rem, .95vw, .85rem);
+    color:var(--info);
+    line-height:1.6;
+    margin-bottom:clamp(14px, 2vw, 18px);
+  }
+
+  /* ===== WARNBOX ===== */
+  .warnbox{
+    background:rgba(201,160,64,.08);
+    border:2px solid var(--warn);
+    border-radius:12px;
+    padding:clamp(12px, 1.5vw, 14px) clamp(14px, 2vw, 18px);
+    font-size:clamp(.78rem, .95vw, .85rem);
+    color:var(--warn);
+    line-height:1.6;
+    margin-bottom:clamp(14px, 2vw, 18px);
+  }
+
+  /* ===== SECTION DESCRIPTION ===== */
+  .section-desc{
+    font-size:clamp(.78rem, .95vw, .85rem);
+    color:var(--txt-muted);
+    margin-bottom:clamp(12px, 2vw, 16px);
+    font-style:italic;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width:600px){
+    .tabs{overflow-x:auto;}
+  }
+</style>
+</head>
+<body data-groupe="structure">
+
+<div class="app">
+
+  <!-- ===== HEADER ===== -->
+  <div class="header">
+    <a href="index.html" class="back">←</a>
+    <div class="title-block">
+      <div class="logo">
+        <span class="b">B</span><span class="excl">!</span><span class="pe">PE</span>
+      </div>
+      <div class="subtitle">Paramètres</div>
+    </div>
+    <button class="menu" onclick="BIPE.openMenu()">⋮</button>
+  </div>
+
+  <!-- ===== CONTENT ===== -->
+  <div class="content">
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab active" data-tab="societe" onclick="switchTab('societe')">Société</button>
+      <button class="tab" data-tab="defauts" onclick="switchTab('defauts')">Valeurs par défaut</button>
+      <button class="tab" data-tab="numerotation" onclick="switchTab('numerotation')">Numérotation</button>
+    </div>
+
+    <!-- ===== ONGLET SOCIÉTÉ ===== -->
+    <div id="view-societe">
+
+      <div class="card">
+        <h2>🏢 Identité de la société</h2>
+        <p class="section-desc">Ces informations apparaissent sur les factures, devis, bons et reçus générés par B!PE.</p>
+
+        <div class="grid">
+          <div class="field full">
+            <label>Nom de la société *</label>
+            <input id="nom" placeholder="Ex : Ma Société SARL">
+          </div>
+          <div class="field">
+            <label>Matricule fiscal</label>
+            <input id="matricule" placeholder="Ex : 1234567/A/M/000">
+          </div>
+          <div class="field">
+            <label>Devise</label>
+            <input id="devise" placeholder="DT" maxlength="5">
+          </div>
+          <div class="field full">
+            <label>Adresse</label>
+            <input id="adresse" placeholder="Ex : 12 rue de la Liberté, Tunis">
+          </div>
+          <div class="field">
+            <label>Téléphone</label>
+            <input id="tel" placeholder="Ex : +216 71 000 000">
+          </div>
+          <div class="field">
+            <label>Email</label>
+            <input type="email" id="email" placeholder="contact@societe.tn">
+          </div>
+          <div class="field full">
+            <label>Site web</label>
+            <input id="site" placeholder="www.societe.tn">
+          </div>
+        </div>
+
+        <h2 style="margin-top:24px">🖼 Logo</h2>
+        <div class="logo-upload">
+          <div class="logo-preview" id="logoPreview">Aucun logo</div>
+          <div class="upload-zone">
+            <label>Charger un logo (PNG, JPG, SVG — max 500 Ko)</label>
+            <input type="file" id="logoFile" accept="image/*" onchange="chargerLogo(event)">
+            <div style="margin-top:10px;">
+              <button class="btn-sec" onclick="supprimerLogo()">🗑 Supprimer le logo</button>
+            </div>
+            <p style="font-size:.78rem;color:var(--txt-muted);margin-top:10px;">
+              Le logo est stocké en base64 dans le navigateur. Il n'est jamais envoyé sur un serveur.
+            </p>
+          </div>
+        </div>
+
+        <div class="actions" style="margin-top:20px;">
+          <button class="btn-gold" onclick="saveSociete()">💾 Enregistrer la société</button>
+          <button class="btn-sec" onclick="chargerSociete()">↺ Annuler</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ===== ONGLET DÉFAUTS ===== -->
+    <div id="view-defauts" style="display:none">
+
+      <div class="card">
+        <h2>💰 Valeurs par défaut</h2>
+        <p class="section-desc">Ces valeurs sont pré-remplies dans les formulaires de vente, d'achat et de comptabilité.</p>
+
+        <div class="grid">
+          <div class="field">
+            <label>Taux de TVA par défaut (%)</label>
+            <input type="number" id="tvaDefaut" min="0" max="100" step="0.1" placeholder="19">
+          </div>
+          <div class="field">
+            <label>Devise par défaut</label>
+            <input id="deviseDefaut" placeholder="DT" maxlength="5">
+          </div>
+          <div class="field">
+            <label>Conditions de paiement (jours)</label>
+            <input type="number" id="delaiPaiement" min="0" step="1" placeholder="30">
+          </div>
+          <div class="field">
+            <label>Mode de règlement par défaut</label>
+            <select id="modeDefaut">
+              <option value="Espèces">Espèces</option>
+              <option value="Chèque">Chèque</option>
+              <option value="Virement">Virement</option>
+              <option value="Crédit">Crédit</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="actions" style="margin-top:20px;">
+          <button class="btn-gold" onclick="saveDefauts()">💾 Enregistrer les valeurs par défaut</button>
+          <button class="btn-sec" onclick="chargerDefauts()">↺ Annuler</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ===== ONGLET NUMÉROTATION ===== -->
+    <div id="view-numerotation" style="display:none">
+
+      <div class="card">
+        <h2>🔢 Numérotation des documents</h2>
+        <p class="section-desc">Les préfixes sont utilisés dans le générateur de documents. Le compteur s'incrémente à chaque génération.</p>
+
+        <div class="grid">
+          <div class="field">
+            <label>Préfixe factures</label>
+            <input id="prefixFacture" placeholder="FAC" maxlength="10">
+          </div>
+          <div class="field">
+            <label>Préfixe devis</label>
+            <input id="prefixDevis" placeholder="DEV" maxlength="10">
+          </div>
+          <div class="field">
+            <label>Préfixe bons de livraison</label>
+            <input id="prefixBon" placeholder="BL" maxlength="10">
+          </div>
+          <div class="field">
+            <label>Préfixe reçus</label>
+            <input id="prefixRecu" placeholder="REC" maxlength="10">
+          </div>
+          <div class="field">
+            <label>Compteur facture actuel</label>
+            <input type="number" id="compteurFacture" min="0" step="1" placeholder="1">
+          </div>
+        </div>
+
+        <div class="info-box">
+          💡 <b>Exemple :</b> avec le préfixe <b>FAC</b> et le compteur <b>5</b>, la prochaine facture sera <b>FAC-2026-005</b>.
+        </div>
+
+        <div class="actions" style="margin-top:20px;">
+          <button class="btn-gold" onclick="saveNumerotation()">💾 Enregistrer la numérotation</button>
+          <button class="btn-sec" onclick="chargerNumerotation()">↺ Annuler</button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   B!PE — parametres.html
+   Configuration société, TVA, devise, logo, préfixes
+   ============================================================ */
+
+/* ---------- Vérifier la session ---------- */
+if(!BIPE.checkSession()){
+  throw new Error('Session requise');
+}
+
+let params = {};
+
+/* ---------- Tabs ---------- */
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.classList.toggle('active', t.dataset.tab === tab);
+  });
+  document.getElementById('view-societe').style.display = tab === 'societe' ? 'block' : 'none';
+  document.getElementById('view-defauts').style.display = tab === 'defauts' ? 'block' : 'none';
+  document.getElementById('view-numerotation').style.display = tab === 'numerotation' ? 'block' : 'none';
+}
+
+/* ---------- Charger les paramètres ---------- */
+function chargerParams(){
+  params = BIPE.getParams();
+  chargerSociete();
+  chargerDefauts();
+  chargerNumerotation();
+}
+
+/* ---------- Charger société ---------- */
+function chargerSociete(){
+  document.getElementById('nom').value = params.nom || '';
+  document.getElementById('matricule').value = params.matricule || '';
+  document.getElementById('adresse').value = params.adresse || '';
+  document.getElementById('tel').value = params.tel || '';
+  document.getElementById('email').value = params.email || '';
+  document.getElementById('site').value = params.site || '';
+  document.getElementById('devise').value = params.devise || 'DT';
+  afficherLogo();
+}
+
+/* ---------- Enregistrer société ---------- */
+function saveSociete(){
+  const nom = document.getElementById('nom').value.trim();
+  if(!nom){
+    BIPE.toast('Le nom de la société est obligatoire', true);
+    return;
+  }
+  params.nom = nom;
+  params.matricule = document.getElementById('matricule').value.trim();
+  params.adresse = document.getElementById('adresse').value.trim();
+  params.tel = document.getElementById('tel').value.trim();
+  params.email = document.getElementById('email').value.trim();
+  params.site = document.getElementById('site').value.trim();
+  params.devise = document.getElementById('devise').value.trim() || 'DT';
+  BIPE.storage.set(BIPE.KEYS.parametres, params);
+  BIPE.toast('Société enregistrée ✅');
+}
+
+/* ---------- Charger défauts ---------- */
+function chargerDefauts(){
+  document.getElementById('tvaDefaut').value = params.tvaDefaut != null ? params.tvaDefaut : 19;
+  document.getElementById('deviseDefaut').value = params.deviseDefaut || 'DT';
+  document.getElementById('delaiPaiement').value = params.delaiPaiement != null ? params.delaiPaiement : 30;
+  document.getElementById('modeDefaut').value = params.modeDefaut || 'Espèces';
+}
+
+/* ---------- Enregistrer défauts ---------- */
+function saveDefauts(){
+  params.tvaDefaut = parseFloat(document.getElementById('tvaDefaut').value) || 0;
+  params.deviseDefaut = document.getElementById('deviseDefaut').value.trim() || 'DT';
+  params.delaiPaiement = parseInt(document.getElementById('delaiPaiement').value) || 0;
+  params.modeDefaut = document.getElementById('modeDefaut').value;
+  BIPE.storage.set(BIPE.KEYS.parametres, params);
+  BIPE.toast('Valeurs par défaut enregistrées ✅');
+}
+
+/* ---------- Charger numérotation ---------- */
+function chargerNumerotation(){
+  document.getElementById('prefixFacture').value = params.prefixFacture || 'FAC';
+  document.getElementById('prefixDevis').value = params.prefixDevis || 'DEV';
+  document.getElementById('prefixBon').value = params.prefixBon || 'BL';
+  document.getElementById('prefixRecu').value = params.prefixRecu || 'REC';
+  document.getElementById('compteurFacture').value = params.compteurFacture != null ? params.compteurFacture : 1;
+}
+
+/* ---------- Enregistrer numérotation ---------- */
+function saveNumerotation(){
+  params.prefixFacture = document.getElementById('prefixFacture').value.trim() || 'FAC';
+  params.prefixDevis = document.getElementById('prefixDevis').value.trim() || 'DEV';
+  params.prefixBon = document.getElementById('prefixBon').value.trim() || 'BL';
+  params.prefixRecu = document.getElementById('prefixRecu').value.trim() || 'REC';
+  params.compteurFacture = parseInt(document.getElementById('compteurFacture').value) || 1;
+  BIPE.storage.set(BIPE.KEYS.parametres, params);
+  BIPE.toast('Numérotation enregistrée ✅');
+}
+
+/* ---------- Logo ---------- */
+function chargerLogo(ev){
+  const file = ev.target.files[0];
+  if(!file) return;
+  if(file.size > 500 * 1024){
+    BIPE.toast('Logo trop lourd (max 500 Ko)', true);
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = e=>{
+    params.logo = e.target.result;
+    BIPE.storage.set(BIPE.KEYS.parametres, params);
+    afficherLogo();
+    BIPE.toast('Logo chargé ✅');
+  };
+  reader.readAsDataURL(file);
+  ev.target.value = '';
+}
+
+function afficherLogo(){
+  const box = document.getElementById('logoPreview');
+  if(params.logo){
+    box.innerHTML = `<img src="${params.logo}" alt="Logo">`;
+  } else {
+    box.innerHTML = 'Aucun logo';
+  }
+}
+
+function supprimerLogo(){
+  if(!params.logo) return;
+  if(!confirm('Supprimer le logo ?')) return;
+  delete params.logo;
+  BIPE.storage.set(BIPE.KEYS.parametres, params);
+  afficherLogo();
+  BIPE.toast('Logo supprimé');
+}
+
+/* ---------- Init ---------- */
+document.addEventListener('DOMContentLoaded', () => {
+  chargerParams();
+});
+</script>
+</body>
+</html>

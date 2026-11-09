@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>B!PE by MCE — Menu général</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="shared.js"></script>
+<style>
+  :root{
+    --black:#000000;
+    --black-2:#0a0a0a;
+    --black-3:#141414;
+    --line:#2a2a2a;
+    --line-soft:#1f1f1f;
+    --gold:#d4af37;
+    --gold-bright:#f0d060;
+    --gold-soft:#e8c96a;
+    --gold-dim:#8a7433;
+    --gold-deep:#5a4a1f;
+    --txt:#f5f0e1;
+    --txt-muted:#9a9384;
+    --txt-dim:#5a564e;
+    --ok:#6b9a5a;
+    --warn:#c9a040;
+    --bad:#b84040;
+    --info:#7cc4e8;
+    --radius:16px;
+    --radius-sm:12px;
+    --groupe-couleur:#d4af37;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+
+  html,body{height:100%;overscroll-behavior:none}
+
+  body{
+    font-family:'Baloo Bhaijaan 2', -apple-system, "Segoe UI", sans-serif;
+    background:var(--black);
+    color:var(--txt);
+    line-height:1.6;
+    font-weight:500;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(212,175,55,.04) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(212,175,55,.02) 0%, transparent 40%);
+    background-attachment:fixed;
+  }
+
+  .app{
+    max-width:min(1100px, 92vw);
+    margin:0 auto;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    padding-bottom:clamp(24px, 4vw, 40px);
+  }
+
+  /* ===== HEADER ===== */
+  .header{
+    position:sticky;
+    top:0;
+    z-index:50;
+    background:rgba(0,0,0,.92);
+    backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--line-soft);
+    padding:clamp(12px, 2vw, 16px) clamp(16px, 3vw, 20px);
+    display:flex;
+    align-items:center;
+    gap:clamp(8px, 1.5vw, 16px);
+  }
+  .header .title-block{flex:1; min-width:0;}
+  .header .logo{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(1.4rem, 3vw, 1.8rem);
+    font-weight:700;
+    color:#f0d060;
+    line-height:1.2;
+    letter-spacing:.02em;
+  }
+  .header .logo .b,
+  .header .logo .pe{
+    color:var(--txt);
+  }
+  .header .logo .excl{
+    color:var(--gold);
+    font-size:1.3em;
+    vertical-align:middle;
+    text-shadow:0 0 20px rgba(212,175,55,.5);
+  }
+  .header .subtitle{
+    font-size:clamp(.6rem, 1vw, .7rem);
+    color:var(--txt-muted);
+    font-weight:600;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+  }
+  
+  /* LANG SWITCHER */
+  .lang-switch {
+    display: flex; background: var(--black-3); border-radius: 8px; padding: 2px; border: 1px solid var(--line);
+  }
+  .lang-btn {
+    padding: 4px 8px; border-radius: 6px; border: none; background: transparent;
+    color: var(--txt-muted); font-size: .75rem; font-weight: 700; cursor: pointer; transition: all .2s;
+    font-family: 'Baloo Bhaijaan 2', sans-serif;
+  }
+  .lang-btn.active { background: var(--gold); color: #000; }
+
+  .header .menu{
+    width:clamp(40px, 6vw, 48px);
+    height:clamp(40px, 6vw, 48px);
+    border-radius:14px;
+    background:var(--black-3);
+    border:1px solid var(--line);
+    color:var(--gold-soft);
+    font-size:clamp(1.1rem, 2vw, 1.4rem);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    flex-shrink:0;
+    transition:transform .15s;
+  }
+  .header .menu:active{transform:scale(.92)}
+
+  /* ===== CONTENT ===== */
+  .content{
+    flex:1;
+    padding:clamp(16px, 3vw, 24px) clamp(16px, 3vw, 20px);
+  }
+
+  /* ===== USER BAR ===== */
+  .user-bar{
+    background:linear-gradient(135deg, var(--black-2) 0%, var(--black-3) 100%);
+    border:2px solid var(--gold-deep);
+    border-radius:var(--radius);
+    padding:clamp(16px, 2.5vw, 20px) clamp(18px, 3vw, 24px);
+    margin-bottom:clamp(18px, 3vw, 24px);
+    display:flex;
+    align-items:center;
+    gap:clamp(12px, 2vw, 16px);
+  }
+  .user-bar .avatar{
+    width:clamp(44px, 7vw, 56px);
+    height:clamp(44px, 7vw, 56px);
+    border-radius:50%;
+    background:linear-gradient(180deg, var(--gold-soft), var(--gold));
+    color:#0a0a0a;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(1.1rem, 2vw, 1.5rem);
+    font-weight:700;
+    flex-shrink:0;
+  }
+  .user-bar .info{
+    flex:1;
+    min-width:0;
+  }
+  .user-bar .info .hello{
+    font-size:clamp(.78rem, 1vw, .9rem);
+    color:var(--txt-muted);
+    font-weight:500;
+  }
+  .user-bar .info .name{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(1rem, 2vw, 1.3rem);
+    font-weight:700;
+    color:var(--gold-bright);
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .user-bar .status{
+    font-size:clamp(.65rem, .9vw, .75rem);
+    color:var(--txt-muted);
+    font-weight:600;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .user-bar .status .dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:var(--ok);
+  }
+  .user-bar .status .dot.bad{background:var(--bad)}
+  .user-bar .status .dot.warn{background:var(--warn)}
+
+  /* ===== SECTION TITRE ===== */
+  .section-title{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:clamp(12px, 2vw, 16px);
+    padding:0 4px;
+  }
+  .section-title h2{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(1.2rem, 2vw, 1.5rem);
+    font-weight:700;
+    color:var(--gold-soft);
+  }
+  .section-title .count{
+    font-size:clamp(.85rem, 1.1vw, 1rem);
+    color:var(--txt-muted);
+    font-weight:600;
+  }
+
+  /* ===== GRILLE GROUPES ===== */
+  .groupes-grid{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:clamp(10px, 2vw, 14px);
+    margin-bottom:clamp(24px, 3vw, 32px);
+  }
+  .groupe-card{
+    background:var(--black-2);
+    border:2px solid var(--line);
+    border-radius:var(--radius);
+    padding:clamp(16px, 2.5vw, 20px) clamp(12px, 2vw, 16px);
+    cursor:pointer;
+    transition:transform .15s, border-color .15s;
+    text-decoration:none;
+    color:var(--txt);
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    min-height:clamp(120px, 18vw, 140px);
+    position:relative;
+    overflow:hidden;
+  }
+  .groupe-card::before{
+    content:'';
+    position:absolute;
+    top:0;left:0;
+    width:4px;height:100%;
+    background:var(--couleur-groupe, var(--gold));
+    opacity:.6;
+    transition:opacity .2s;
+  }
+  .groupe-card:active{transform:scale(.97); border-color:var(--couleur-groupe, var(--gold))}
+  .groupe-card:hover::before{opacity:1}
+  .groupe-card:hover{border-color:var(--couleur-groupe, var(--gold-dim))}
+
+  .groupe-card .num{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(.75rem, 1vw, .85rem);
+    font-weight:700;
+    color:var(--couleur-groupe, var(--gold-dim));
+    letter-spacing:.05em;
+  }
+  .groupe-card .ico{
+    font-size:clamp(1.6rem, 2.5vw, 2rem);
+    line-height:1;
+  }
+  .groupe-card .name{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(.9rem, 1.4vw, 1.05rem);
+    font-weight:700;
+    color:var(--txt);
+    line-height:1.3;
+    margin-top:auto;
+  }
+  .groupe-card .count{
+    font-size:clamp(.7rem, .9vw, .8rem);
+    color:var(--txt-muted);
+    font-weight:600;
+  }
+
+  /* ===== OUTILS ===== */
+  .outils-grid{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:clamp(10px, 2vw, 14px);
+    margin-bottom:clamp(24px, 3vw, 32px);
+  }
+  .outil-card{
+    background:var(--black-2);
+    border:2px solid var(--line);
+    border-radius:var(--radius);
+    padding:clamp(14px, 2vw, 18px) clamp(12px, 2vw, 16px);
+    cursor:pointer;
+    transition:transform .15s, border-color .15s;
+    text-decoration:none;
+    color:var(--txt);
+    display:flex;
+    align-items:center;
+    gap:clamp(8px, 1.5vw, 12px);
+    position:relative;
+  }
+  .outil-card:active{transform:scale(.97); border-color:var(--gold)}
+  .outil-card .ico{
+    font-size:clamp(1.3rem, 2vw, 1.6rem);
+    line-height:1;
+    flex-shrink:0;
+  }
+  .outil-card .name{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(.8rem, 1.1vw, .95rem);
+    font-weight:700;
+    color:var(--txt);
+    line-height:1.3;
+    flex:1;
+    min-width:0;
+  }
+  .outil-card.demarrage{
+    border-color:var(--gold-dim);
+    background:linear-gradient(135deg, rgba(212,175,55,.06), var(--black-2) 70%);
+  }
+  .outil-card.demarrage:hover{border-color:var(--gold)}
+  .outil-card .prog-badge{
+    padding:2px 8px;
+    border-radius:999px;
+    font-size:.72rem;
+    font-weight:800;
+    background:rgba(212,175,55,.15);
+    color:var(--gold-soft);
+    border:1px solid var(--gold-dim);
+    white-space:nowrap;
+    flex-shrink:0;
+  }
+  .outil-card .prog-badge.done{
+    background:rgba(107,154,90,.15);
+    color:#8fc47a;
+    border-color:rgba(107,154,90,.4);
+  }
+
+  /* ===== FOOTER ===== */
+  .footer{
+    text-align:center;
+    padding:clamp(20px, 3vw, 28px) 16px 16px;
+    font-size:clamp(.72rem, .9vw, .8rem);
+    color:var(--txt-dim);
+    line-height:1.8;
+    font-weight:500;
+    border-top:1px solid var(--line-soft);
+    margin-top:auto;
+  }
+  .footer .brand{
+    color:var(--gold-soft);
+    font-weight:700;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width:600px){
+    .groupes-grid{grid-template-columns:1fr}
+    .outils-grid{grid-template-columns:1fr}
+    .groupe-card{min-height:100px}
+  }
+</style>
+</head>
+<body data-groupe="structure">
+
+<div class="app">
+
+  <!-- ===== HEADER ===== -->
+  <div class="header">
+    <div class="title-block">
+      <div class="logo">
+        <span class="b">B</span><span class="excl">!</span><span class="pe">PE</span>
+      </div>
+      <div class="subtitle" data-i18n="subtitle">Bureau Intelligent pour Entrepreneur</div>
+    </div>
+    
+    <!-- LANG SWITCHER -->
+    <div class="lang-switch">
+      <button class="lang-btn active" id="btn-lang-fr" onclick="setLang('fr')">FR</button>
+      <button class="lang-btn" id="btn-lang-tn" onclick="setLang('tn')">TN</button>
+    </div>
+
+    <button class="menu" onclick="BIPE.openMenu()">⋮</button>
+  </div>
+
+  <!-- ===== CONTENT ===== -->
+  <div class="content">
+
+    <!-- USER BAR -->
+    <div class="user-bar" id="userBar">
+      <div class="avatar" id="userAvatar">?</div>
+      <div class="info">
+        <div class="hello" id="userHello" data-i18n="bienvenue">Bienvenue</div>
+        <div class="name" id="userName">Invité</div>
+        <div class="status" id="userStatus">
+          <span class="dot"></span>
+          <span data-i18n="connecte">Connecté</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION GROUPES -->
+    <div class="section-title">
+      <h2 data-i18n="les_7_groupes">Les 7 groupes</h2>
+      <div class="count" id="countGroupes">7</div>
+    </div>
+
+    <div class="groupes-grid" id="groupesGrid"></div>
+
+    <!-- SECTION OUTILS -->
+    <div class="section-title">
+      <h2 data-i18n="outils">Outils transverses</h2>
+      <div class="count" id="countOutils">6</div>
+    </div>
+
+    <div class="outils-grid" id="outilsGrid"></div>
+
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <div class="footer">
+    <span class="brand">B!PE by MCE</span> · <span data-i18n="version">Version 1.1 · 2026</span><br>
+    <span data-i18n="footer_nom">Bureau Intelligent pour Entrepreneur</span><br>
+    <span data-i18n="footer_tagline">Votre ERP Personnel Simplifié</span>
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   B!PE — index.html v1.2 (Bilingue FR/TN)
+   ============================================================ */
+
+// --- DICTIONNAIRE DE TRADUCTION ---
+const I18N = {
+  fr: {
+    subtitle: "Bureau Intelligent pour Entrepreneur",
+    bienvenue: "Bienvenue",
+    connecte: "Connecté",
+    les_7_groupes: "Les 7 groupes",
+    outils: "Outils transverses",
+    version: "Version 1.2 · 2026",
+    footer_nom: "Bureau Intelligent pour Entrepreneur",
+    footer_tagline: "Votre ERP Personnel Simplifié",
+    // Statuts
+    sav_jamais: "Sauvegarde : jamais",
+    sav_aujourdhui: "Sauvegarde : aujourd'hui",
+    sav_hier: "Sauvegarde : hier",
+    sav_il_y_a: "Sauvegarde : il y a {j} j",
+    non_connecte: "Non connecté",
+    invite: "Invité",
+    bonjour: "Bonjour",
+    // Noms des groupes
+    g1: "Commercial",
+    g2: "Flux",
+    g3: "Pilotage",
+    g4: "Comptabilité",
+    g5: "RH & Culture",
+    g6: "Administration",
+    g7: "Marketing",
+    // Noms des outils
+    demarrage: "Démarrage",
+    dashboard: "Tableau de bord",
+    parametres: "Paramètres",
+    sauvegarde: "Sauvegarde",
+    manuel: "Manuel de procédures",
+    presentation: "Présentation",
+    // Badges
+    fait: "✓ Fait",
+    elements: "élément(s)"
+  },
+  tn: {
+    subtitle: "مكتب ذكي للمقاول",
+    bienvenue: "مرحبا بيك",
+    connecte: "متصل",
+    les_7_groupes: "الـ 7 مجموعات",
+    outils: "أدوات مساعدة",
+    version: "نسخة 1.2 · 2026",
+    footer_nom: "مكتب ذكي للمقاول",
+    footer_tagline: "الـ ERP متاعك المبسط",
+    // Statuts
+    sav_jamais: "السوفغارد : ما صارش",
+    sav_aujourdhui: "السوفغارد : اليوم",
+    sav_hier: "السوفغارد : البارح",
+    sav_il_y_a: "السوفغارد : من {j} أيام",
+    non_connecte: "ماكش متصل",
+    invite: "ضيف",
+    bonjour: "صباح الخير",
+    // Noms des groupes
+    g1: "التجاري",
+    g2: "الفلوس",
+    g3: "القيادة",
+    g4: "المحاسبة",
+    g5: "الموارد البشرية",
+    g6: "الإدارة",
+    g7: "التسويق",
+    // Noms des outils
+    demarrage: "البداية",
+    dashboard: "لوحة القيادة",
+    parametres: "الإعدادات",
+    sauvegarde: "السوفغارد",
+    manuel: "دليل الاستعمال",
+    presentation: "التعريف",
+    // Badges
+    fait: "✓ كمّل",
+    elements: "عنصر"
+  }
+};
+
+let currentLang = BIPE.storage.get('bipe_langue') || 'fr';
+
+function setLang(lang) {
+  currentLang = lang;
+  BIPE.storage.set('bipe_langue', lang);
+  
+  // Mettre à jour les boutons
+  document.getElementById('btn-lang-fr').classList.toggle('active', lang === 'fr');
+  document.getElementById('btn-lang-tn').classList.toggle('active', lang === 'tn');
+  
+  // Mettre à jour les textes statiques (data-i18n)
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if(I18N[lang][key]) el.innerHTML = I18N[lang][key];
+  });
+
+  // Re-générer les parties dynamiques
+  renderUser();
+  renderGroupes();
+  renderOutils();
+}
+
+function t(key, vars = {}) {
+  let text = I18N[currentLang][key] || key;
+  for(const k in vars) {
+    text = text.replace(`{${k}}`, vars[k]);
+  }
+  return text;
+}
+
+/* ---------- Vérifier la session ---------- */
+BIPE.checkSession();
+
+/* ---------- Compter les éléments ---------- */
+function compter(key){
+  const data = BIPE.storage.get(key, []);
+  if(Array.isArray(data)) return data.length;
+  if(typeof data === 'object' && data !== null) return Object.keys(data).length;
+  return 0;
+}
+
+/* ---------- Onboarding ---------- */
+function getOnboarding(){
+  const o = BIPE.storage.get(BIPE.KEYS.onboarding);
+  if(!o || typeof o !== 'object'){
+    return { etape1: false, etape2: false, etape3: false, ignore: false };
+  }
+  return {
+    etape1: !!o.etape1,
+    etape2: !!o.etape2,
+    etape3: !!o.etape3,
+    ignore: !!o.ignore
+  };
+}
+function progressionOnboarding(ob){
+  return (ob.etape1 ? 1 : 0) + (ob.etape2 ? 1 : 0) + (ob.etape3 ? 1 : 0);
+}
+
+/* ---------- Définition des groupes ---------- */
+const GROUPES = [
+  { num: '01', ico: '🛒', nomKey: 'g1', url: 'groupe-commercial.html', couleur: BIPE.COULEURS.g1,
+    compter: () => compter(BIPE.KEYS.ventes) + compter(BIPE.KEYS.achats) + compter(BIPE.KEYS.clients) + compter(BIPE.KEYS.fournisseurs) },
+  { num: '02', ico: '💧', nomKey: 'g2', url: 'groupe-flux.html', couleur: BIPE.COULEURS.g2,
+    compter: () => compter(BIPE.KEYS.stock) + compter(BIPE.KEYS.tresorerie) + compter(BIPE.KEYS.caisse) + compter(BIPE.KEYS.charges) },
+  { num: '03', ico: '🎯', nomKey: 'g3', url: 'groupe-pilotage.html', couleur: BIPE.COULEURS.g3,
+    compter: () => compter(BIPE.KEYS.rappels) },
+  { num: '04', ico: '📒', nomKey: 'g4', url: 'groupe-comptabilite.html', couleur: BIPE.COULEURS.g4,
+    compter: () => compter(BIPE.KEYS.compta) + compter(BIPE.KEYS.banque) },
+  { num: '05', ico: '👥', nomKey: 'g5', url: 'groupe-rh-culture.html', couleur: BIPE.COULEURS.g5,
+    compter: () => compter(BIPE.KEYS.rh) + compter(BIPE.KEYS.culture) + compter(BIPE.KEYS.planning) },
+  { num: '06', ico: '🛡', nomKey: 'g6', url: 'groupe-admin.html', couleur: BIPE.COULEURS.g6,
+    compter: () => compter(BIPE.KEYS.parametres) },
+  { num: '07', ico: '📣', nomKey: 'g7', url: 'groupe-marketing.html', couleur: BIPE.COULEURS.g7,
+    compter: () => compter(BIPE.KEYS.campagnes) + compter(BIPE.KEYS.prospects) + compter(BIPE.KEYS.relances) }
+];
+
+/* ---------- Définition des outils ---------- */
+const OUTILS = [
+  { ico: '🚀', nomKey: 'demarrage', url: 'demarrage.html', special: 'demarrage' },
+  { ico: '📊', nomKey: 'dashboard', url: 'dashboard.html' },
+  { ico: '⚙️', nomKey: 'parametres', url: 'parametres.html' },
+  { ico: '💾', nomKey: 'sauvegarde', url: 'sauvegarde.html' },
+  { ico: '📖', nomKey: 'manuel', url: 'manuel.html' },
+  { ico: '🏠', nomKey: 'presentation', url: 'landing.html' }
+];
+
+/* ---------- Rendu de l'utilisateur ---------- */
+function renderUser(){
+  const user = BIPE.getUser();
+  const avatar = document.getElementById('userAvatar');
+  const hello = document.getElementById('userHello');
+  const name = document.getElementById('userName');
+  const status = document.getElementById('userStatus');
+
+  if(user && user.nom){
+    const initiales = user.nom.split(' ').map(m => m.charAt(0).toUpperCase()).slice(0, 2).join('');
+    avatar.textContent = initiales || '?';
+    hello.textContent = t('bonjour');
+    name.textContent = user.nom;
+
+    const lastBackup = BIPE.storage.get(BIPE.KEYS.lastBackup);
+    if(!lastBackup){
+      status.innerHTML = `<span class="dot bad"></span><span>${t('sav_jamais')}</span>`;
+    } else {
+      const diff = Math.round((new Date() - new Date(lastBackup)) / 86400000);
+      if(diff === 0) status.innerHTML = `<span class="dot"></span><span>${t('sav_aujourdhui')}</span>`;
+      else if(diff === 1) status.innerHTML = `<span class="dot warn"></span><span>${t('sav_hier')}</span>`;
+      else status.innerHTML = `<span class="dot bad"></span><span>${t('sav_il_y_a', {j: diff})}</span>`;
+    }
+  } else {
+    avatar.textContent = '?';
+    hello.textContent = t('bienvenue');
+    name.textContent = t('invite');
+    status.innerHTML = `<span class="dot bad"></span><span>${t('non_connecte')}</span>`;
+  }
+}
+
+/* ---------- Rendu des groupes ---------- */
+function renderGroupes(){
+  const grid = document.getElementById('groupesGrid');
+  if(!grid) return;
+
+  grid.innerHTML = GROUPES.map(g => {
+    let n = 0;
+    try { n = g.compter(); } catch(e) { n = 0; }
+    return `
+      <a href="${g.url}" class="groupe-card" style="--couleur-groupe:${g.couleur}">
+        <div class="num">${g.num}</div>
+        <div class="ico">${g.ico}</div>
+        <div class="name">${t(g.nomKey)}</div>
+        <div class="count">${n} ${t('elements')}</div>
+      </a>
+    `;
+  }).join('');
+
+  document.getElementById('countGroupes').textContent = GROUPES.length;
+}
+
+/* ---------- Rendu des outils ---------- */
+function renderOutils(){
+  const grid = document.getElementById('outilsGrid');
+  if(!grid) return;
+
+  const ob = getOnboarding();
+  const prog = progressionOnboarding(ob);
+  const demarrageFini = (prog >= 3) || ob.ignore;
+
+  grid.innerHTML = OUTILS.map(o => {
+    if(o.special === 'demarrage'){
+      let badge = '';
+      if(demarrageFini){
+        badge = `<span class="prog-badge done">${t('fait')}</span>`;
+      } else {
+        badge = `<span class="prog-badge">${prog} / 3</span>`;
+      }
+      return `
+        <a href="${o.url}" class="outil-card demarrage">
+          <span class="ico">${o.ico}</span>
+          <span class="name">${t(o.nomKey)}</span>
+          ${badge}
+        </a>
+      `;
+    }
+    return `
+      <a href="${o.url}" class="outil-card">
+        <span class="ico">${o.ico}</span>
+        <span class="name">${t(o.nomKey)}</span>
+      </a>
+    `;
+  }).join('');
+
+  document.getElementById('countOutils').textContent = OUTILS.length;
+}
+
+/* ---------- Init ---------- */
+document.addEventListener('DOMContentLoaded', () => {
+  setLang(currentLang);
+});
+</script>
+</body>
+</html>

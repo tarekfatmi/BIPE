@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>BIPE — Clients</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="shared.js"></script>
+<style>
+  :root{
+    --black:#000000; --black-2:#0a0a0a; --black-3:#141414;
+    --line:#2a2a2a; --line-soft:#1f1f1f;
+    --gold:#d4af37; --gold-bright:#f0d060; --gold-soft:#e8c96a;
+    --gold-dim:#8a7433; --gold-deep:#5a4a1f;
+    --txt:#f5f0e1; --txt-muted:#9a9384; --txt-dim:#5a564e;
+    --ok:#6b9a5a; --warn:#c9a040; --bad:#b84040; --info:#7cc4e8;
+    --radius:16px; --radius-sm:12px;
+    --groupe-couleur:#b19cd9;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overscroll-behavior:none}
+  body{
+    font-family:'Baloo Bhaijaan 2', -apple-system, "Segoe UI", sans-serif;
+    background:var(--black); color:var(--txt); line-height:1.6; font-weight:500;
+    -webkit-font-smoothing:antialiased; min-height:100vh;
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(177,156,217,.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(212,175,55,.02) 0%, transparent 40%);
+    background-attachment:fixed;
+  }
+  .app{max-width:min(1100px,92vw);margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding-bottom:clamp(24px,4vw,40px)}
+
+  .bipe-sheet{transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1)}
+  .bipe-sheet.show{transform:translateY(0) !important}
+  #bipe-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s}
+  #bipe-overlay.show{opacity:1 !important;pointer-events:auto !important}
+
+  .header{
+    position:sticky;top:0;z-index:50;background:rgba(0,0,0,.92);
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--line-soft);
+    padding:clamp(12px,2vw,16px) clamp(16px,3vw,20px);
+    display:flex;align-items:center;gap:clamp(8px,1.5vw,16px);
+  }
+  .header .back{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;text-decoration:none;transition:transform .15s;
+  }
+  .header .back:active{transform:scale(.92)}
+  .header .title-block{flex:1;min-width:0}
+  .header .logo{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2.5vw,1.5rem);
+    font-weight:700;color:#f0d060;line-height:1.2;letter-spacing:.02em;
+  }
+  .header .logo .b,.header .logo .pe{color:var(--txt)}
+  .header .logo .excl{color:var(--gold);font-size:1.3em;vertical-align:middle;text-shadow:0 0 20px rgba(212,175,55,.5)}
+  .header .subtitle{
+    font-size:clamp(.6rem,1vw,.7rem);color:var(--txt-muted);
+    font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  }
+  .header .menu{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;transition:transform .15s;
+  }
+  .header .menu:active{transform:scale(.92)}
+
+  .content{flex:1;padding:clamp(16px,3vw,24px) clamp(16px,3vw,20px)}
+
+  .hero-groupe{
+    background:linear-gradient(135deg,var(--black-2) 0%,var(--black-3) 100%);
+    border:2px solid var(--gold-deep);border-radius:var(--radius);
+    padding:clamp(18px,3vw,24px);margin-bottom:clamp(16px,3vw,20px);
+    position:relative;overflow:hidden;
+  }
+  .hero-groupe::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--groupe-couleur);opacity:.8;
+  }
+  .hero-groupe .num{
+    font-family:'Fredoka',sans-serif;font-size:clamp(.75rem,1vw,.85rem);
+    font-weight:700;color:var(--groupe-couleur);letter-spacing:.05em;margin-bottom:6px;
+  }
+  .hero-groupe .ico{font-size:clamp(1.6rem,2.5vw,2rem);line-height:1;margin-bottom:6px}
+  .hero-groupe h1{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.3rem,2.2vw,1.7rem);
+    font-weight:700;color:var(--gold-bright);line-height:1.2;margin-bottom:4px;
+  }
+  .hero-groupe p{font-size:clamp(.85rem,1.1vw,1rem);color:var(--txt-muted);font-weight:500}
+
+  .stats{
+    display:grid;grid-template-columns:repeat(4,1fr);
+    gap:clamp(8px,1.5vw,12px);margin-bottom:clamp(16px,3vw,20px);
+  }
+  .stat{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(12px,2vw,16px) clamp(10px,1.5vw,14px);
+  }
+  .stat .num{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2.2vw,1.5rem);
+    font-weight:700;line-height:1;margin-bottom:4px;color:var(--gold-bright);
+  }
+  .stat .lab{font-size:clamp(.68rem,.9vw,.76rem);color:var(--txt-muted);font-weight:600;line-height:1.3}
+  .stat.du .num{color:var(--bad)}
+  .stat.du0 .num{color:var(--ok)}
+
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:clamp(14px,2.5vw,18px)}
+  .btn{
+    padding:clamp(11px,1.5vw,13px) clamp(16px,2vw,20px);
+    border-radius:999px;border:none;cursor:pointer;
+    font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:clamp(.88rem,1.1vw,1rem);font-weight:700;
+    display:inline-flex;align-items:center;gap:8px;transition:all .2s;
+  }
+  .btn-gold{
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold));
+    color:#0a0a0a;box-shadow:0 4px 16px rgba(212,175,55,.25);
+  }
+  .btn-gold:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  .btn-gold:active{transform:scale(.97)}
+  .btn-ghost{background:var(--black-2);border:2px solid var(--line);color:var(--txt)}
+  .btn-ghost:hover{border-color:var(--gold-dim)}
+
+  .search-bar{
+    display:flex;gap:8px;margin-bottom:clamp(12px,2vw,16px);
+    flex-wrap:wrap;
+  }
+  .search-bar input{
+    flex:1;min-width:200px;
+    padding:clamp(10px,1.5vw,12px) clamp(14px,2vw,16px);
+    border-radius:999px;border:2px solid var(--line);
+    background:var(--black-2);color:var(--txt);
+    font-size:clamp(.88rem,1vw,.95rem);
+    font-family:'Baloo Bhaijaan 2',sans-serif;font-weight:500;
+  }
+  .search-bar input:focus{
+    outline:none;border-color:var(--gold);
+    box-shadow:0 0 0 4px rgba(212,175,55,.12);
+  }
+  .search-bar select{
+    padding:clamp(10px,1.5vw,12px) clamp(14px,2vw,16px);
+    border-radius:999px;border:2px solid var(--line);
+    background:var(--black-2);color:var(--txt);
+    font-size:clamp(.85rem,1vw,.92rem);
+    font-family:'Baloo Bhaijaan 2',sans-serif;font-weight:600;
+    cursor:pointer;
+  }
+  .search-bar select:focus{outline:none;border-color:var(--gold)}
+
+  .filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:clamp(14px,2.5vw,18px)}
+  .filter-chip{
+    padding:8px 14px;border-radius:999px;border:2px solid var(--line);
+    background:var(--black-2);color:var(--txt-muted);
+    font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:clamp(.8rem,1vw,.9rem);font-weight:600;cursor:pointer;transition:.2s;
+  }
+  .filter-chip.active{border-color:var(--groupe-couleur);color:var(--groupe-couleur);background:rgba(177,156,217,.08)}
+  .filter-chip:hover:not(.active){color:var(--txt)}
+  .filter-chip.dette.active{border-color:var(--bad);color:#e08a8a;background:rgba(184,64,64,.08)}
+
+  .list{display:flex;flex-direction:column;gap:clamp(8px,1.5vw,10px)}
+  .client-card{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(14px,2.5vw,18px) clamp(16px,2.5vw,20px);
+    display:flex;gap:clamp(12px,2vw,14px);align-items:flex-start;
+    transition:transform .15s,border-color .15s;position:relative;overflow:hidden;
+  }
+  .client-card::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--groupe-couleur);opacity:.7;
+  }
+  .client-card.inactif::before{background:var(--txt-dim)}
+  .client-card.dette::before{background:var(--bad)}
+  .client-card:hover{border-color:var(--gold-dim)}
+  .client-avatar{
+    width:clamp(44px,6vw,52px);height:clamp(44px,6vw,52px);
+    border-radius:50%;background:linear-gradient(180deg,var(--gold-soft),var(--gold));
+    color:#0a0a0a;display:flex;align-items:center;justify-content:center;
+    font-family:'Fredoka',sans-serif;font-weight:700;
+    font-size:clamp(.95rem,1.5vw,1.15rem);flex-shrink:0;
+  }
+  .client-body{flex:1;min-width:0}
+  .client-head{
+    display:flex;justify-content:space-between;align-items:baseline;
+    gap:8px;margin-bottom:4px;flex-wrap:wrap;
+  }
+  .client-nom{
+    font-family:'Fredoka',sans-serif;font-size:clamp(.95rem,1.4vw,1.1rem);
+    font-weight:700;color:var(--txt);line-height:1.3;flex:1;min-width:0;
+  }
+  .client-solde{
+    font-family:'Fredoka',sans-serif;
+    font-size:clamp(.9rem,1.3vw,1.05rem);
+    font-weight:700;color:var(--bad);
+    white-space:nowrap;
+    padding:4px 10px;border-radius:6px;
+    background:rgba(184,64,64,.1);
+    border:1px solid rgba(184,64,64,.3);
+    cursor:pointer;transition:.15s;
+  }
+  .client-solde:hover{background:rgba(184,64,64,.2)}
+  .client-contact{
+    font-size:clamp(.78rem,1vw,.88rem);color:var(--txt-muted);
+    font-weight:600;margin-bottom:6px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .client-meta{
+    display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+    font-size:clamp(.75rem,.95vw,.85rem);font-weight:600;
+  }
+  .client-meta .badge{
+    padding:2px 8px;border-radius:6px;font-size:.75em;font-weight:700;
+    text-transform:uppercase;letter-spacing:.04em;
+  }
+  .badge-ca{background:rgba(107,154,90,.15);color:#8fc47a}
+  .badge-nb{background:rgba(124,196,232,.15);color:var(--info)}
+  .badge-none{background:rgba(255,255,255,.06);color:var(--txt-muted)}
+  .badge-dette{background:rgba(184,64,64,.15);color:#e08a8a}
+  .client-actions{display:flex;gap:4px;flex-shrink:0;flex-direction:column}
+  .icon-btn{
+    width:clamp(32px,4.5vw,36px);height:clamp(32px,4.5vw,36px);
+    border-radius:10px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--txt-muted);font-size:clamp(.85rem,1.2vw,.95rem);
+    cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;
+  }
+  .icon-btn:hover{border-color:var(--gold-dim);color:var(--gold-soft)}
+  .icon-btn.danger:hover{border-color:var(--bad);color:#e08a8a}
+  .icon-btn.primary:hover{border-color:var(--ok);color:#8fc47a}
+  .icon-btn.credit:hover{border-color:var(--warn);color:var(--warn)}
+
+  .empty{
+    text-align:center;padding:clamp(40px,8vw,60px) clamp(20px,3vw,24px);
+    background:var(--black-2);border:2px dashed var(--line);border-radius:var(--radius);
+  }
+  .empty .ico{font-size:clamp(2.5rem,6vw,3.5rem);margin-bottom:12px;opacity:.6}
+  .empty h3{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.1rem,1.8vw,1.3rem);
+    color:var(--gold-soft);margin-bottom:8px;
+  }
+  .empty p{font-size:clamp(.85rem,1.1vw,1rem);color:var(--txt-muted);margin-bottom:16px}
+
+  .footer{
+    text-align:center;padding:clamp(20px,3vw,28px) 16px 16px;
+    font-size:clamp(.72rem,.9vw,.8rem);color:var(--txt-dim);
+    line-height:1.8;font-weight:500;border-top:1px solid var(--line-soft);margin-top:auto;
+  }
+  .footer .brand{color:var(--gold-soft);font-weight:700}
+
+  .form-group{margin-bottom:clamp(14px,2vw,18px)}
+  label{
+    display:block;font-size:clamp(.85rem,1vw,.95rem);
+    color:var(--txt-muted);margin-bottom:6px;font-weight:600;
+  }
+  label .required{color:var(--bad);margin-left:2px}
+  input,textarea,select{
+    width:100%;padding:clamp(12px,1.5vw,14px) clamp(14px,2vw,16px);
+    border-radius:var(--radius-sm);border:2px solid var(--line);
+    background:var(--black-3);color:var(--txt);
+    font-size:clamp(.95rem,1.1vw,1rem);
+    font-family:'Baloo Bhaijaan 2',sans-serif;font-weight:500;transition:all .2s;
+  }
+  input:focus,textarea:focus,select:focus{
+    outline:none;border-color:var(--gold);box-shadow:0 0 0 4px rgba(212,175,55,.12);
+  }
+  input::placeholder,textarea::placeholder{color:var(--txt-dim)}
+  textarea{resize:vertical;min-height:80px}
+  select{cursor:pointer}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  /* Fiche client détaillée */
+  .fiche-resume{
+    display:grid;grid-template-columns:repeat(4,1fr);
+    gap:10px;margin-bottom:20px;
+  }
+  .fiche-stat{
+    background:var(--black-3);border:1px solid var(--line);
+    border-radius:var(--radius-sm);padding:14px;
+    text-align:center;
+  }
+  .fiche-stat .val{
+    font-family:'Fredoka',sans-serif;font-size:1.2rem;
+    font-weight:700;color:var(--gold-bright);line-height:1;
+    margin-bottom:4px;
+  }
+  .fiche-stat .val.dette{color:var(--bad)}
+  .fiche-stat .lab{
+    font-size:.68rem;color:var(--txt-muted);font-weight:600;
+    text-transform:uppercase;letter-spacing:.05em;
+  }
+
+  .historique-title{
+    font-family:'Fredoka',sans-serif;font-size:1rem;
+    color:var(--gold-soft);font-weight:700;margin:20px 0 12px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .historique-list{display:flex;flex-direction:column;gap:8px}
+  .historique-item{
+    background:var(--black-3);border:1px solid var(--line);
+    border-radius:10px;padding:12px 14px;
+    display:flex;justify-content:space-between;align-items:center;
+    gap:10px;flex-wrap:wrap;
+  }
+  .historique-item .produit{
+    font-size:.92rem;font-weight:600;color:var(--txt);
+    flex:1;min-width:0;
+  }
+  .historique-item .date{
+    font-size:.78rem;color:var(--txt-dim);font-weight:600;
+  }
+  .historique-item .montant{
+    font-family:'Fredoka',sans-serif;font-size:.95rem;
+    color:var(--gold-bright);font-weight:700;
+  }
+
+  @media (max-width:700px){
+    .fiche-resume{grid-template-columns:1fr 1fr}
+    .stats{grid-template-columns:1fr 1fr}
+  }
+  @media (max-width:600px){
+    .stats{grid-template-columns:1fr}
+    .row{grid-template-columns:1fr}
+    .client-actions{flex-direction:row}
+    .fiche-resume{grid-template-columns:1fr 1fr}
+  }
+</style>
+</head>
+<body data-groupe="g1">
+
+<div class="app">
+
+  <div class="header">
+    <a href="groupe-commercial.html" class="back">←</a>
+    <div class="title-block">
+      <div class="logo"><span class="b">B</span><span class="excl">!</span><span class="pe">PE</span></div>
+      <div class="subtitle">Commercial · Clients</div>
+    </div>
+    <button class="menu" onclick="BIPE.openMenu()">⋮</button>
+  </div>
+
+  <div class="content">
+
+    <div class="hero-groupe">
+      <div class="num">GROUPE 01</div>
+      <div class="ico">👤</div>
+      <h1>Clients</h1>
+      <p>Fiches, contacts, historique, crédits. Le CA par client, en temps réel.</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="num" id="statClients">0</div><div class="lab">Clients<br>enregistrés</div></div>
+      <div class="stat"><div class="num" id="statCA">0</div><div class="lab">CA total<br>généré (DT)</div></div>
+      <div class="stat du"><div class="num" id="statDette">0</div><div class="lab">Total dû<br>par clients (DT)</div></div>
+      <div class="stat du0"><div class="num" id="statSolde">0</div><div class="lab">Clients<br>soldés</div></div>
+    </div>
+
+    <div class="toolbar">
+      <button class="btn btn-gold" onclick="openForm()"><span>＋</span> Nouveau client</button>
+      <button class="btn btn-ghost" onclick="exportClients()"><span>📤</span> Exporter</button>
+      <button class="btn btn-ghost" onclick="window.location.href='f-credits.html'">
+        <span>💳</span> Gérer les crédits
+      </button>
+    </div>
+
+    <!-- Recherche + Tri -->
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="🔍 Rechercher par nom, email, téléphone..." oninput="renderList()">
+      <select id="sortSelect" onchange="renderList()">
+        <option value="nom">Trier par nom (A-Z)</option>
+        <option value="ca">Trier par CA (décroissant)</option>
+        <option value="achats">Trier par nb d'achats</option>
+        <option value="dette">Trier par dette (décroissant)</option>
+      </select>
+    </div>
+
+    <div class="filters" id="filters">
+      <button class="filter-chip active" data-filter="tous" onclick="setFilter('tous')">Tous</button>
+      <button class="filter-chip" data-filter="avec_ventes" onclick="setFilter('avec_ventes')">Avec ventes</button>
+      <button class="filter-chip" data-filter="sans_ventes" onclick="setFilter('sans_ventes')">Sans ventes</button>
+      <button class="filter-chip dette" data-filter="dette" onclick="setFilter('dette')">💳 Avec dette</button>
+    </div>
+
+    <div class="list" id="list"></div>
+
+  </div>
+
+  <div class="footer">
+    <span class="brand">BIPE</span> · Bureau Intelligent Pour Entrepreneur<br>
+    Commercial · Clients · Version 2.1
+  </div>
+
+</div>
+
+<div id="bipe-overlay" onclick="BIPE.closeAllSheets()"></div>
+
+<!-- SHEET FORMULAIRE CLIENT -->
+<div id="sheet-form" class="bipe-sheet" style="
+  position:fixed;left:0;right:0;bottom:0;background:#0a0a0a;
+  border-radius:24px 24px 0 0;border-top:2px solid #5a4a1f;
+  z-index:1001;max-height:92vh;display:flex;flex-direction:column;
+  max-width:720px;margin:0 auto;
+">
+  <div style="width:48px;height:5px;background:#2a2a2a;border-radius:3px;margin:12px auto 8px;flex-shrink:0;"></div>
+  <div style="padding:8px 24px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1f1f1f;">
+    <h3 id="formTitle" style="font-family:'Fredoka',sans-serif;font-size:1.5rem;color:#e8c96a;font-weight:700;">Nouveau client</h3>
+    <button onclick="BIPE.closeAllSheets()" style="
+      width:44px;height:44px;border-radius:12px;background:#141414;
+      border:1px solid #2a2a2a;color:#f5f0e1;font-size:1.4rem;
+      display:flex;align-items:center;justify-content:center;cursor:pointer;
+    ">✕</button>
+  </div>
+  <div style="padding:20px 24px 24px;overflow-y:auto;flex:1;">
+    <div class="form-group">
+      <label>Nom complet <span class="required">*</span></label>
+      <input type="text" id="fNom" placeholder="Ex : Ahmed Ben Ali" maxlength="80">
+    </div>
+    <div class="row">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="fEmail" placeholder="ahmed@exemple.tn" maxlength="100">
+      </div>
+      <div class="form-group">
+        <label>Téléphone</label>
+        <input type="tel" id="fTel" placeholder="+216 ..." maxlength="30">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Adresse</label>
+      <input type="text" id="fAdresse" placeholder="Ex : 12 rue de la Liberté, Tunis" maxlength="200">
+    </div>
+    <div class="form-group">
+      <label>Note</label>
+      <textarea id="fNote" placeholder="Informations complémentaires..." maxlength="300"></textarea>
+    </div>
+    <button class="btn btn-gold" style="width:100%;justify-content:center;margin-top:8px;" onclick="saveClient()">💾 Enregistrer</button>
+  </div>
+</div>
+
+<!-- SHEET FICHE CLIENT -->
+<div id="sheet-fiche" class="bipe-sheet" style="
+  position:fixed;left:0;right:0;bottom:0;background:#0a0a0a;
+  border-radius:24px 24px 0 0;border-top:2px solid #5a4a1f;
+  z-index:1001;max-height:92vh;display:flex;flex-direction:column;
+  max-width:720px;margin:0 auto;
+">
+  <div style="width:48px;height:5px;background:#2a2a2a;border-radius:3px;margin:12px auto 8px;flex-shrink:0;"></div>
+  <div style="padding:8px 24px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1f1f1f;">
+    <h3 id="ficheTitle" style="font-family:'Fredoka',sans-serif;font-size:1.5rem;color:#e8c96a;font-weight:700;">Fiche client</h3>
+    <button onclick="BIPE.closeAllSheets()" style="
+      width:44px;height:44px;border-radius:12px;background:#141414;
+      border:1px solid #2a2a2a;color:#f5f0e1;font-size:1.4rem;
+      display:flex;align-items:center;justify-content:center;cursor:pointer;
+    ">✕</button>
+  </div>
+  <div id="ficheBody" style="padding:20px 24px 24px;overflow-y:auto;flex:1;"></div>
+</div>
+
+<script>
+/* ============================================================
+   BIPE — f-clients.html v2.1
+   Groupe 1 — Commercial : clients
+   + Solde dû (bipe_credits)
+   + Lien crédits
+   ============================================================ */
+
+BIPE.checkSession();
+
+let clients = [];
+let filter = 'tous';
+let editingId = null;
+
+/* ---------- Sheet sécurisée ---------- */
+function ouvrirSheet(id){
+  let overlay = document.getElementById('bipe-overlay');
+  if(!overlay){
+    overlay = document.createElement('div');
+    overlay.id = 'bipe-overlay';
+    overlay.onclick = BIPE.closeAllSheets;
+    document.body.appendChild(overlay);
+  }
+  overlay.classList.add('show');
+  const sheet = document.getElementById(id);
+  if(sheet) sheet.classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function fermerSheet(){
+  const overlay = document.getElementById('bipe-overlay');
+  if(overlay) overlay.classList.remove('show');
+  document.querySelectorAll('.bipe-sheet').forEach(s => s.classList.remove('show'));
+  document.body.style.overflow = '';
+}
+
+/* ---------- Données ---------- */
+function load(){
+  clients = BIPE.storage.get(BIPE.KEYS.clients, []) || [];
+  render();
+}
+
+function save(){
+  BIPE.storage.set(BIPE.KEYS.clients, clients);
+}
+
+function getVentes(){
+  return BIPE.storage.get(BIPE.KEYS.ventes, []) || [];
+}
+
+function getCredits(){
+  return BIPE.storage.get(BIPE.KEYS.credits, []) || [];
+}
+
+/**
+ * Calcule les stats d'un client :
+ * - CA total
+ * - Nombre de ventes
+ * - Dernière vente
+ * - Solde dû (via bipe_credits)
+ */
+function getStatsClient(clientId){
+  const ventes = getVentes().filter(v => v.clientId === clientId);
+  const ca = ventes.reduce((s, v) => s + (Number(v.montant) || 0), 0);
+  const nb = ventes.length;
+  const derniere = ventes.length > 0
+    ? ventes.slice().sort((a, b) => (b.date || '').localeCompare(a.date || ''))[0].date
+    : null;
+
+  // Solde dû depuis bipe_credits
+  const creditsClient = getCredits().filter(c =>
+    c.clientId === clientId && c.type !== 'paiement'
+  );
+  const soldeDu = creditsClient.reduce((s, c) =>
+    s + Math.max(0, (Number(c.montant) || 0) - (Number(c.montantPaye) || 0)), 0
+  );
+
+  return { ca, nb, derniere, ventes, soldeDu, nbCredits: creditsClient.length };
+}
+
+/* ---------- Rendu ---------- */
+function render(){
+  renderStats();
+  renderList();
+}
+
+function renderStats(){
+  const total = clients.length;
+  const caTotal = getVentes().reduce((s, v) => s + (Number(v.montant) || 0), 0);
+
+  // Total dû (tous clients confondus)
+  const credits = getCredits();
+  let detteTotale = 0;
+  credits.forEach(c => {
+    if(c.type === 'paiement') return;
+    detteTotale += Math.max(0, (Number(c.montant) || 0) - (Number(c.montantPaye) || 0));
+  });
+
+  // Clients soldés (avec au moins 1 crédit mais 0 dû)
+  const clientsAvecCredits = new Set(
+    credits.filter(c => c.type !== 'paiement').map(c => c.clientId)
+  );
+  let clientsSoldes = 0;
+  clientsAvecCredits.forEach(cid => {
+    const solde = credits
+      .filter(c => c.clientId === cid && c.type !== 'paiement')
+      .reduce((s, c) => s + Math.max(0, (Number(c.montant) || 0) - (Number(c.montantPaye) || 0)), 0);
+    if(solde <= 0) clientsSoldes++;
+  });
+
+  document.getElementById('statClients').textContent = total;
+  document.getElementById('statCA').textContent = BIPE.fmt(caTotal);
+  document.getElementById('statDette').textContent = BIPE.fmt(detteTotale);
+  document.getElementById('statSolde').textContent = clientsSoldes;
+}
+
+function initiales(nom){
+  return (nom||'?').split(' ').map(x => x.charAt(0).toUpperCase()).slice(0,2).join('');
+}
+
+function matchFilter(c){
+  const stats = getStatsClient(c.id);
+  if(filter === 'avec_ventes') return stats.nb > 0;
+  if(filter === 'sans_ventes') return stats.nb === 0;
+  if(filter === 'dette') return stats.soldeDu > 0;
+  return true;
+}
+
+function matchSearch(c, query){
+  if(!query) return true;
+  const q = query.toLowerCase();
+  return (c.nom || '').toLowerCase().includes(q)
+    || (c.email || '').toLowerCase().includes(q)
+    || (c.tel || '').toLowerCase().includes(q)
+    || (c.adresse || '').toLowerCase().includes(q);
+}
+
+function renderList(){
+  const list = document.getElementById('list');
+  const query = (document.getElementById('searchInput')?.value || '').trim();
+  const sortBy = document.getElementById('sortSelect')?.value || 'nom';
+
+  let items = clients.filter(c => matchFilter(c) && matchSearch(c, query));
+
+  items = items.slice().sort((a, b) => {
+    if(sortBy === 'ca'){
+      return getStatsClient(b.id).ca - getStatsClient(a.id).ca;
+    }
+    if(sortBy === 'achats'){
+      return getStatsClient(b.id).nb - getStatsClient(a.id).nb;
+    }
+    if(sortBy === 'dette'){
+      return getStatsClient(b.id).soldeDu - getStatsClient(a.id).soldeDu;
+    }
+    return (a.nom || '').localeCompare(b.nom || '');
+  });
+
+  if(items.length === 0){
+    list.innerHTML = `
+      <div class="empty">
+        <div class="ico">👤</div>
+        <h3>Aucun client</h3>
+        <p>${query ? 'Aucun résultat pour cette recherche.' : (filter === 'tous' ? 'Ajoute ton premier client.' : 'Aucun client dans ce filtre.')}</p>
+        <button class="btn btn-gold" style="margin:0 auto;" onclick="openForm()">＋ Nouveau client</button>
+      </div>
+    `;
+    return;
+  }
+
+  list.innerHTML = items.map(c => {
+    const stats = getStatsClient(c.id);
+    const aDette = stats.soldeDu > 0;
+    return `
+      <div class="client-card ${stats.nb === 0 ? 'inactif' : ''} ${aDette ? 'dette' : ''}">
+        <div class="client-avatar">${initiales(c.nom)}</div>
+        <div class="client-body">
+          <div class="client-head">
+            <div class="client-nom">${BIPE.esc(c.nom || 'Sans nom')}</div>
+            ${aDette ? `<div class="client-solde" onclick="window.location.href='f-credits.html'" title="Voir les crédits">💳 ${BIPE.fmt(stats.soldeDu)} DT</div>` : ''}
+          </div>
+          <div class="client-contact">
+            ${c.email ? '📧 ' + BIPE.esc(c.email) : ''}${c.email && c.tel ? ' · ' : ''}${c.tel ? '📞 ' + BIPE.esc(c.tel) : ''}${!c.email && !c.tel ? 'Aucun contact renseigné' : ''}
+          </div>
+          <div class="client-meta">
+            ${stats.nb > 0
+              ? `<span class="badge badge-ca">💰 ${BIPE.fmt(stats.ca)} DT</span>
+                 <span class="badge badge-nb">🛒 ${stats.nb} vente${stats.nb > 1 ? 's' : ''}</span>
+                 ${stats.derniere ? `<span style="color:var(--txt-dim)">📅 ${BIPE.fmtDate(stats.derniere)}</span>` : ''}`
+              : `<span class="badge badge-none">Aucune vente</span>`}
+            ${aDette ? `<span class="badge badge-dette">⚠ Dette</span>` : ''}
+          </div>
+        </div>
+        <div class="client-actions">
+          <button class="icon-btn primary" onclick="ajouterVente('${c.id}')" title="Ajouter une vente">＋</button>
+          ${aDette ? `<button class="icon-btn credit" onclick="window.location.href='f-credits.html'" title="Voir les crédits">💳</button>` : ''}
+          <button class="icon-btn" onclick="ouvrirFiche('${c.id}')" title="Voir la fiche">👁</button>
+          <button class="icon-btn" onclick="openForm('${c.id}')" title="Modifier">✏️</button>
+          <button class="icon-btn danger" onclick="deleteClient('${c.id}')" title="Supprimer">🗑</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ---------- Filtres ---------- */
+function setFilter(f){
+  filter = f;
+  document.querySelectorAll('.filter-chip').forEach(b => {
+    b.classList.toggle('active', b.dataset.filter === f);
+  });
+  renderList();
+}
+
+/* ---------- Actions rapides ---------- */
+function ajouterVente(clientId){
+  window.location.href = 'f-ventes.html?clientId=' + encodeURIComponent(clientId);
+}
+
+function voirVentes(clientId){
+  window.location.href = 'f-ventes.html?clientId=' + encodeURIComponent(clientId);
+}
+
+/* ---------- Fiche client détaillée ---------- */
+function ouvrirFiche(clientId){
+  const c = clients.find(x => x.id === clientId);
+  if(!c) return;
+
+  const stats = getStatsClient(clientId);
+  document.getElementById('ficheTitle').textContent = c.nom || 'Fiche client';
+
+  let html = `
+    <div class="fiche-resume">
+      <div class="fiche-stat">
+        <div class="val">${BIPE.fmt(stats.ca)}</div>
+        <div class="lab">CA total</div>
+      </div>
+      <div class="fiche-stat">
+        <div class="val">${stats.nb}</div>
+        <div class="lab">Ventes</div>
+      </div>
+      <div class="fiche-stat">
+        <div class="val dette">${stats.soldeDu > 0 ? BIPE.fmt(stats.soldeDu) : '—'}</div>
+        <div class="lab">Solde dû</div>
+      </div>
+      <div class="fiche-stat">
+        <div class="val">${stats.derniere ? BIPE.fmtDate(stats.derniere) : '—'}</div>
+        <div class="lab">Dernière vente</div>
+      </div>
+    </div>
+  `;
+
+  // Alerte dette
+  if(stats.soldeDu > 0){
+    html += `
+      <div style="background:rgba(184,64,64,.08);border:2px solid var(--bad);border-radius:12px;padding:14px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div>
+          <div style="font-weight:700;color:#e08a8a;font-size:.95rem;margin-bottom:2px;">💳 Crédit en cours</div>
+          <div style="font-size:.82rem;color:var(--txt-muted);">${stats.nbCredits} crédit${stats.nbCredits>1?'s':''} · Solde : ${BIPE.fmt(stats.soldeDu)} DT</div>
+        </div>
+        <button class="btn btn-gold" style="padding:8px 16px;font-size:.82rem;" onclick="BIPE.closeAllSheets(); window.location.href='f-credits.html'">
+          Gérer
+        </button>
+      </div>
+    `;
+  }
+
+  // Infos contact
+  html += `
+    <div style="background:var(--black-3);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px;">
+      ${c.email ? `<div style="margin-bottom:6px;font-size:.9rem;"><span style="color:var(--txt-muted)">📧</span> ${BIPE.esc(c.email)}</div>` : ''}
+      ${c.tel ? `<div style="margin-bottom:6px;font-size:.9rem;"><span style="color:var(--txt-muted)">📞</span> ${BIPE.esc(c.tel)}</div>` : ''}
+      ${c.adresse ? `<div style="margin-bottom:6px;font-size:.9rem;"><span style="color:var(--txt-muted)">📍</span> ${BIPE.esc(c.adresse)}</div>` : ''}
+      ${!c.email && !c.tel && !c.adresse ? '<div style="color:var(--txt-muted);font-size:.88rem;">Aucune coordonnée renseignée</div>' : ''}
+      ${c.note ? `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:.85rem;color:var(--txt-muted);">📝 ${BIPE.esc(c.note)}</div>` : ''}
+    </div>
+  `;
+
+  // Historique des ventes
+  if(stats.nb > 0){
+    html += `<div class="historique-title">🛒 Historique des ventes</div>`;
+    html += `<div class="historique-list">`;
+    stats.ventes
+      .slice()
+      .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
+      .slice(0, 5)
+      .forEach(v => {
+        html += `
+          <div class="historique-item">
+            <div class="produit">${BIPE.esc(v.produitNom || 'Produit')} × ${v.quantite || 0}</div>
+            <div class="date">${v.date ? BIPE.fmtDate(v.date) : '—'}</div>
+            <div class="montant">${BIPE.fmt(v.montant || 0)} DT</div>
+          </div>
+        `;
+      });
+    html += `</div>`;
+
+    if(stats.nb > 5){
+      html += `<div style="text-align:center;color:var(--txt-muted);font-size:.78rem;margin-top:8px;">+ ${stats.nb - 5} autre${stats.nb - 5 > 1 ? 's' : ''} vente${stats.nb - 5 > 1 ? 's' : ''}</div>`;
+    }
+
+    html += `
+      <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:16px;" onclick="voirVentes('${c.id}')">
+        📋 Voir toutes les ventes
+      </button>
+    `;
+  } else {
+    html += `
+      <div style="text-align:center;padding:30px 20px;color:var(--txt-muted);">
+        <div style="font-size:2rem;margin-bottom:8px;opacity:.5;">🛒</div>
+        <div style="font-size:.9rem;">Aucune vente enregistrée pour ce client</div>
+      </div>
+    `;
+  }
+
+  // Bouton ajouter une vente
+  html += `
+    <button class="btn btn-gold" style="width:100%;justify-content:center;margin-top:16px;" onclick="ajouterVente('${c.id}')">
+      ＋ Ajouter une vente
+    </button>
+  `;
+
+  document.getElementById('ficheBody').innerHTML = html;
+  ouvrirSheet('sheet-fiche');
+}
+
+/* ---------- Formulaire ---------- */
+function openForm(id){
+  editingId = id || null;
+  const title = document.getElementById('formTitle');
+
+  if(id){
+    const c = clients.find(x => x.id === id);
+    if(!c) return;
+    title.textContent = 'Modifier le client';
+    document.getElementById('fNom').value = c.nom || '';
+    document.getElementById('fEmail').value = c.email || '';
+    document.getElementById('fTel').value = c.tel || '';
+    document.getElementById('fAdresse').value = c.adresse || '';
+    document.getElementById('fNote').value = c.note || '';
+  } else {
+    title.textContent = 'Nouveau client';
+    document.getElementById('fNom').value = '';
+    document.getElementById('fEmail').value = '';
+    document.getElementById('fTel').value = '';
+    document.getElementById('fAdresse').value = '';
+    document.getElementById('fNote').value = '';
+  }
+
+  ouvrirSheet('sheet-form');
+  setTimeout(() => { try { document.getElementById('fNom').focus(); } catch(e){} }, 300);
+}
+
+function saveClient(){
+  const nom = document.getElementById('fNom').value.trim();
+  const email = document.getElementById('fEmail').value.trim();
+  const tel = document.getElementById('fTel').value.trim();
+  const adresse = document.getElementById('fAdresse').value.trim();
+  const note = document.getElementById('fNote').value.trim();
+
+  if(!nom){
+    BIPE.toast('⚠ Le nom est obligatoire', true);
+    return;
+  }
+
+  if(editingId){
+    const c = clients.find(x => x.id === editingId);
+    if(c){
+      const conflit = clients.find(x => x.id !== editingId && (x.nom || '').toLowerCase() === nom.toLowerCase());
+      if(conflit){
+        BIPE.toast('⚠ Un client avec ce nom existe déjà', true);
+        return;
+      }
+
+      c.nom = nom;
+      c.email = email;
+      c.tel = tel;
+      c.adresse = adresse;
+      c.note = note;
+      c.updatedAt = new Date().toISOString();
+
+      // Mettre à jour clientNom dans les ventes liées
+      const ventes = getVentes();
+      let modifie = false;
+      ventes.forEach(v => {
+        if(v.clientId === editingId){
+          v.clientNom = nom;
+          modifie = true;
+        }
+      });
+      if(modifie) BIPE.storage.set(BIPE.KEYS.ventes, ventes);
+
+      // Mettre à jour clientNom dans les crédits
+      const credits = getCredits();
+      let modifieC = false;
+      credits.forEach(cr => {
+        if(cr.clientId === editingId){
+          cr.clientNom = nom;
+          modifieC = true;
+        }
+      });
+      if(modifieC) BIPE.storage.set(BIPE.KEYS.credits, credits);
+    }
+    BIPE.toast('✅ Client modifié');
+  } else {
+    const conflit = clients.find(c => (c.nom || '').toLowerCase() === nom.toLowerCase());
+    if(conflit){
+      BIPE.toast('⚠ Un client avec ce nom existe déjà', true);
+      return;
+    }
+
+    clients.push({
+      id: 'c-' + Date.now().toString(36),
+      nom, email, tel, adresse, note,
+      createdAt: new Date().toISOString()
+    });
+    BIPE.toast('✅ Client créé');
+  }
+
+  save();
+  fermerSheet();
+  render();
+}
+
+function deleteClient(id){
+  const c = clients.find(x => x.id === id);
+  if(!c) return;
+
+  const stats = getStatsClient(id);
+  let msg = `Supprimer "${c.nom}" ?`;
+  if(stats.nb > 0){
+    msg += `\n\n⚠ Ce client a ${stats.nb} vente(s) enregistrée(s).\nLes ventes seront conservées avec le nom du client (marqué comme "supprimé").`;
+  }
+  if(stats.soldeDu > 0){
+    msg += `\n\n⚠ Ce client a un solde dû de ${BIPE.fmt(stats.soldeDu)} DT.\nLes crédits seront conservés dans le suivi.`;
+  }
+
+  if(!confirm(msg)) return;
+
+  clients = clients.filter(x => x.id !== id);
+  save();
+  render();
+  BIPE.toast('🗑 Client supprimé');
+}
+
+/* ---------- Export ---------- */
+function exportClients(){
+  BIPE.exportJSON('clients', clients);
+}
+
+/* ---------- Init ---------- */
+document.addEventListener('DOMContentLoaded', () => {
+  load();
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape') fermerSheet();
+  });
+});
+</script>
+</body>
+</html>

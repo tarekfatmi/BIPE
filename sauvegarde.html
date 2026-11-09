@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>B!PE by MCE — Sauvegarde</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="shared.js"></script>
+<style>
+  :root{
+    --black:#000000;
+    --black-2:#0a0a0a;
+    --black-3:#141414;
+    --line:#2a2a2a;
+    --line-soft:#1f1f1f;
+    --gold:#d4af37;
+    --gold-bright:#f0d060;
+    --gold-soft:#e8c96a;
+    --gold-dim:#8a7433;
+    --gold-deep:#5a4a1f;
+    --txt:#f5f0e1;
+    --txt-muted:#9a9384;
+    --txt-dim:#5a564e;
+    --ok:#6b9a5a;
+    --warn:#c9a040;
+    --bad:#b84040;
+    --info:#7cc4e8;
+    --radius:16px;
+    --radius-sm:12px;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+
+  html,body{height:100%;overscroll-behavior:none}
+
+  body{
+    font-family:'Baloo Bhaijaan 2', -apple-system, "Segoe UI", sans-serif;
+    background:var(--black);
+    color:var(--txt);
+    line-height:1.6;
+    font-weight:500;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(212,175,55,.04) 0%, transparent 60%);
+    background-attachment:fixed;
+  }
+
+  .app{
+    max-width:min(1100px, 92vw);
+    margin:0 auto;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    padding-bottom:clamp(24px, 4vw, 40px);
+  }
+
+  /* ===== HEADER ===== */
+  .header{
+    position:sticky;
+    top:0;
+    z-index:50;
+    background:rgba(0,0,0,.92);
+    backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--line-soft);
+    padding:clamp(12px, 2vw, 16px) clamp(16px, 3vw, 20px);
+    display:flex;
+    align-items:center;
+    gap:clamp(8px, 1.5vw, 16px);
+  }
+  .header .back{
+    width:clamp(40px, 6vw, 48px);
+    height:clamp(40px, 6vw, 48px);
+    border-radius:14px;
+    background:var(--black-3);
+    border:1px solid var(--line);
+    color:var(--gold-soft);
+    font-size:clamp(1.2rem, 2vw, 1.6rem);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    flex-shrink:0;
+    text-decoration:none;
+    transition:transform .15s;
+  }
+  .header .back:active{transform:scale(.92)}
+  .header .title-block{flex:1; min-width:0;}
+  .header .logo{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(1.4rem, 3vw, 1.8rem);
+    font-weight:700;
+    color:#f0d060;
+    line-height:1.2;
+    letter-spacing:.02em;
+  }
+  .header .logo .b,
+  .header .logo .pe{color:var(--txt);}
+  .header .logo .excl{
+    color:var(--gold);
+    font-size:1.3em;
+    vertical-align:middle;
+    text-shadow:0 0 20px rgba(212,175,55,.5);
+  }
+  .header .subtitle{
+    font-size:clamp(.6rem, 1vw, .7rem);
+    color:var(--txt-muted);
+    font-weight:600;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+  }
+  .header .menu{
+    width:clamp(40px, 6vw, 48px);
+    height:clamp(40px, 6vw, 48px);
+    border-radius:14px;
+    background:var(--black-3);
+    border:1px solid var(--line);
+    color:var(--gold-soft);
+    font-size:clamp(1.1rem, 2vw, 1.4rem);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    flex-shrink:0;
+    transition:transform .15s;
+  }
+  .header .menu:active{transform:scale(.92)}
+
+  /* ===== CONTENT ===== */
+  .content{
+    flex:1;
+    padding:clamp(16px, 3vw, 24px) clamp(16px, 3vw, 20px);
+  }
+
+  /* ===== CARD ===== */
+  .card{
+    background:var(--black-2);
+    border:2px solid var(--line);
+    border-radius:var(--radius);
+    padding:clamp(18px, 3vw, 28px);
+    margin-bottom:clamp(14px, 2vw, 20px);
+  }
+  .card h2{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(1.1rem, 1.8vw, 1.4rem);
+    font-weight:700;
+    color:var(--gold-soft);
+    margin-bottom:clamp(14px, 2vw, 20px);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .card .desc{
+    font-size:clamp(.8rem, 1vw, .9rem);
+    color:var(--txt-muted);
+    margin-bottom:clamp(14px, 2vw, 18px);
+    line-height:1.6;
+  }
+
+  /* ===== BOUTONS ===== */
+  .btn-gold{
+    width:100%;
+    padding:clamp(14px, 1.8vw, 18px);
+    border-radius:999px;
+    background:linear-gradient(180deg, var(--gold-soft), var(--gold));
+    color:#0a0a0a;
+    border:none;
+    font-family:'Baloo Bhaijaan 2', sans-serif;
+    font-size:clamp(1rem, 1.2vw, 1.15rem);
+    font-weight:700;
+    cursor:pointer;
+    transition:all .2s;
+    box-shadow:0 4px 16px rgba(212,175,55,.25);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+  }
+  .btn-gold:hover{filter:brightness(1.08); transform:translateY(-2px);}
+  .btn-gold:active{transform:scale(.98);}
+  .btn-gold:disabled{opacity:.5; cursor:not-allowed; transform:none;}
+
+  .btn-sec{
+    width:100%;
+    padding:clamp(14px, 1.8vw, 18px);
+    border-radius:999px;
+    background:var(--black-3);
+    border:2px solid var(--line);
+    color:var(--txt);
+    font-family:'Baloo Bhaijaan 2', sans-serif;
+    font-size:clamp(1rem, 1.2vw, 1.15rem);
+    font-weight:600;
+    cursor:pointer;
+    transition:all .2s;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    margin-top:10px;
+  }
+  .btn-sec:hover{border-color:var(--gold);}
+  .btn-sec:active{transform:scale(.98);}
+
+  .btn-bad{
+    width:100%;
+    padding:clamp(14px, 1.8vw, 18px);
+    border-radius:999px;
+    background:transparent;
+    border:2px solid var(--bad);
+    color:var(--bad);
+    font-family:'Baloo Bhaijaan 2', sans-serif;
+    font-size:clamp(1rem, 1.2vw, 1.15rem);
+    font-weight:700;
+    cursor:pointer;
+    transition:all .2s;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+  }
+  .btn-bad:hover{background:var(--bad); color:#fff;}
+
+  /* ===== INFO BOX ===== */
+  .info-box{
+    background:rgba(124,196,232,.06);
+    border:1px solid var(--info);
+    border-radius:12px;
+    padding:clamp(12px, 1.5vw, 14px) clamp(14px, 2vw, 18px);
+    font-size:clamp(.78rem, .95vw, .85rem);
+    color:var(--info);
+    line-height:1.6;
+    margin-bottom:clamp(14px, 2vw, 18px);
+  }
+
+  /* ===== DERNIÈRE SAUVEGARDE ===== */
+  .backup-status{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:clamp(12px, 1.5vw, 14px) clamp(16px, 2vw, 18px);
+    border-radius:12px;
+    font-size:clamp(.85rem, 1vw, .95rem);
+    font-weight:600;
+    margin-bottom:clamp(14px, 2vw, 18px);
+  }
+  .backup-status.ok{
+    background:rgba(107,154,90,.08);
+    border:1px solid var(--ok);
+    color:var(--ok);
+  }
+  .backup-status.warn{
+    background:rgba(201,160,64,.08);
+    border:1px solid var(--warn);
+    color:var(--warn);
+  }
+  .backup-status.bad{
+    background:rgba(184,64,64,.08);
+    border:1px solid var(--bad);
+    color:var(--bad);
+  }
+
+  /* ===== CTA MENSUEL ===== */
+  .cta-mensuel{
+    background:linear-gradient(135deg, rgba(212,175,55,.12), rgba(212,175,55,.04));
+    border:1px solid var(--gold);
+    border-radius:var(--radius);
+    padding:clamp(16px, 2.5vw, 20px);
+    margin-bottom:clamp(14px, 2vw, 18px);
+  }
+  .cta-mensuel .cta-titre{
+    font-family:'Fredoka', sans-serif;
+    color:var(--gold-bright);
+    font-weight:700;
+    font-size:clamp(1rem, 1.4vw, 1.15rem);
+    margin-bottom:8px;
+  }
+  .cta-mensuel .cta-desc{
+    color:var(--txt-muted);
+    font-size:clamp(.8rem, 1vw, .9rem);
+    line-height:1.6;
+    margin-bottom:14px;
+  }
+
+  /* ===== MODULES GRID ===== */
+  .modules-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(clamp(150px, 22vw, 200px), 1fr));
+    gap:clamp(8px, 1.5vw, 10px);
+  }
+  .module-item{
+    background:var(--black-3);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:clamp(10px, 1.5vw, 12px) clamp(12px, 1.5vw, 14px);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:8px;
+    font-size:clamp(.78rem, .95vw, .85rem);
+  }
+  .module-item .name{
+    color:var(--txt);
+    font-weight:600;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .module-item .size{
+    color:var(--gold-soft);
+    font-weight:700;
+    font-size:clamp(.7rem, .85vw, .78rem);
+    flex-shrink:0;
+  }
+
+  /* ===== KPI ROW ===== */
+  .kpi-row{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(clamp(140px, 20vw, 180px), 1fr));
+    gap:clamp(10px, 2vw, 14px);
+    margin-bottom:clamp(18px, 3vw, 24px);
+  }
+  .kpi{
+    background:var(--black-2);
+    border:2px solid var(--line);
+    border-radius:var(--radius);
+    padding:clamp(14px, 2vw, 18px);
+    position:relative;
+    overflow:hidden;
+  }
+  .kpi::before{
+    content:'';
+    position:absolute;
+    top:0;left:0;
+    width:4px;height:100%;
+    background:var(--gold);
+    opacity:.6;
+  }
+  .kpi .lab{
+    font-size:clamp(.7rem, .9vw, .8rem);
+    color:var(--txt-muted);
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    margin-bottom:6px;
+  }
+  .kpi .val{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(1.3rem, 2.2vw, 1.7rem);
+    font-weight:700;
+    color:var(--gold-bright);
+    line-height:1.1;
+  }
+  .kpi .val small{
+    font-size:clamp(.72rem, .9vw, .85rem);
+    color:var(--txt-muted);
+    font-weight:500;
+    margin-left:4px;
+  }
+
+  /* ===== DANGER ZONE ===== */
+  .danger-zone{
+    border:2px solid var(--bad);
+    border-radius:var(--radius);
+    padding:clamp(16px, 2.5vw, 20px);
+    background:rgba(184,64,64,.04);
+  }
+  .danger-zone h3{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(1rem, 1.5vw, 1.15rem);
+    color:var(--bad);
+    margin-bottom:8px;
+  }
+  .danger-zone p{
+    font-size:clamp(.78rem, .95vw, .85rem);
+    color:var(--txt-muted);
+    margin-bottom:clamp(12px, 2vw, 16px);
+    line-height:1.6;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width:600px){
+    .modules-grid{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body data-groupe="structure">
+
+<div class="app">
+
+  <!-- ===== HEADER ===== -->
+  <div class="header">
+    <a href="index.html" class="back">←</a>
+    <div class="title-block">
+      <div class="logo">
+        <span class="b">B</span><span class="excl">!</span><span class="pe">PE</span>
+      </div>
+      <div class="subtitle">Sauvegarde</div>
+    </div>
+    <button class="menu" onclick="BIPE.openMenu()">⋮</button>
+  </div>
+
+  <!-- ===== CONTENT ===== -->
+  <div class="content">
+
+    <!-- KPI ROW -->
+    <div class="kpi-row">
+      <div class="kpi">
+        <div class="lab">Modules actifs</div>
+        <div class="val" id="kpiModules">0</div>
+      </div>
+      <div class="kpi">
+        <div class="lab">Volume total</div>
+        <div class="val" id="kpiVolume">0<small>Ko</small></div>
+      </div>
+      <div class="kpi">
+        <div class="lab">Dernière sauvegarde</div>
+        <div class="val" id="kpiDerniere">—</div>
+      </div>
+    </div>
+
+    <!-- ÉTAT DE LA SAUVEGARDE -->
+    <div class="card">
+      <h2>💾 État de la sauvegarde</h2>
+      <div id="backupStatusBox"></div>
+
+      <p class="desc">
+        La sauvegarde exporte <b>toutes les données</b> de B!PE dans un seul fichier JSON
+        (<code style="color:var(--gold-soft)">BIPE-backup-v1</code>).
+        C'est ta sauvegarde de fin de journée. Conserve-la précieusement.
+      </p>
+
+      <button class="btn-gold" onclick="exporterTout()">
+        ⬇ Exporter maintenant
+      </button>
+      <button class="btn-sec" onclick="document.getElementById('importAll').click()">
+        ⬆ Importer une sauvegarde
+      </button>
+      <input type="file" id="importAll" accept=".json" style="display:none" onchange="importerTout(event)">
+    </div>
+
+    <!-- ENVOI MENSUEL -->
+    <div class="card">
+      <h2>📧 Envoi mensuel par mail</h2>
+      <p class="desc">
+        Une fois par mois, B!PE te rappelle d'envoyer ta sauvegarde par mail à toi-même
+        (100% local, aucun serveur, aucun cloud).
+      </p>
+
+      <div class="kpi-row" style="grid-template-columns:1fr 1fr;">
+        <div class="kpi">
+          <div class="lab">Dernier envoi</div>
+          <div class="val" id="kpiDernierEnvoi" style="font-size:clamp(1rem, 1.6vw, 1.3rem);">—</div>
+        </div>
+        <div class="kpi">
+          <div class="lab">Prochain envoi</div>
+          <div class="val" id="kpiProchainEnvoi" style="font-size:clamp(1rem, 1.6vw, 1.3rem);">—</div>
+        </div>
+      </div>
+
+      <div id="zoneCtaMensuel"></div>
+
+      <div class="info-box" style="margin-top:14px; margin-bottom:0;">
+        💡 Le bouton télécharge ton fichier JSON puis ouvre ton client mail pré-rempli.
+        Tu n'as plus qu'à glisser-déposer le fichier en pièce jointe et à t'envoyer le mail.
+      </div>
+    </div>
+
+    <!-- MODULES ET VOLUME -->
+    <div class="card">
+      <h2>📊 Modules et volume de données</h2>
+      <p class="desc">
+        Tous les modules sont stockés dans le <b>local storage</b> du navigateur. Voici leur état et leur volume.
+      </p>
+      <div class="modules-grid" id="modulesGrid">
+        <div class="module-item"><span class="name">Chargement…</span></div>
+      </div>
+    </div>
+
+    <!-- ZONE DANGEREUSE -->
+    <div class="card">
+      <div class="danger-zone">
+        <h3>⚠️ Zone dangereuse</h3>
+        <p>
+          Cette action supprime <b>toutes les données</b> de B!PE (ventes, achats, caisse, stock, RH, comptabilité, banque, rappels, etc.).
+          Les <b>paramètres</b> de la société sont conservés.
+          Cette action est <b>irréversible</b>.
+        </p>
+        <button class="btn-bad" onclick="viderTout()">
+          🗑 Vider toute la base
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   B!PE — sauvegarde.html (fusion v1.5)
+   Export/import via BIPE.exportFullBackup / importFullBackup
+   + bloc envoi mensuel (bannière landing)
+   ============================================================ */
+
+/* ---------- Vérifier la session ---------- */
+if(!BIPE.checkSession()){
+  throw new Error('Session requise');
+}
+
+/* ---------- Liste des modules (complétée v1.5) ---------- */
+const MODULES = {
+  [BIPE.KEYS.ventes]:        'Ventes',
+  [BIPE.KEYS.achats]:        'Achats',
+  [BIPE.KEYS.clients]:       'Clients',
+  [BIPE.KEYS.fournisseurs]:  'Fournisseurs',
+  [BIPE.KEYS.stock]:         'Stock',
+  [BIPE.KEYS.produits]:      'Produits',
+  [BIPE.KEYS.devis]:         'Devis',
+  [BIPE.KEYS.tresorerie]:    'Trésorerie',
+  [BIPE.KEYS.caisse]:        'Caisse',
+  [BIPE.KEYS.charges]:       'Charges',
+  [BIPE.KEYS.compta]:        'Comptabilité',
+  [BIPE.KEYS.banque]:        'Banque',
+  [BIPE.KEYS.credits]:       'Crédits',
+  [BIPE.KEYS.rh]:            'RH',
+  [BIPE.KEYS.culture]:       'Culture',
+  [BIPE.KEYS.planning]:      'Planning',
+  [BIPE.KEYS.rappels]:       'Rappels',
+  [BIPE.KEYS.objectifs]:     'Objectifs',
+  [BIPE.KEYS.campagnes]:     'Campagnes',
+  [BIPE.KEYS.prospects]:     'Prospects',
+  [BIPE.KEYS.relances]:      'Relances',
+  [BIPE.KEYS.documents]:     'Documents',
+  [BIPE.KEYS.parametres]:    'Paramètres'
+};
+
+/* ---------- Analyser les modules ---------- */
+function analyserModules(){
+  const result = [];
+  let totalBytes = 0;
+  let modulesActifs = 0;
+
+  Object.entries(MODULES).forEach(([key, label]) => {
+    const raw = localStorage.getItem(key);
+    let size = 0;
+    let count = '—';
+    let hasData = false;
+
+    if(raw){
+      size = new Blob([raw]).size;
+      totalBytes += size;
+      hasData = true;
+
+      try {
+        const obj = JSON.parse(raw);
+        if(Array.isArray(obj)){
+          count = obj.length + ' élément' + (obj.length > 1 ? 's' : '');
+          if(obj.length > 0) modulesActifs++;
+        } else if(typeof obj === 'object' && obj !== null){
+          const nb = Object.keys(obj).length;
+          count = nb + ' clé' + (nb > 1 ? 's' : '');
+          if(nb > 0) modulesActifs++;
+        }
+      } catch(e){
+        count = 'Invalide';
+      }
+    }
+
+    result.push({ key, label, size, count, hasData });
+  });
+
+  return { result, totalBytes, modulesActifs };
+}
+
+/* ---------- Helpers dates ---------- */
+function fmtDateSafe(iso){
+  if(!iso) return '—';
+  try {
+    const d = new Date(iso);
+    if(isNaN(d)) return iso;
+    return d.toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' });
+  } catch(e){ return iso; }
+}
+
+/* ---------- Rendu principal ---------- */
+function chargerTout(){
+  const { result, totalBytes, modulesActifs } = analyserModules();
+
+  // KPI
+  document.getElementById('kpiModules').textContent =
+    modulesActifs + ' / ' + Object.keys(MODULES).length;
+
+  const ko = (totalBytes / 1024).toFixed(1);
+  document.getElementById('kpiVolume').innerHTML = ko + '<small>Ko</small>';
+
+  // Dernière sauvegarde (CORRIGÉ : via BIPE.storage.get + BIPE.checkBackupAge)
+  const lastBackup = BIPE.storage.get(BIPE.KEYS.lastBackup);
+  const age = BIPE.checkBackupAge();
+  const kpiDerniere = document.getElementById('kpiDerniere');
+  if(lastBackup){
+    kpiDerniere.textContent =
+      age === 0 ? "Aujourd'hui" :
+      age === 1 ? 'Hier' :
+      `Il y a ${age} j`;
+  } else {
+    kpiDerniere.textContent = 'Jamais';
+  }
+
+  // État de la sauvegarde
+  renderBackupStatus(lastBackup, age);
+
+  // Modules
+  document.getElementById('modulesGrid').innerHTML = result.map(m => {
+    const sizeKo = (m.size / 1024).toFixed(1);
+    return `
+      <div class="module-item">
+        <span class="name">${BIPE.esc(m.label)}<br>
+          <small style="color:var(--txt-muted);font-size:.72rem">${m.count}</small>
+        </span>
+        <span class="size">${sizeKo} Ko</span>
+      </div>
+    `;
+  }).join('');
+
+  // Bloc envoi mensuel
+  renderEnvoiMensuel();
+}
+
+/* ---------- État de la sauvegarde ---------- */
+function renderBackupStatus(rawBackup, age){
+  const box = document.getElementById('backupStatusBox');
+  if(!rawBackup){
+    box.innerHTML = `<div class="backup-status bad">
+      ⚠️ Aucune sauvegarde détectée. Pense à exporter ta base en fin de journée.
+    </div>`;
+    return;
+  }
+  if(age === 0){
+    box.innerHTML = `<div class="backup-status ok">
+      ✅ Sauvegarde effectuée aujourd'hui. Tout est à jour.
+    </div>`;
+  } else if(age === 1){
+    box.innerHTML = `<div class="backup-status warn">
+      ⚠️ Dernière sauvegarde hier. Pense à sauvegarder aujourd'hui.
+    </div>`;
+  } else if(age !== null && age > 30){
+    box.innerHTML = `<div class="backup-status bad">
+      🔴 Dernière sauvegarde il y a ${age} jours. À faire en priorité.
+    </div>`;
+  } else if(age !== null){
+    box.innerHTML = `<div class="backup-status warn">
+      ⚠️ Dernière sauvegarde il y a ${age} jours.
+    </div>`;
+  }
+}
+
+/* ---------- Bloc envoi mensuel ---------- */
+function renderEnvoiMensuel(){
+  const lastMonthly = BIPE.storage.get(BIPE.KEYS.lastMonthlyEmail);
+  const due = BIPE.checkMonthlyEmail();
+
+  // Dernier envoi
+  document.getElementById('kpiDernierEnvoi').textContent =
+    lastMonthly ? fmtDateSafe(lastMonthly) : 'Jamais';
+
+  // Prochain envoi
+  const now = new Date();
+  const startThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const startNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  const lastDate = lastMonthly ? new Date(lastMonthly) : null;
+
+  const prochain = (!lastDate || lastDate < startThisMonth) ? startThisMonth : startNextMonth;
+  document.getElementById('kpiProchainEnvoi').textContent = fmtDateSafe(prochain.toISOString());
+
+  // CTA conditionnel
+  const zone = document.getElementById('zoneCtaMensuel');
+  if(due){
+    zone.innerHTML = `
+      <div class="cta-mensuel">
+        <div class="cta-titre">📧 Envoi dû ce mois-ci</div>
+        <div class="cta-desc">
+          La bannière est active sur la page d'accueil. Tu peux aussi envoyer maintenant.
+        </div>
+        <button class="btn-gold" onclick="envoyerMensuel()">
+          📧 Envoyer maintenant
+        </button>
+      </div>
+    `;
+  } else {
+    zone.innerHTML = `
+      <div class="info-box" style="margin-bottom:0; background:rgba(107,154,90,.08); border-color:var(--ok); color:var(--ok);">
+        ✅ Envoi mensuel à jour. Prochain rappel : ${fmtDateSafe(prochain.toISOString())}.
+      </div>
+    `;
+  }
+}
+
+/* ---------- Export complet (délégué à BIPE v1.5) ---------- */
+function exporterTout(){
+  const res = BIPE.exportFullBackup();
+  if(res && res.ok){
+    chargerTout();
+  } else {
+    BIPE.toast('Export échoué', true);
+  }
+}
+
+/* ---------- Import complet (délégué à BIPE v1.5) ---------- */
+function importerTout(ev){
+  const file = ev.target.files[0];
+  ev.target.value = ''; // reset pour réimporter le même fichier
+  if(!file) return;
+
+  BIPE.importFullBackup(file).then((res) => {
+    if(res && res.ok){
+      chargerTout();
+      BIPE.toast(`✅ ${res.count} clé(s) restaurée(s)`, false);
+    } else if(res && res.cancelled){
+      BIPE.toast('Import annulé', false);
+    } else {
+      BIPE.toast(`⚠ ${(res && res.error) || 'Échec import'}`, true);
+    }
+  });
+}
+
+/* ---------- Envoi mensuel ---------- */
+function envoyerMensuel(){
+  // 1. Télécharger le fichier
+  const res = BIPE.exportFullBackup();
+  if(!res || !res.ok){
+    BIPE.toast('Export impossible', true);
+    return;
+  }
+
+  // 2. Construire le mailto
+  const mailInfo = BIPE.buildMonthlyMailto();
+
+  if(!mailInfo.email){
+    BIPE.toast('📤 Fichier téléchargé — ouvre ton mail et joins-le', false);
+  } else {
+    window.location.href = mailInfo.mailto;
+    BIPE.toast('📧 Mail pré-rempli — joins le fichier téléchargé', false);
+  }
+
+  // 3. Marquer comme envoyé
+  BIPE.markMonthlyEmailSent();
+  chargerTout();
+}
+
+/* ---------- Vider la base ---------- */
+function viderTout(){
+  if(!confirm('⚠️ Supprimer TOUTES les données de B!PE ? Cette action est irréversible.')) return;
+  if(!confirm('Dernière confirmation : toutes les ventes, achats, caisse, stock, RH, comptabilité, banque et rappels seront perdus. Continuer ?')) return;
+
+  Object.keys(MODULES).forEach(key => {
+    if(key !== BIPE.KEYS.parametres){
+      localStorage.removeItem(key);
+    }
+  });
+  localStorage.removeItem(BIPE.KEYS.lastBackup);
+  localStorage.removeItem(BIPE.KEYS.lastMonthlyEmail);
+  chargerTout();
+  BIPE.toast('Base vidée (paramètres conservés)');
+}
+
+/* ---------- Init ---------- */
+document.addEventListener('DOMContentLoaded', () => {
+  chargerTout();
+});
+
+// Re-check au retour sur la page (après mailto)
+window.addEventListener('focus', () => {
+  if(document.getElementById('kpiDerniere')) chargerTout();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>BIPE — Prospects</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="shared.js"></script>
+<style>
+  :root{
+    --black:#000000; --black-2:#0a0a0a; --black-3:#141414;
+    --line:#2a2a2a; --line-soft:#1f1f1f;
+    --gold:#d4af37; --gold-bright:#f0d060; --gold-soft:#e8c96a;
+    --gold-dim:#8a7433; --gold-deep:#5a4a1f;
+    --txt:#f5f0e1; --txt-muted:#9a9384; --txt-dim:#5a564e;
+    --ok:#6b9a5a; --warn:#c9a040; --bad:#b84040; --info:#7cc4e8;
+    --radius:16px; --radius-sm:12px;
+    --groupe-couleur:#a78bfa;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overscroll-behavior:none}
+  body{
+    font-family:'Baloo Bhaijaan 2', -apple-system, "Segoe UI", sans-serif;
+    background:var(--black); color:var(--txt); line-height:1.6; font-weight:500;
+    -webkit-font-smoothing:antialiased; min-height:100vh;
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(167,139,250,.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(212,175,55,.02) 0%, transparent 40%);
+    background-attachment:fixed;
+  }
+  .app{max-width:min(1100px,92vw);margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding-bottom:clamp(24px,4vw,40px)}
+
+  .bipe-sheet{transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1)}
+  .bipe-sheet.show{transform:translateY(0) !important}
+  #bipe-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s}
+  #bipe-overlay.show{opacity:1 !important;pointer-events:auto !important}
+
+  .header{
+    position:sticky;top:0;z-index:50;background:rgba(0,0,0,.92);
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--line-soft);
+    padding:clamp(12px,2vw,16px) clamp(16px,3vw,20px);
+    display:flex;align-items:center;gap:clamp(8px,1.5vw,16px);
+  }
+  .header .back{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;text-decoration:none;transition:transform .15s;
+  }
+  .header .back:active{transform:scale(.92)}
+  .header .title-block{flex:1;min-width:0}
+  .header .logo{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2.5vw,1.5rem);
+    font-weight:700;color:#f0d060;line-height:1.2;letter-spacing:.02em;
+  }
+  .header .logo .b,.header .logo .pe{color:var(--txt)}
+  .header .logo .excl{color:var(--gold);font-size:1.3em;vertical-align:middle;text-shadow:0 0 20px rgba(212,175,55,.5)}
+  .header .subtitle{
+    font-size:clamp(.6rem,1vw,.7rem);color:var(--txt-muted);
+    font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  }
+  .header .menu{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;transition:transform .15s;
+  }
+  .header .menu:active{transform:scale(.92)}
+
+  .content{flex:1;padding:clamp(16px,3vw,24px) clamp(16px,3vw,20px)}
+
+  .hero-groupe{
+    background:linear-gradient(135deg,var(--black-2) 0%,var(--black-3) 100%);
+    border:2px solid var(--gold-deep);border-radius:var(--radius);
+    padding:clamp(18px,3vw,24px);margin-bottom:clamp(16px,3vw,20px);
+    position:relative;overflow:hidden;
+  }
+  .hero-groupe::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--groupe-couleur);opacity:.8;
+  }
+  .hero-groupe .num{
+    font-family:'Fredoka',sans-serif;font-size:clamp(.75rem,1vw,.85rem);
+    font-weight:700;color:var(--groupe-couleur);letter-spacing:.05em;margin-bottom:6px;
+  }
+  .hero-groupe .ico{font-size:clamp(1.6rem,2.5vw,2rem);line-height:1;margin-bottom:6px}
+  .hero-groupe h1{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.3rem,2.2vw,1.7rem);
+    font-weight:700;color:var(--gold-bright);line-height:1.2;margin-bottom:4px;
+  }
+  .hero-groupe p{font-size:clamp(.85rem,1.1vw,1rem);color:var(--txt-muted);font-weight:500}
+
+  .stats{
+    display:grid;grid-template-columns:repeat(4,1fr);
+    gap:clamp(8px,1.5vw,12px);margin-bottom:clamp(16px,3vw,20px);
+  }
+  .stat{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(12px,2vw,16px) clamp(10px,1.5vw,14px);
+  }
+  .stat .num{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2.2vw,1.5rem);
+    font-weight:700;line-height:1;margin-bottom:4px;
+  }
+  .stat .lab{font-size:clamp(.68rem,.9vw,.76rem);color:var(--txt-muted);font-weight:600;line-height:1.3}
+  .stat.nouveau .num{color:var(--info)}
+  .stat.encours .num{color:var(--warn)}
+  .stat.converti .num{color:var(--ok)}
+  .stat.perdu .num{color:var(--bad)}
+
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:clamp(14px,2.5vw,18px)}
+  .btn{
+    padding:clamp(11px,1.5vw,13px) clamp(16px,2vw,20px);
+    border-radius:999px;border:none;cursor:pointer;
+    font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:clamp(.88rem,1.1vw,1rem);font-weight:700;
+    display:inline-flex;align-items:center;gap:8px;transition:all .2s;
+  }
+  .btn-gold{
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold));
+    color:#0a0a0a;box-shadow:0 4px 16px rgba(212,175,55,.25);
+  }
+  .btn-gold:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  .btn-gold:active{transform:scale(.97)}
+  .btn-ghost{background:var(--black-2);border:2px solid var(--line);color:var(--txt)}
+  .btn-ghost:hover{border-color:var(--gold-dim)}
+  .btn-convert{
+    background:linear-gradient(180deg,#8fc47a,#6b9a5a);
+    color:#0a0a0a;box-shadow:0 4px 16px rgba(107,154,90,.25);
+    padding:8px 14px;font-size:.82rem;
+  }
+  .btn-convert:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  .btn-convert:active{transform:scale(.97)}
+
+  .search-bar{
+    display:flex;gap:8px;margin-bottom:clamp(12px,2vw,16px);
+    flex-wrap:wrap;
+  }
+  .search-bar input{
+    flex:1;min-width:200px;
+    padding:clamp(10px,1.5vw,12px) clamp(14px,2vw,16px);
+    border-radius:999px;border:2px solid var(--line);
+    background:var(--black-2);color:var(--txt);
+    font-size:clamp(.88rem,1vw,.95rem);
+    font-family:'Baloo Bhaijaan 2',sans-serif;font-weight:500;
+  }
+  .search-bar input:focus{
+    outline:none;border-color:var(--gold);
+    box-shadow:0 0 0 4px rgba(212,175,55,.12);
+  }
+  .search-bar select{
+    padding:clamp(10px,1.5vw,12px) clamp(14px,2vw,16px);
+    border-radius:999px;border:2px solid var(--line);
+    background:var(--black-2);color:var(--txt);
+    font-size:clamp(.85rem,1vw,.92rem);
+    font-family:'Baloo Bhaijaan 2',sans-serif;font-weight:600;
+    cursor:pointer;
+  }
+  .search-bar select:focus{outline:none;border-color:var(--gold)}
+
+  .filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:clamp(14px,2.5vw,18px)}
+  .filter-chip{
+    padding:8px 14px;border-radius:999px;border:2px solid var(--line);
+    background:var(--black-2);color:var(--txt-muted);
+    font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:clamp(.8rem,1vw,.9rem);font-weight:600;cursor:pointer;transition:.2s;
+  }
+  .filter-chip.active{border-color:var(--groupe-couleur);color:var(--groupe-couleur);background:rgba(167,139,250,.08)}
+  .filter-chip:hover:not(.active){color:var(--txt)}
+
+  .list{display:flex;flex-direction:column;gap:clamp(8px,1.5vw,10px)}
+  .prospect-card{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(14px,2.5vw,18px) clamp(16px,2.5vw,20px);
+    display:flex;gap:clamp(10px,2vw,14px);align-items:flex-start;
+    transition:transform .15s,border-color .15s;position:relative;overflow:hidden;
+  }
+  .prospect-card::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--statut-couleur,var(--groupe-couleur));opacity:.9;
+  }
+  .prospect-card.nouveau::before{background:var(--info)}
+  .prospect-card.en_cours::before{background:var(--warn)}
+  .prospect-card.converti::before{background:var(--ok)}
+  .prospect-card.perdu::before{background:var(--bad)}
+  .prospect-card:hover{border-color:var(--gold-dim)}
+  .prospect-avatar{
+    width:clamp(44px,6vw,52px);height:clamp(44px,6vw,52px);
+    border-radius:50%;background:linear-gradient(180deg,var(--gold-soft),var(--gold));
+    color:#0a0a0a;display:flex;align-items:center;justify-content:center;
+    font-family:'Fredoka',sans-serif;font-weight:700;
+    font-size:clamp(.95rem,1.5vw,1.15rem);flex-shrink:0;
+  }
+  .prospect-body{flex:1;min-width:0}
+  .prospect-head{
+    display:flex;justify-content:space-between;align-items:baseline;
+    gap:8px;margin-bottom:4px;flex-wrap:wrap;
+  }
+  .prospect-nom{
+    font-family:'Fredoka',sans-serif;font-size:clamp(.95rem,1.4vw,1.1rem);
+    font-weight:700;color:var(--txt);line-height:1.3;flex:1;min-width:0;
+  }
+  .prospect-societe{
+    font-size:clamp(.78rem,1vw,.88rem);color:var(--txt-muted);
+    font-weight:600;margin-bottom:6px;
+  }
+  .prospect-meta{
+    display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+    font-size:clamp(.75rem,.95vw,.85rem);font-weight:600;
+  }
+  .prospect-meta .badge{
+    padding:2px 8px;border-radius:6px;font-size:.75em;font-weight:700;
+    text-transform:uppercase;letter-spacing:.04em;
+  }
+  .badge-nouveau{background:rgba(124,196,232,.15);color:var(--info)}
+  .badge-en_cours{background:rgba(201,160,64,.15);color:var(--warn)}
+  .badge-converti{background:rgba(107,154,90,.15);color:#8fc47a}
+  .badge-perdu{background:rgba(184,64,64,.15);color:#e08a8a}
+  .prospect-meta .valeur{color:var(--gold-bright);font-weight:700}
+  .prospect-meta .client-lie{color:var(--ok);font-weight:700}
+  .prospect-actions{display:flex;gap:4px;flex-shrink:0;flex-direction:column}
+  .icon-btn{
+    width:clamp(32px,4.5vw,36px);height:clamp(32px,4.5vw,36px);
+    border-radius:10px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--txt-muted);font-size:clamp(.85rem,1.2vw,.95rem);
+    cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;
+  }
+  .icon-btn:hover{border-color:var(--gold-dim);color:var(--gold-soft)}
+  .icon-btn.danger:hover{border-color:var(--bad);color:#e08a8a}
+
+  .empty{
+    text-align:center;padding:clamp(40px,8vw,60px) clamp(20px,3vw,24px);
+    background:var(--black-2);border:2px dashed var(--line);border-radius:var(--radius);
+  }
+  .empty .ico{font-size:clamp(2.5rem,6vw,3.5rem);margin-bottom:12px;opacity:.6}
+  .empty h3{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.1rem,1.8vw,1.3rem);
+    color:var(--gold-soft);margin-bottom:8px;
+  }
+  .empty p{font-size:clamp(.85rem,1.1vw,1rem);color:var(--txt-muted);margin-bottom:16px}
+
+  .footer{
+    text-align:center;padding:clamp(20px,3vw,28px) 16px 16px;
+    font-size:clamp(.72rem,.9vw,.8rem);color:var(--txt-dim);
+    line-height:1.8;font-weight:500;border-top:1px solid var(--line-soft);margin-top:auto;
+  }
+  .footer .brand{color:var(--gold-soft);font-weight:700}
+
+  .form-group{margin-bottom:clamp(14px,2vw,18px)}
+  label{
+    display:block;font-size:clamp(.85rem,1vw,.95rem);
+    color:var(--txt-muted);margin-bottom:6px;font-weight:600;
+  }
+  label .required{color:var(--bad);margin-left:2px}
+  input,textarea,select{
+    width:100%;padding:clamp(12px,1.5vw,14px) clamp(14px,2vw,16px);
+    border-radius:var(--radius-sm);border:2px solid var(--line);
+    background:var(--black-3);color:var(--txt);
+    font-size:clamp(.95rem,1.1vw,1rem);
+    font-family:'Baloo Bhaijaan 2',sans-serif;font-weight:500;transition:all .2s;
+  }
+  input:focus,textarea:focus,select:focus{
+    outline:none;border-color:var(--gold);box-shadow:0 0 0 4px rgba(212,175,55,.12);
+  }
+  input::placeholder,textarea::placeholder{color:var(--txt-dim)}
+  textarea{resize:vertical;min-height:80px}
+  select{cursor:pointer}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  /* Fiche détaillée */
+  .fiche-resume{
+    display:grid;grid-template-columns:repeat(3,1fr);
+    gap:10px;margin-bottom:20px;
+  }
+  .fiche-stat{
+    background:var(--black-3);border:1px solid var(--line);
+    border-radius:var(--radius-sm);padding:14px;
+    text-align:center;
+  }
+  .fiche-stat .val{
+    font-family:'Fredoka',sans-serif;font-size:1.3rem;
+    font-weight:700;color:var(--gold-bright);line-height:1;
+    margin-bottom:4px;
+  }
+  .fiche-stat .lab{
+    font-size:.72rem;color:var(--txt-muted);font-weight:600;
+    text-transform:uppercase;letter-spacing:.05em;
+  }
+
+  .info-block{
+    background:var(--black-3);border:1px solid var(--line);
+    border-radius:12px;padding:16px;margin-bottom:16px;
+  }
+  .info-block .ligne{
+    margin-bottom:8px;font-size:.9rem;
+    display:flex;align-items:flex-start;gap:10px;
+  }
+  .info-block .ligne:last-child{margin-bottom:0}
+  .info-block .ligne .ico{flex-shrink:0;font-size:1em}
+  .info-block .ligne .txt{flex:1;color:var(--txt)}
+
+  @media (max-width:700px){
+    .stats{grid-template-columns:repeat(2,1fr)}
+  }
+  @media (max-width:600px){
+    .row{grid-template-columns:1fr}
+    .prospect-actions{flex-direction:row}
+    .fiche-resume{grid-template-columns:1fr 1fr}
+  }
+</style>
+</head>
+<body data-groupe="g7">
+
+<div class="app">
+
+  <div class="header">
+    <a href="groupe-marketing.html" class="back">←</a>
+    <div class="title-block">
+      <div class="logo"><span class="b">B</span><span class="excl">!</span><span class="pe">PE</span></div>
+      <div class="subtitle">Marketing · Prospects</div>
+    </div>
+    <button class="menu" onclick="BIPE.openMenu()">⋮</button>
+  </div>
+
+  <div class="content">
+
+    <div class="hero-groupe">
+      <div class="num">GROUPE 07</div>
+      <div class="ico">🎯</div>
+      <h1>Prospects</h1>
+      <p>Ton pipeline : leads, statuts, conversions. Converti = client.</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat nouveau"><div class="num" id="statNouveau">0</div><div class="lab">Nouveaux</div></div>
+      <div class="stat encours"><div class="num" id="statEnCours">0</div><div class="lab">En cours</div></div>
+      <div class="stat converti"><div class="num" id="statConverti">0</div><div class="lab">Convertis</div></div>
+      <div class="stat perdu"><div class="num" id="statPerdu">0</div><div class="lab">Perdus</div></div>
+    </div>
+
+    <div class="toolbar">
+      <button class="btn btn-gold" onclick="openForm()"><span>＋</span> Nouveau prospect</button>
+      <button class="btn btn-ghost" onclick="exportProspects()"><span>📤</span> Exporter</button>
+    </div>
+
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="🔍 Rechercher par nom, société, email..." oninput="renderList()">
+      <select id="sortSelect" onchange="renderList()">
+        <option value="nom">Trier par nom (A-Z)</option>
+        <option value="valeur">Trier par valeur (décroissant)</option>
+        <option value="date">Trier par date (récent)</option>
+      </select>
+    </div>
+
+    <div class="filters" id="filters">
+      <button class="filter-chip active" data-filter="tous" onclick="setFilter('tous')">Tous</button>
+      <button class="filter-chip" data-filter="nouveau" onclick="setFilter('nouveau')">Nouveaux</button>
+      <button class="filter-chip" data-filter="en_cours" onclick="setFilter('en_cours')">En cours</button>
+      <button class="filter-chip" data-filter="converti" onclick="setFilter('converti')">Convertis</button>
+      <button class="filter-chip" data-filter="perdu" onclick="setFilter('perdu')">Perdus</button>
+    </div>
+
+    <div class="list" id="list"></div>
+
+  </div>
+
+  <div class="footer">
+    <span class="brand">BIPE</span> · Bureau Intelligent Pour Entrepreneur<br>
+    Marketing · Prospects · Version 2.0
+  </div>
+
+</div>
+
+<div id="bipe-overlay" onclick="BIPE.closeAllSheets()"></div>
+
+<!-- SHEET FORMULAIRE -->
+<div id="sheet-form" class="bipe-sheet" style="
+  position:fixed;left:0;right:0;bottom:0;background:#0a0a0a;
+  border-radius:24px 24px 0 0;border-top:2px solid #5a4a1f;
+  z-index:1001;max-height:92vh;display:flex;flex-direction:column;
+  max-width:720px;margin:0 auto;
+">
+  <div style="width:48px;height:5px;background:#2a2a2a;border-radius:3px;margin:12px auto 8px;flex-shrink:0;"></div>
+  <div style="padding:8px 24px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1f1f1f;">
+    <h3 id="formTitle" style="font-family:'Fredoka',sans-serif;font-size:1.5rem;color:#e8c96a;font-weight:700;">Nouveau prospect</h3>
+    <button onclick="BIPE.closeAllSheets()" style="
+      width:44px;height:44px;border-radius:12px;background:#141414;
+      border:1px solid #2a2a2a;color:#f5f0e1;font-size:1.4rem;
+      display:flex;align-items:center;justify-content:center;cursor:pointer;
+    ">✕</button>
+  </div>
+  <div style="padding:20px 24px 24px;overflow-y:auto;flex:1;">
+    <div class="form-group">
+      <label>Nom <span class="required">*</span></label>
+      <input type="text" id="fNom" placeholder="Ex : Ahmed Ben Ali" maxlength="80">
+    </div>
+    <div class="row">
+      <div class="form-group">
+        <label>Société</label>
+        <input type="text" id="fSociete" placeholder="Ex : ACME SARL" maxlength="80">
+      </div>
+      <div class="form-group">
+        <label>Statut</label>
+        <select id="fStatut">
+          <option value="nouveau">Nouveau</option>
+          <option value="en_cours">En cours</option>
+          <option value="converti">Converti</option>
+          <option value="perdu">Perdu</option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="fEmail" placeholder="ahmed@exemple.tn" maxlength="100">
+      </div>
+      <div class="form-group">
+        <label>Téléphone</label>
+        <input type="tel" id="fTel" placeholder="+216 ..." maxlength="30">
+      </div>
+    </div>
+    <div class="row">
+      <div class="form-group">
+        <label>Valeur estimée (DT)</label>
+        <input type="number" id="fValeur" placeholder="0" step="0.01" min="0">
+      </div>
+      <div class="form-group">
+        <label>Source</label>
+        <select id="fSource">
+          <option value="site">Site web</option>
+          <option value="reseaux">Réseaux sociaux</option>
+          <option value="recommandation">Recommandation</option>
+          <option value="evenement">Événement</option>
+          <option value="autre">Autre</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <textarea id="fNotes" placeholder="Contexte, besoins, historique..." maxlength="500"></textarea>
+    </div>
+    <button class="btn btn-gold" style="width:100%;justify-content:center;margin-top:8px;" onclick="saveProspect()">💾 Enregistrer</button>
+  </div>
+</div>
+
+<!-- SHEET FICHE -->
+<div id="sheet-fiche" class="bipe-sheet" style="
+  position:fixed;left:0;right:0;bottom:0;background:#0a0a0a;
+  border-radius:24px 24px 0 0;border-top:2px solid #5a4a1f;
+  z-index:1001;max-height:92vh;display:flex;flex-direction:column;
+  max-width:720px;margin:0 auto;
+">
+  <div style="width:48px;height:5px;background:#2a2a2a;border-radius:3px;margin:12px auto 8px;flex-shrink:0;"></div>
+  <div style="padding:8px 24px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1f1f1f;">
+    <h3 id="ficheTitle" style="font-family:'Fredoka',sans-serif;font-size:1.5rem;color:#e8c96a;font-weight:700;">Fiche prospect</h3>
+    <button onclick="BIPE.closeAllSheets()" style="
+      width:44px;height:44px;border-radius:12px;background:#141414;
+      border:1px solid #2a2a2a;color:#f5f0e1;font-size:1.4rem;
+      display:flex;align-items:center;justify-content:center;cursor:pointer;
+    ">✕</button>
+  </div>
+  <div id="ficheBody" style="padding:20px 24px 24px;overflow-y:auto;flex:1;"></div>
+</div>
+
+<script>
+/* ============================================================
+   BIPE — f-prospects.html (v2)
+   Groupe 7 — Marketing : prospects
+   - Pipeline complet : nouveau → en_cours → converti / perdu
+   - Conversion en client (bouton sur les prospects convertis)
+   ============================================================ */
+
+BIPE.checkSession();
+
+let prospects = [];
+let filter = 'tous';
+let editingId = null;
+
+/* ---------- Sheet ---------- */
+function ouvrirSheet(id){
+  let overlay = document.getElementById('bipe-overlay');
+  if(!overlay){
+    overlay = document.createElement('div');
+    overlay.id = 'bipe-overlay';
+    overlay.onclick = BIPE.closeAllSheets;
+    document.body.appendChild(overlay);
+  }
+  overlay.classList.add('show');
+  const sheet = document.getElementById(id);
+  if(sheet) sheet.classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function fermerSheet(){
+  const overlay = document.getElementById('bipe-overlay');
+  if(overlay) overlay.classList.remove('show');
+  document.querySelectorAll('.bipe-sheet').forEach(s => s.classList.remove('show'));
+  document.body.style.overflow = '';
+}
+
+/* ---------- Données ---------- */
+function load(){
+  prospects = BIPE.storage.get(BIPE.KEYS.prospects, []) || [];
+  render();
+}
+
+function save(){
+  BIPE.storage.set(BIPE.KEYS.prospects, prospects);
+}
+
+/* ---------- Clients helpers ---------- */
+function getClients(){
+  return BIPE.storage.get(BIPE.KEYS.clients, []) || [];
+}
+
+function saveClients(cs){
+  BIPE.storage.set(BIPE.KEYS.clients, cs);
+}
+
+function clientExiste(id){
+  if(!id) return true;
+  return getClients().some(c => c.id === id);
+}
+
+/* ---------- Conversion en client ---------- */
+function convertirEnClient(prospectId){
+  const p = prospects.find(x => x.id === prospectId);
+  if(!p) return;
+
+  if(p.statut !== 'converti'){
+    BIPE.toast('⚠ Le prospect doit être en statut "Converti"', true);
+    return;
+  }
+
+  if(p.clientId && clientExiste(p.clientId)){
+    BIPE.toast('⚠ Ce prospect a déjà été converti en client', true);
+    return;
+  }
+
+  // Vérifier si un client du même nom existe déjà (anti-doublon)
+  const clients = getClients();
+  const existant = clients.find(c =>
+    (c.nom || '').toLowerCase() === (p.nom || '').toLowerCase()
+  );
+
+  let clientId, clientNom;
+  let dejaExistant = false;
+
+  if(existant){
+    clientId = existant.id;
+    clientNom = existant.nom;
+    dejaExistant = true;
+
+    if(!confirm(`Un client nommé "${existant.nom}" existe déjà.\n\nLier ce prospect à ce client existant ?`)){
+      return;
+    }
+  } else {
+    if(!confirm(`Convertir ce prospect en client ?\n\nNom : ${p.nom}\n${p.email ? 'Email : ' + p.email + '\n' : ''}${p.tel ? 'Téléphone : ' + p.tel + '\n' : ''}\nUne fiche client sera créée.`)){
+      return;
+    }
+
+    const newClient = {
+      id: 'c-' + Date.now().toString(36),
+      nom: p.nom,
+      email: p.email || '',
+      tel: p.tel || '',
+      adresse: '',
+      note: p.notes ? `Issu du prospect "${p.societe || p.nom}" — ${p.notes}` : `Issu du prospect "${p.societe || p.nom}"`,
+      source: 'prospect',
+      prospectId: p.id,
+      createdAt: new Date().toISOString()
+    };
+    clients.push(newClient);
+    saveClients(clients);
+
+    clientId = newClient.id;
+    clientNom = newClient.nom;
+  }
+
+  // Mettre à jour le prospect
+  p.clientId = clientId;
+  p.clientNom = clientNom;
+  p.dateConversion = new Date().toISOString();
+  save();
+
+  BIPE.toast(dejaExistant ? '✅ Prospect lié au client existant' : '✅ Prospect converti en client');
+  render();
+}
+
+/* ---------- Rendu ---------- */
+function render(){
+  renderStats();
+  renderList();
+}
+
+function renderStats(){
+  document.getElementById('statNouveau').textContent = prospects.filter(p => p.statut === 'nouveau').length;
+  document.getElementById('statEnCours').textContent = prospects.filter(p => p.statut === 'en_cours').length;
+  document.getElementById('statConverti').textContent = prospects.filter(p => p.statut === 'converti').length;
+  document.getElementById('statPerdu').textContent = prospects.filter(p => p.statut === 'perdu').length;
+}
+
+function matchFilter(p){
+  if(filter === 'tous') return true;
+  return p.statut === filter;
+}
+
+function matchSearch(p, query){
+  if(!query) return true;
+  const q = query.toLowerCase();
+  return (p.nom || '').toLowerCase().includes(q)
+    || (p.societe || '').toLowerCase().includes(q)
+    || (p.email || '').toLowerCase().includes(q)
+    || (p.tel || '').toLowerCase().includes(q);
+}
+
+function initiales(nom){
+  return (nom||'?').split(' ').map(x => x.charAt(0).toUpperCase()).slice(0,2).join('');
+}
+
+function renderList(){
+  const list = document.getElementById('list');
+  const query = (document.getElementById('searchInput')?.value || '').trim();
+  const sortBy = document.getElementById('sortSelect')?.value || 'nom';
+
+  let items = prospects.filter(p => matchFilter(p) && matchSearch(p, query));
+
+  items = items.slice().sort((a, b) => {
+    if(sortBy === 'valeur') return (b.valeur || 0) - (a.valeur || 0);
+    if(sortBy === 'date') return (b.createdAt || '').localeCompare(a.createdAt || '');
+    return (a.nom || '').localeCompare(b.nom || '');
+  });
+
+  if(items.length === 0){
+    list.innerHTML = `
+      <div class="empty">
+        <div class="ico">🎯</div>
+        <h3>Aucun prospect</h3>
+        <p>${query ? 'Aucun résultat pour cette recherche.' : (filter === 'tous' ? 'Ajoute ton premier prospect.' : 'Aucun prospect dans ce filtre.')}</p>
+        <button class="btn btn-gold" style="margin:0 auto;" onclick="openForm()">＋ Nouveau prospect</button>
+      </div>
+    `;
+    return;
+  }
+
+  const labels = {nouveau:'Nouveau', en_cours:'En cours', converti:'Converti', perdu:'Perdu'};
+
+  list.innerHTML = items.map(p => {
+    const statut = p.statut || 'nouveau';
+    const label = labels[statut] || statut;
+    const dejaConverti = p.clientId && clientExiste(p.clientId);
+    const peutConvertir = statut === 'converti' && !dejaConverti;
+
+    return `
+      <div class="prospect-card ${statut}">
+        <div class="prospect-avatar">${initiales(p.nom)}</div>
+        <div class="prospect-body">
+          <div class="prospect-head">
+            <div class="prospect-nom">${BIPE.esc(p.nom)}</div>
+          </div>
+          ${p.societe ? `<div class="prospect-societe">${BIPE.esc(p.societe)}</div>` : ''}
+          <div class="prospect-meta">
+            <span class="badge badge-${statut}">${label}</span>
+            ${p.valeur ? `<span class="valeur">💰 ${BIPE.fmt(p.valeur)} DT</span>` : ''}
+            ${p.email ? `<span>📧 ${BIPE.esc(p.email)}</span>` : ''}
+            ${dejaConverti ? `<span class="client-lie">👤 ${BIPE.esc(p.clientNom || 'Client')}</span>` : ''}
+          </div>
+          ${peutConvertir ? `
+            <button class="btn btn-convert" style="margin-top:10px;width:100%;justify-content:center;" onclick="convertirEnClient('${p.id}')">
+              ✅ Convertir en client
+            </button>
+          ` : ''}
+          ${p.dateConversion ? `
+            <div style="margin-top:8px;font-size:.8rem;color:var(--ok);font-weight:600;">
+              💼 Converti en client le ${BIPE.fmtDate(p.dateConversion)}
+            </div>
+          ` : ''}
+        </div>
+        <div class="prospect-actions">
+          <button class="icon-btn" onclick="ouvrirFiche('${p.id}')" title="Voir la fiche">👁</button>
+          <button class="icon-btn" onclick="openForm('${p.id}')" title="Modifier">✏️</button>
+          <button class="icon-btn danger" onclick="deleteProspect('${p.id}')" title="Supprimer">🗑</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ---------- Filtres ---------- */
+function setFilter(f){
+  filter = f;
+  document.querySelectorAll('.filter-chip').forEach(b => {
+    b.classList.toggle('active', b.dataset.filter === f);
+  });
+  renderList();
+}
+
+/* ---------- Fiche détaillée ---------- */
+function ouvrirFiche(prospectId){
+  const p = prospects.find(x => x.id === prospectId);
+  if(!p) return;
+
+  document.getElementById('ficheTitle').textContent = p.nom || 'Fiche prospect';
+
+  const statutLabels = {nouveau:'Nouveau', en_cours:'En cours', converti:'Converti', perdu:'Perdu'};
+  const sourceLabels = {site:'Site web', reseaux:'Réseaux sociaux', recommandation:'Recommandation', evenement:'Événement', autre:'Autre'};
+
+  let html = `
+    <div class="fiche-resume">
+      <div class="fiche-stat">
+        <div class="val">${BIPE.fmt(p.valeur || 0)}</div>
+        <div class="lab">Valeur (DT)</div>
+      </div>
+      <div class="fiche-stat">
+        <div class="val" style="font-size:1rem;color:${p.statut === 'converti' ? '#8fc47a' : (p.statut === 'perdu' ? '#e08a8a' : 'var(--warn)')}">${statutLabels[p.statut] || '—'}</div>
+        <div class="lab">Statut</div>
+      </div>
+      <div class="fiche-stat">
+        <div class="val" style="font-size:.9rem;color:var(--info)">${sourceLabels[p.source] || '—'}</div>
+        <div class="lab">Source</div>
+      </div>
+    </div>
+  `;
+
+  html += `
+    <div class="info-block">
+      ${p.email ? `<div class="ligne"><span class="ico">📧</span><span class="txt">${BIPE.esc(p.email)}</span></div>` : ''}
+      ${p.tel ? `<div class="ligne"><span class="ico">📞</span><span class="txt">${BIPE.esc(p.tel)}</span></div>` : ''}
+      ${p.societe ? `<div class="ligne"><span class="ico">🏢</span><span class="txt">${BIPE.esc(p.societe)}</span></div>` : ''}
+      ${!p.email && !p.tel && !p.societe ? `<div class="ligne"><span class="txt" style="color:var(--txt-muted);font-size:.85rem;">Aucune coordonnée renseignée</span></div>` : ''}
+    </div>
+  `;
+
+  if(p.notes){
+    html += `
+      <div class="info-block">
+        <div style="font-size:.72rem;color:var(--txt-muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">📝 Notes</div>
+        <div style="font-size:.9rem;color:var(--txt);white-space:pre-wrap;line-height:1.6;">${BIPE.esc(p.notes)}</div>
+      </div>
+    `;
+  }
+
+  if(p.clientId && clientExiste(p.clientId)){
+    html += `
+      <div class="info-block" style="background:rgba(107,154,90,.1);border-color:rgba(107,154,90,.4);">
+        <div style="font-size:.72rem;color:#8fc47a;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">✅ Converti en client</div>
+        <div style="font-size:.9rem;color:var(--txt);font-weight:600;">${BIPE.esc(p.clientNom || 'Client')}</div>
+        <div style="font-size:.8rem;color:var(--txt-muted);margin-top:4px;">le ${BIPE.fmtDate(p.dateConversion)}</div>
+      </div>
+    `;
+  } else if(p.statut === 'converti'){
+    html += `
+      <div class="info-block" style="background:rgba(201,160,64,.1);border-color:rgba(201,160,64,.4);">
+        <div style="font-size:.72rem;color:var(--warn);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">⏳ Prêt à convertir</div>
+        <div style="font-size:.9rem;color:var(--txt);">Ce prospect est marqué comme converti mais n'a pas encore de fiche client.</div>
+      </div>
+    `;
+  }
+
+  html += `
+    <button class="btn btn-gold" style="width:100%;justify-content:center;margin-top:16px;" onclick="fermerSheet();openForm('${p.id}')">
+      ✏️ Modifier le prospect
+    </button>
+  `;
+
+  if(p.statut === 'converti' && !(p.clientId && clientExiste(p.clientId))){
+    html += `
+      <button class="btn btn-convert" style="width:100%;justify-content:center;margin-top:10px;" onclick="fermerSheet();convertirEnClient('${p.id}')">
+        ✅ Convertir en client
+      </button>
+    `;
+  }
+
+  document.getElementById('ficheBody').innerHTML = html;
+  ouvrirSheet('sheet-fiche');
+}
+
+/* ---------- Formulaire ---------- */
+function openForm(id){
+  editingId = id || null;
+  const title = document.getElementById('formTitle');
+
+  if(id){
+    const p = prospects.find(x => x.id === id);
+    if(!p) return;
+    title.textContent = 'Modifier le prospect';
+    document.getElementById('fNom').value = p.nom || '';
+    document.getElementById('fSociete').value = p.societe || '';
+    document.getElementById('fStatut').value = p.statut || 'nouveau';
+    document.getElementById('fEmail').value = p.email || '';
+    document.getElementById('fTel').value = p.tel || '';
+    document.getElementById('fValeur').value = p.valeur || '';
+    document.getElementById('fSource').value = p.source || 'site';
+    document.getElementById('fNotes').value = p.notes || '';
+  } else {
+    title.textContent = 'Nouveau prospect';
+    document.getElementById('fNom').value = '';
+    document.getElementById('fSociete').value = '';
+    document.getElementById('fStatut').value = 'nouveau';
+    document.getElementById('fEmail').value = '';
+    document.getElementById('fTel').value = '';
+    document.getElementById('fValeur').value = '';
+    document.getElementById('fSource').value = 'site';
+    document.getElementById('fNotes').value = '';
+  }
+
+  ouvrirSheet('sheet-form');
+  setTimeout(() => { try { document.getElementById('fNom').focus(); } catch(e){} }, 300);
+}
+
+function saveProspect(){
+  const nom = document.getElementById('fNom').value.trim();
+  const societe = document.getElementById('fSociete').value.trim();
+  const statut = document.getElementById('fStatut').value;
+  const email = document.getElementById('fEmail').value.trim();
+  const tel = document.getElementById('fTel').value.trim();
+  const valeur = parseFloat(document.getElementById('fValeur').value) || 0;
+  const source = document.getElementById('fSource').value;
+  const notes = document.getElementById('fNotes').value.trim();
+
+  if(!nom){ BIPE.toast('⚠ Le nom est obligatoire', true); return; }
+
+  if(editingId){
+    const p = prospects.find(x => x.id === editingId);
+    if(p){
+      // Si le prospect était converti et qu'on le remet en nouveau, on détache le clientId
+      if(p.statut === 'converti' && statut !== 'converti' && p.clientId){
+        if(!confirm('Ce prospect était converti en client. En changeant le statut, le lien sera supprimé (le client reste).')){
+          return;
+        }
+        p.clientId = null;
+        p.clientNom = null;
+        p.dateConversion = null;
+      }
+
+      Object.assign(p, {nom, societe, statut, email, tel, valeur, source, notes});
+      p.updatedAt = new Date().toISOString();
+    }
+    BIPE.toast('✅ Prospect modifié');
+  } else {
+    prospects.push({
+      id: Date.now().toString(36),
+      nom, societe, statut, email, tel, valeur, source, notes,
+      clientId: null,
+      clientNom: null,
+      dateConversion: null,
+      createdAt: new Date().toISOString()
+    });
+    BIPE.toast('✅ Prospect ajouté');
+  }
+
+  save();
+  fermerSheet();
+  render();
+}
+
+function deleteProspect(id){
+  const p = prospects.find(x => x.id === id);
+  if(!p) return;
+
+  let msg = `Supprimer "${p.nom}" ?`;
+  if(p.clientId && clientExiste(p.clientId)){
+    msg += `\n\n⚠ Ce prospect a été converti en client. Le client sera conservé.`;
+  }
+
+  if(!confirm(msg)) return;
+
+  prospects = prospects.filter(x => x.id !== id);
+  save();
+  render();
+  BIPE.toast('🗑 Prospect supprimé');
+}
+
+function exportProspects(){
+  BIPE.exportJSON('prospects', prospects);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  load();
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape') fermerSheet();
+  });
+});
+</script>
+</body>
+</html>

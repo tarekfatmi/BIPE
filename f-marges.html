@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>BIPE — Marges</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="shared.js"></script>
+<style>
+  :root{
+    --black:#000000; --black-2:#0a0a0a; --black-3:#141414;
+    --line:#2a2a2a; --line-soft:#1f1f1f;
+    --gold:#d4af37; --gold-bright:#f0d060; --gold-soft:#e8c96a;
+    --gold-dim:#8a7433; --gold-deep:#5a4a1f;
+    --txt:#f5f0e1; --txt-muted:#9a9384; --txt-dim:#5a564e;
+    --ok:#6b9a5a; --warn:#c9a040; --bad:#b84040; --info:#7cc4e8;
+    --radius:16px; --radius-sm:12px;
+    --groupe-couleur:#6b9a5a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overscroll-behavior:none}
+  body{
+    font-family:'Baloo Bhaijaan 2', -apple-system, "Segoe UI", sans-serif;
+    background:var(--black); color:var(--txt); line-height:1.6; font-weight:500;
+    -webkit-font-smoothing:antialiased; min-height:100vh;
+    background-image: radial-gradient(ellipse at 50% 0%, rgba(107,154,90,.06) 0%, transparent 60%);
+    background-attachment:fixed;
+  }
+  .app{max-width:min(1100px,92vw);margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding-bottom:clamp(24px,4vw,40px)}
+
+  .header{
+    position:sticky;top:0;z-index:50;background:rgba(0,0,0,.92);
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--line-soft);
+    padding:clamp(12px,2vw,16px) clamp(16px,3vw,20px);
+    display:flex;align-items:center;gap:clamp(8px,1.5vw,16px);
+  }
+  .header .back{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;text-decoration:none;
+  }
+  .header .title-block{flex:1;min-width:0}
+  .header .logo{ font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2.5vw,1.5rem); font-weight:700;color:#f0d060;line-height:1.2; }
+  .header .logo .b,.header .logo .pe{color:var(--txt)}
+  .header .logo .excl{color:var(--gold);font-size:1.3em;vertical-align:middle;text-shadow:0 0 20px rgba(212,175,55,.5)}
+  .header .subtitle{ font-size:clamp(.6rem,1vw,.7rem);color:var(--txt-muted); font-weight:600;letter-spacing:.14em;text-transform:uppercase; }
+  .header .menu{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+  }
+
+  .content{flex:1;padding:clamp(16px,3vw,24px) clamp(16px,3vw,20px)}
+
+  .hero-groupe{
+    background:linear-gradient(135deg,var(--black-2) 0%,var(--black-3) 100%);
+    border:2px solid var(--gold-deep);border-radius:var(--radius);
+    padding:clamp(18px,3vw,24px);margin-bottom:clamp(16px,3vw,20px);
+    position:relative;overflow:hidden;
+  }
+  .hero-groupe::before{ content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:var(--groupe-couleur);opacity:.8; }
+  .hero-groupe .num{ font-family:'Fredoka',sans-serif;font-size:clamp(.75rem,1vw,.85rem); font-weight:700;color:var(--groupe-couleur);letter-spacing:.05em;margin-bottom:6px; }
+  .hero-groupe .ico{font-size:clamp(1.6rem,2.5vw,2rem);line-height:1;margin-bottom:6px}
+  .hero-groupe h1{ font-family:'Fredoka',sans-serif;font-size:clamp(1.3rem,2.2vw,1.7rem); font-weight:700;color:var(--gold-bright);line-height:1.2;margin-bottom:4px; }
+  .hero-groupe p{font-size:clamp(.85rem,1.1vw,1rem);color:var(--txt-muted);font-weight:500}
+
+  .kpi-marge{
+    background:linear-gradient(135deg,var(--black-2) 0%,var(--black-3) 100%);
+    border:2px solid var(--gold-deep); border-radius:var(--radius);
+    padding:clamp(20px,3.5vw,30px); margin-bottom:clamp(16px,3vw,20px);
+    position:relative;overflow:hidden;
+  }
+  .kpi-marge::before{ content:'';position:absolute;top:0;left:0;right:0;height:3px; background:linear-gradient(90deg, transparent, var(--gold), transparent); }
+  .kpi-marge .lab{ font-size:clamp(.85rem,1.1vw,1rem); color:var(--txt-muted);font-weight:600;margin-bottom:8px; }
+  .kpi-marge .val{
+    font-family:'Fredoka',sans-serif; font-size:clamp(2.4rem,6vw,3.8rem);
+    font-weight:700;line-height:1; color:var(--gold-bright);
+    text-shadow:0 0 40px rgba(212,175,55,.4); margin-bottom:8px;
+  }
+  .kpi-marge .val.pos{color:var(--ok);text-shadow:0 0 40px rgba(107,154,90,.4)}
+  .kpi-marge .val.neg{color:var(--bad);text-shadow:0 0 40px rgba(184,64,64,.4)}
+  .kpi-marge .sub{ font-size:clamp(.8rem,1vw,.9rem);color:var(--txt-muted); display:flex;gap:14px;flex-wrap:wrap; }
+  .kpi-marge .sub b{color:var(--txt)}
+
+  .kpi-grid{ display:grid;grid-template-columns:repeat(4,1fr); gap:clamp(8px,1.5vw,12px);margin-bottom:clamp(16px,3vw,20px); }
+  .kpi-box{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(12px,2vw,16px) clamp(10px,1.5vw,14px);
+  }
+  .kpi-box .lab{ font-size:clamp(.68rem,.9vw,.76rem);color:var(--txt-muted); font-weight:600;line-height:1.3;margin-bottom:4px; text-transform:uppercase;letter-spacing:.04em; }
+  .kpi-box .val{ font-family:'Fredoka',sans-serif;font-size:clamp(1.1rem,2vw,1.5rem); font-weight:700;line-height:1.1;color:var(--gold-bright); }
+  .kpi-box .val.pos{color:var(--ok)}
+  .kpi-box .val.neg{color:var(--bad)}
+  .kpi-box .val.info{color:var(--info)}
+
+  .section-title{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.1rem,1.8vw,1.3rem);
+    color:var(--gold-soft);font-weight:700; margin-bottom:clamp(12px,2vw,16px);
+  }
+
+  .card{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(16px,3vw,22px);
+    margin-bottom:clamp(16px,3vw,20px);
+  }
+
+  .ligne-calc{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:10px 0; border-bottom:1px solid var(--line-soft);
+    font-size:clamp(.85rem,1vw,.92rem); gap:10px;
+  }
+  .ligne-calc:last-child{border-bottom:none;padding-bottom:0}
+  .ligne-calc .lab{color:var(--txt-muted);font-weight:600}
+  .ligne-calc .val{font-family:'Fredoka',sans-serif;font-weight:700;color:var(--txt);white-space:nowrap}
+  .ligne-calc .val.plus{color:var(--ok)}
+  .ligne-calc .val.moins{color:var(--bad)}
+  .ligne-calc.total{ margin-top:8px;padding-top:14px; border-top:2px solid var(--gold-deep); font-size:clamp(1rem,1.3vw,1.15rem); }
+  .ligne-calc.total .val{ color:var(--gold-bright);font-size:clamp(1.2rem,1.8vw,1.5rem); }
+  .ligne-calc.total .val.pos{color:var(--ok)}
+  .ligne-calc.total .val.neg{color:var(--bad)}
+
+  .table-wrap{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);overflow:hidden; margin-bottom:clamp(16px,3vw,20px);
+  }
+  .table-produits{width:100%;border-collapse:collapse}
+  .table-produits th{
+    background:var(--black-3); padding:clamp(10px,1.5vw,12px) clamp(10px,1.5vw,14px);
+    text-align:left;font-family:'Fredoka',sans-serif;
+    font-size:clamp(.72rem,.9vw,.8rem);font-weight:700;
+    color:var(--gold-soft);letter-spacing:.05em;
+    text-transform:uppercase;border-bottom:2px solid var(--gold-deep);
+    white-space:nowrap;
+  }
+  .table-produits td{
+    padding:clamp(10px,1.5vw,12px) clamp(10px,1.5vw,14px);
+    border-bottom:1px solid var(--line-soft); font-size:clamp(.82rem,1vw,.9rem);font-weight:500;
+  }
+  .table-produits tr:last-child td{border-bottom:none}
+  .table-produits td.num{ text-align:right;font-family:'Fredoka',sans-serif; font-weight:700;white-space:nowrap; }
+  .table-produits td.marge{color:var(--gold-bright);font-weight:700}
+  .table-produits td.marge.pos{color:var(--ok)}
+  .table-produits td.marge.neg{color:var(--bad)}
+  .empty-table{ padding:clamp(30px,5vw,40px) 20px; text-align:center;color:var(--txt-muted);font-size:.9rem; }
+
+  .bilan-header{ display:flex;justify-content:space-between;align-items:center; margin-bottom:clamp(12px,2vw,16px);flex-wrap:wrap;gap:10px; }
+  .bilan-header .statut{ padding:5px 12px;border-radius:999px; font-size:.75rem;font-weight:700; text-transform:uppercase;letter-spacing:.05em; }
+  .bilan-header .statut.ouvert{ background:rgba(201,160,64,.15);color:var(--warn); border:1px solid var(--warn); }
+  .bilan-header .statut.cloture{ background:rgba(107,154,90,.15);color:var(--ok); border:1px solid var(--ok); }
+
+  .btn{
+    padding:clamp(11px,1.5vw,13px) clamp(16px,2vw,20px);
+    border-radius:999px;border:none;cursor:pointer;
+    font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:clamp(.88rem,1.1vw,1rem);font-weight:700;
+    display:inline-flex;align-items:center;gap:8px;transition:all .2s;
+  }
+  .btn-gold{ background:linear-gradient(180deg,var(--gold-soft),var(--gold)); color:#0a0a0a;box-shadow:0 4px 16px rgba(212,175,55,.25); }
+  .btn-gold:hover{filter:brightness(1.08)}
+  .btn-ghost{background:var(--black-2);border:2px solid var(--line);color:var(--txt)}
+  .btn-ghost:hover{border-color:var(--gold-dim)}
+
+  .footer{
+    text-align:center;padding:clamp(20px,3vw,28px) 16px 16px;
+    font-size:clamp(.72rem,.9vw,.8rem);color:var(--txt-dim);
+    line-height:1.8;font-weight:500;border-top:1px solid var(--line-soft);margin-top:auto;
+  }
+  .footer .brand{color:var(--gold-soft);font-weight:700}
+
+  .info-box{
+    padding:12px 16px;border-radius:10px;
+    margin-bottom:16px;font-size:.85rem;line-height:1.6;
+    background:rgba(124,196,232,.08);
+    border:1px solid rgba(124,196,232,.3);color:#b8ddf0;
+  }
+
+  @media (max-width:900px){ .kpi-grid{grid-template-columns:repeat(2,1fr)} }
+  @media (max-width:600px){
+    .kpi-grid{grid-template-columns:1fr 1fr}
+    .table-produits{font-size:.75rem}
+    .table-produits th,.table-produits td{padding:8px 10px}
+  }
+</style>
+</head>
+<body data-groupe="g3">
+
+<div class="app">
+
+  <div class="header">
+    <a href="groupe-pilotage.html" class="back">←</a>
+    <div class="title-block">
+      <div class="logo"><span class="b">B</span><span class="excl">!</span><span class="pe">PE</span></div>
+      <div class="subtitle">Pilotage · Marges</div>
+    </div>
+    <button class="menu" onclick="BIPE.openMenu()">⋮</button>
+  </div>
+
+  <div class="content">
+
+    <div class="hero-groupe">
+      <div class="num">GROUPE 03</div>
+      <div class="ico">📈</div>
+      <h1>Marges</h1>
+      <p>Le vrai chiffre. Ce que tu gagnes vraiment, jour après jour.</p>
+    </div>
+
+    <div class="kpi-marge">
+      <div class="lab">💰 Marge du jour</div>
+      <div class="val" id="kpiMargeJour">0 DT</div>
+      <div class="sub" id="kpiMargeJourSub">
+        <span>CA : <b>0</b></span>
+        <span>Charges/30 : <b>0</b></span>
+        <span>Coût matière : <b>0</b></span>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-box">
+        <div class="lab">Marge semaine</div>
+        <div class="val" id="kpiMargeSemaine">0 DT</div>
+      </div>
+      <div class="kpi-box">
+        <div class="lab">Marge mois</div>
+        <div class="val" id="kpiMargeMois">0 DT</div>
+      </div>
+      <div class="kpi-box">
+        <div class="lab">Charges fixes / mois</div>
+        <div class="val" id="kpiChargesFixesMois">0 DT</div>
+      </div>
+      <div class="kpi-box">
+        <div class="lab">Valeur du stock</div>
+        <div class="val info" id="kpiValeurStock">0 DT</div>
+      </div>
+    </div>
+
+    <div class="section-title">📊 Détail du jour</div>
+    <div class="card">
+      <div class="ligne-calc">
+        <span class="lab">CA du jour</span>
+        <span class="val plus" id="calcCA">+ 0 DT</span>
+      </div>
+      <div class="ligne-calc">
+        <span class="lab">− Charges fixes / 30</span>
+        <span class="val moins" id="calcChargesJour">− 0 DT</span>
+      </div>
+      <div class="ligne-calc">
+        <span class="lab">− Coût matière (produits vendus)</span>
+        <span class="val moins" id="calcStockJour">− 0 DT</span>
+      </div>
+      <div class="ligne-calc total">
+        <span class="lab">= Marge du jour</span>
+        <span class="val" id="calcMargeJour">0 DT</span>
+      </div>
+    </div>
+
+    <div class="section-title">📅 Synthèse du mois</div>
+    <div class="card">
+      <div class="ligne-calc">
+        <span class="lab">Total charges fixes</span>
+        <span class="val" id="synthChargesFixes">0 DT</span>
+      </div>
+      <div class="ligne-calc">
+        <span class="lab">Total CA</span>
+        <span class="val plus" id="synthCA">0 DT</span>
+      </div>
+      <div class="ligne-calc">
+        <span class="lab">Total achats</span>
+        <span class="val moins" id="synthAchats">0 DT</span>
+      </div>
+      <div class="ligne-calc">
+        <span class="lab">Coût matière (produits vendus)</span>
+        <span class="val moins" id="synthCoutStock">0 DT</span>
+      </div>
+      <div class="ligne-calc total">
+        <span class="lab">= Résultat du mois</span>
+        <span class="val" id="synthResultat">0 DT</span>
+      </div>
+    </div>
+
+    <div class="section-title">💵 Prix moyens (global)</div>
+    <div class="kpi-grid" style="grid-template-columns:1fr 1fr;">
+      <div class="kpi-box">
+        <div class="lab">Prix d'achat moyen</div>
+        <div class="val" id="kpiPrixAchatMoyen">0 DT</div>
+      </div>
+      <div class="kpi-box">
+        <div class="lab">Prix de vente moyen</div>
+        <div class="val" id="kpiPrixVenteMoyen">0 DT</div>
+      </div>
+    </div>
+
+    <div class="section-title">📦 Marge par produit</div>
+    <div class="table-wrap">
+      <table class="table-produits">
+        <thead>
+          <tr>
+            <th>Produit</th>
+            <th style="text-align:right;">Px achat</th>
+            <th style="text-align:right;">Px vente</th>
+            <th style="text-align:right;">Marge</th>
+            <th style="text-align:right;">Marge %</th>
+          </tr>
+        </thead>
+        <tbody id="tableProduitsBody">
+          <tr><td colspan="5" class="empty-table">Chargement…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section-title">🌙 Bilan mensuel</div>
+    <div class="card">
+      <div class="bilan-header">
+        <div>
+          <div style="font-family:'Fredoka',sans-serif;font-size:1.05rem;color:var(--gold-soft);font-weight:700;" id="bilanMoisLabel">—</div>
+          <div style="font-size:.82rem;color:var(--txt-muted);margin-top:2px;">Récapitulatif du mois en cours</div>
+        </div>
+        <div id="bilanStatut"></div>
+      </div>
+
+      <div class="ligne-calc">
+        <span class="lab">Total charges fixes</span>
+        <span class="val" id="bilanChargesFixes">0 DT</span>
+      </div>
+      <div class="ligne-calc">
+        <span class="lab">Total CA</span>
+        <span class="val plus" id="bilanCA">0 DT</span>
+      </div>
+      <div class="ligne-calc">
+        <span class="lab">Total achats</span>
+        <span class="val" id="bilanAchats">0 DT</span>
+      </div>
+      <div class="ligne-calc">
+        <span class="lab">Coût matière (produits vendus)</span>
+        <span class="val" id="bilanCoutMatiere">0 DT</span>
+      </div>
+      <div class="ligne-calc total">
+        <span class="lab">= Bénéfice du mois</span>
+        <span class="val" id="bilanBenefice">0 DT</span>
+      </div>
+
+      <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-gold" id="btnCloturer" onclick="cloturerMois()">🔒 Clôturer le mois</button>
+        <button class="btn btn-ghost" id="btnReouvrir" onclick="reouvrirMois()" style="display:none;">🔓 Réouvrir le mois</button>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <b>Formule :</b> Marge jour = <code>CA − (ChargesFixes/30) − Coût matière</code>.<br>
+      <b>Coût matière</b> = Σ (quantité vendue × prix d'achat moyen du produit vendu).<br>
+      <b>Note :</b> Assure-toi de renseigner le <i>Prix unitaire</i> lors de la création de tes entrées de stock ou de tes achats pour que le coût matière soit exact.
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <span class="brand">BIPE</span> · Bureau Intelligent Pour Entrepreneur<br>
+    Pilotage · Marges · Version 3.2
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   BIPE — f-marges.html v3.2
+   ============================================================ */
+
+BIPE.checkSession();
+
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+
+/* ---------- Helpers dates ---------- */
+function getMondayOfWeek(d){
+  const dt = new Date(d);
+  const day = dt.getDay() || 7;
+  const monday = new Date(dt);
+  monday.setDate(dt.getDate() - day + 1);
+  monday.setHours(0,0,0,0);
+  return monday;
+}
+function getStartOfMonth(d){ return new Date(d.getFullYear(), d.getMonth(), 1); }
+function getEndOfMonth(d){ return new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999); }
+function fmtDateOnly(d){
+  if(!d) return '';
+  const dt = new Date(d);
+  if(isNaN(dt)) return '';
+  return dt.toISOString().slice(0,10);
+}
+
+/* ---------- Récupération des données ---------- */
+function getCharges(){ return BIPE.storage.get(BIPE.KEYS.charges, []) || []; }
+function getVentes(){ return BIPE.storage.get(BIPE.KEYS.ventes, []) || []; }
+function getAchats(){ return BIPE.storage.get(BIPE.KEYS.achats, []) || []; }
+function getStock(){ return BIPE.storage.get(BIPE.KEYS.stock, []) || []; }
+
+function getPid(m){
+  return m.produitId || m.produit || m.produit_id || m.id_produit || ('nom:' + (m.nom || ''));
+}
+function isEntree(m){
+  const t = (m.type || m.sens || '').toLowerCase();
+  return t === 'entree' || t === 'entrée' || t === 'in' || t === 'achat';
+}
+function isSortie(m){
+  const t = (m.type || m.sens || '').toLowerCase();
+  return t === 'sortie' || t === 'out' || t === 'vente';
+}
+
+/* ============================================================
+   CHARGES FIXES
+   ============================================================ */
+function getChargesFixesMois(mois){
+  const y = mois.getFullYear(), m = mois.getMonth();
+  return getCharges()
+    .filter(c => {
+      const d = new Date(c.date || c.createdAt || '');
+      if(isNaN(d)) return false;
+      return d.getFullYear() === y && d.getMonth() === m;
+    })
+    .reduce((s, c) => s + (Number(c.montant) || 0), 0);
+}
+
+/* ============================================================
+   CA
+   ============================================================ */
+function getCAJour(dateISO){
+  return getVentes()
+    .filter(v => fmtDateOnly(v.date || v.createdAt) === dateISO)
+    .reduce((s, v) => s + (Number(v.montant) || 0), 0);
+}
+function getCAPeriode(debut, fin){
+  const d = fmtDateOnly(debut), f = fmtDateOnly(fin);
+  return getVentes()
+    .filter(v => {
+      const vd = fmtDateOnly(v.date || v.createdAt);
+      return vd >= d && vd <= f;
+    })
+    .reduce((s, v) => s + (Number(v.montant) || 0), 0);
+}
+
+/* ============================================================
+   ACHATS
+   ============================================================ */
+function getAchatsPeriode(debut, fin){
+  const d = fmtDateOnly(debut), f = fmtDateOnly(fin);
+  return getAchats()
+    .filter(a => {
+      const ad = fmtDateOnly(a.date || a.createdAt);
+      return ad >= d && ad <= f;
+    })
+    .reduce((s, a) => s + (Number(a.montant) || 0), 0);
+}
+
+/* ============================================================
+   PRIX D'ACHAT MOYEN PAR PRODUIT
+   ============================================================ */
+function getPrixAchatMoyenParProduit(){
+  const map = new Map();
+
+  getAchats().forEach(a => {
+    const pid = a.produitId || ('nom:' + (a.produitNom || '').toLowerCase().trim());
+    const qte = Number(a.quantite) || 0;
+    const prix = Number(a.prix) || 0;
+    if(qte <= 0 || prix <= 0) return;
+
+    if(!map.has(pid)){
+      map.set(pid, { nom: a.produitNom || pid, totalQte: 0, totalVal: 0 });
+    }
+    const p = map.get(pid);
+    p.totalQte += qte;
+    p.totalVal += qte * prix;
+  });
+
+  const result = new Map();
+  map.forEach((v, pid) => {
+    result.set(pid, {
+      nom: v.nom,
+      prixAchatMoyen: v.totalQte > 0 ? v.totalVal / v.totalQte : 0
+    });
+  });
+  return result;
+}
+
+function getPrixAchatPourProduit(produitId, produitNom, map){
+  // 1. ID exact
+  if(produitId && map.has(produitId)) return map.get(produitId).prixAchatMoyen;
+
+  if(produitNom){
+    const nomTrim = produitNom.toLowerCase().trim();
+    
+    // 2. Clé normalisée
+    const nomKey = 'nom:' + nomTrim;
+    if(map.has(nomKey)) return map.get(nomKey).prixAchatMoyen;
+
+    // 3. Recherche textuelle (fuzzy)
+    for(const [pid, data] of map.entries()){
+      if((data.nom || '').toLowerCase().trim() === nomTrim){
+        return data.prixAchatMoyen;
+      }
+    }
+  }
+
+  return 0;
+}
+
+/* ============================================================
+   PRIX DE VENTE MOYEN PAR PRODUIT
+   ============================================================ */
+function getPrixVenteMoyenParProduit(){
+  const map = new Map();
+  getVentes().forEach(v => {
+    const pid = v.produitId || ('nom:' + (v.produitNom || '').toLowerCase().trim());
+    const qte = Number(v.quantite) || 0;
+    const prix = Number(v.prix) || 0;
+    if(qte <= 0 || prix <= 0) return;
+
+    if(!map.has(pid)){
+      map.set(pid, { nom: v.produitNom || pid, totalQte: 0, totalVal: 0 });
+    }
+    const p = map.get(pid);
+    p.totalQte += qte;
+    p.totalVal += qte * prix;
+  });
+
+  const result = new Map();
+  map.forEach((v, pid) => {
+    result.set(pid, {
+      nom: v.nom,
+      prixVenteMoyen: v.totalQte > 0 ? v.totalVal / v.totalQte : 0
+    });
+  });
+  return result;
+}
+
+/* ============================================================
+   PRIX MOYENS GLOBAUX
+   ============================================================ */
+function getPrixMoyensGlobaux(){
+  let sumA = 0, qteA = 0, sumV = 0, qteV = 0;
+
+  getAchats().forEach(a => {
+    const q = Number(a.quantite) || 0, p = Number(a.prix) || 0;
+    if(q > 0 && p > 0){ sumA += q * p; qteA += q; }
+  });
+
+  getVentes().forEach(v => {
+    const q = Number(v.quantite) || 0, p = Number(v.prix) || 0;
+    if(q > 0 && p > 0){ sumV += q * p; qteV += q; }
+  });
+
+  return {
+    prixAchatMoyen: qteA > 0 ? sumA / qteA : 0,
+    prixVenteMoyen: qteV > 0 ? sumV / qteV : 0
+  };
+}
+
+/* ============================================================
+   COÛT MATIÈRE (PRODUITS VENDUS)
+   ============================================================ */
+function getCoutMatiereJour(dateISO){
+  const prixAchatMap = getPrixAchatMoyenParProduit();
+  let total = 0;
+
+  getVentes().forEach(v => {
+    const vd = fmtDateOnly(v.date || v.createdAt);
+    if(vd !== dateISO) return;
+
+    const qte = Number(v.quantite) || 0;
+    const pxAchat = getPrixAchatPourProduit(v.produitId, v.produitNom, prixAchatMap);
+    total += qte * pxAchat;
+  });
+
+  return total;
+}
+
+function getCoutMatierePeriode(debut, fin){
+  const prixAchatMap = getPrixAchatMoyenParProduit();
+  const d = fmtDateOnly(debut), f = fmtDateOnly(fin);
+  let total = 0;
+
+  getVentes().forEach(v => {
+    const vd = fmtDateOnly(v.date || v.createdAt);
+    if(vd < d || vd > f) return;
+    const qte = Number(v.quantite) || 0;
+    const pxAchat = getPrixAchatPourProduit(v.produitId, v.produitNom, prixAchatMap);
+    total += qte * pxAchat;
+  });
+
+  return total;
+}
+
+/* ============================================================
+   STOCK RÉEL & VALEUR
+   ============================================================ */
+function getStockParProduit(){
+  const map = new Map();
+  getStock().forEach(m => {
+    const pid = getPid(m);
+    const qte = Number(m.quantite) || Number(m.qte) || 0;
+    if(!map.has(pid)) map.set(pid, { nom: m.nom || pid, qte: 0 });
+    const p = map.get(pid);
+    if(isEntree(m)) p.qte += qte;
+    else if(isSortie(m)) p.qte -= qte;
+  });
+  return map;
+}
+
+function getValeurStock(){
+  const stockMap = getStockParProduit();
+  const prixAchatMap = getPrixAchatMoyenParProduit();
+  let total = 0;
+  stockMap.forEach((v, pid) => {
+    if(v.qte > 0){
+      const pxAchat = getPrixAchatPourProduit(pid, v.nom, prixAchatMap);
+      total += v.qte * pxAchat;
+    }
+  });
+  return total;
+}
+
+/* ============================================================
+   MARGE PAR PRODUIT
+   ============================================================ */
+function getMargesParProduit(){
+  const mapAchat = getPrixAchatMoyenParProduit();
+  const mapVente = getPrixVenteMoyenParProduit();
+  const tousPids = new Set([...mapAchat.keys(), ...mapVente.keys()]);
+
+  const result = [];
+  tousPids.forEach(pid => {
+    const a = mapAchat.get(pid);
+    const v = mapVente.get(pid);
+    const prixAchat = a?.prixAchatMoyen || 0;
+    const prixVente = v?.prixVenteMoyen || 0;
+    const nom = v?.nom || a?.nom || pid;
+
+    if(prixAchat > 0 || prixVente > 0){
+      const marge = prixVente - prixAchat;
+      const margePct = prixVente > 0 ? (marge / prixVente) * 100 : 0;
+      result.push({ id: pid, nom, prixAchat, prixVente, marge, margePct });
+    }
+  });
+
+  result.sort((a, b) => b.margePct - a.margePct);
+  return result;
+}
+
+/* ============================================================
+   CLÔTURES
+   ============================================================ */
+function getClotures(){ return BIPE.storage.get(BIPE.KEYS.cloturesMois || 'bipe_clotures_mois', []) || []; }
+function saveClotures(c){ BIPE.storage.set(BIPE.KEYS.cloturesMois || 'bipe_clotures_mois', c); }
+function getClotureMois(ym){ return getClotures().find(c => c.mois === ym); }
+
+/* ============================================================
+   CALCULS MARGES
+   ============================================================ */
+function calcMargeJour(dateISO){
+  const now = new Date();
+  const chargesFixesMois = getChargesFixesMois(now);
+  const chargesFixesJour = chargesFixesMois / 30;
+  const ca = getCAJour(dateISO);
+  const coutMatiere = getCoutMatiereJour(dateISO);
+  const marge = ca - chargesFixesJour - coutMatiere;
+  return { ca, chargesFixesJour, coutMatiere, marge };
+}
+
+function calcMargePeriode(debut, fin){
+  const now = new Date();
+  const chargesFixesMois = getChargesFixesMois(now);
+  const d1 = new Date(debut), d2 = new Date(fin);
+  const nbJours = Math.max(1, Math.round((d2 - d1) / 86400000) + 1);
+  const chargesFixesPeriode = (chargesFixesMois / 30) * nbJours;
+
+  const ca = getCAPeriode(debut, fin);
+  const coutMatiere = getCoutMatierePeriode(debut, fin);
+  const marge = ca - chargesFixesPeriode - coutMatiere;
+  return { ca, chargesFixesPeriode, coutMatiere, marge, nbJours };
+}
+
+/* ============================================================
+   RENDU
+   ============================================================ */
+function render(){
+  const today = todayISO();
+  const now = new Date();
+
+  const chargesFixesMois = getChargesFixesMois(now);
+  document.getElementById('kpiChargesFixesMois').textContent = BIPE.fmt(chargesFixesMois) + ' DT';
+  document.getElementById('kpiValeurStock').textContent = BIPE.fmt(getValeurStock()) + ' DT';
+
+  const mj = calcMargeJour(today);
+  const margeJourEl = document.getElementById('kpiMargeJour');
+  margeJourEl.textContent = BIPE.fmt(mj.marge) + ' DT';
+  margeJourEl.className = 'val ' + (mj.marge > 0 ? 'pos' : mj.marge < 0 ? 'neg' : '');
+  document.getElementById('kpiMargeJourSub').innerHTML = `
+    <span>CA : <b>${BIPE.fmt(mj.ca)} DT</b></span>
+    <span>Charges/30 : <b>${BIPE.fmt(mj.chargesFixesJour)} DT</b></span>
+    <span>Coût matière : <b>${BIPE.fmt(mj.coutMatiere)} DT</b></span>
+  `;
+  document.getElementById('calcCA').textContent = '+ ' + BIPE.fmt(mj.ca) + ' DT';
+  document.getElementById('calcChargesJour').textContent = '− ' + BIPE.fmt(mj.chargesFixesJour) + ' DT';
+  document.getElementById('calcStockJour').textContent = '− ' + BIPE.fmt(mj.coutMatiere) + ' DT';
+  const cmjEl = document.getElementById('calcMargeJour');
+  cmjEl.textContent = BIPE.fmt(mj.marge) + ' DT';
+  cmjEl.className = 'val ' + (mj.marge > 0 ? 'pos' : mj.marge < 0 ? 'neg' : '');
+
+  const lundi = getMondayOfWeek(now);
+  const dimanche = new Date(lundi); dimanche.setDate(dimanche.getDate() + 6);
+  const mSem = calcMargePeriode(lundi, dimanche);
+  const mSemEl = document.getElementById('kpiMargeSemaine');
+  mSemEl.textContent = BIPE.fmt(mSem.marge) + ' DT';
+  mSemEl.className = 'val ' + (mSem.marge > 0 ? 'pos' : mSem.marge < 0 ? 'neg' : '');
+
+  const debutMois = getStartOfMonth(now);
+  const finMois = getEndOfMonth(now);
+  const mMois = calcMargePeriode(debutMois, finMois);
+  const mMoisEl = document.getElementById('kpiMargeMois');
+  mMoisEl.textContent = BIPE.fmt(mMois.marge) + ' DT';
+  mMoisEl.className = 'val ' + (mMois.marge > 0 ? 'pos' : mMois.marge < 0 ? 'neg' : '');
+
+  const prixMoyens = getPrixMoyensGlobaux();
+  document.getElementById('kpiPrixAchatMoyen').textContent = BIPE.fmt(prixMoyens.prixAchatMoyen) + ' DT';
+  document.getElementById('kpiPrixVenteMoyen').textContent = BIPE.fmt(prixMoyens.prixVenteMoyen) + ' DT';
+
+  const caMois = getCAPeriode(debutMois, finMois);
+  const achatsMois = getAchatsPeriode(debutMois, finMois);
+  const coutMatiereMois = getCoutMatierePeriode(debutMois, finMois);
+
+  document.getElementById('synthChargesFixes').textContent = BIPE.fmt(chargesFixesMois) + ' DT';
+  document.getElementById('synthCA').textContent = BIPE.fmt(caMois) + ' DT';
+  document.getElementById('synthAchats').textContent = BIPE.fmt(achatsMois) + ' DT';
+  document.getElementById('synthCoutStock').textContent = BIPE.fmt(coutMatiereMois) + ' DT';
+
+  const resultatMois = caMois - chargesFixesMois - coutMatiereMois;
+  const rmEl = document.getElementById('synthResultat');
+  rmEl.textContent = BIPE.fmt(resultatMois) + ' DT';
+  rmEl.className = 'val ' + (resultatMois > 0 ? 'pos' : resultatMois < 0 ? 'neg' : '');
+
+  renderTableProduits();
+  renderBilan(now, caMois, chargesFixesMois, achatsMois, coutMatiereMois);
+}
+
+function renderTableProduits(){
+  const tbody = document.getElementById('tableProduitsBody');
+  const marges = getMargesParProduit();
+
+  if(marges.length === 0){
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-table">Aucun produit avec prix renseigné.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = marges.map(p => {
+    const cls = p.marge >= 0 ? 'pos' : 'neg';
+    return `
+      <tr>
+        <td><b>${BIPE.esc(p.nom)}</b></td>
+        <td class="num">${BIPE.fmt(p.prixAchat)} DT</td>
+        <td class="num">${BIPE.fmt(p.prixVente)} DT</td>
+        <td class="num marge ${cls}">${p.marge >= 0 ? '+' : ''}${BIPE.fmt(p.marge)} DT</td>
+        <td class="num marge ${cls}">${Math.round(p.margePct)} %</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function renderBilan(now, ca, chargesFixes, achats, coutMatiere){
+  const ym = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+  const cloture = getClotureMois(ym);
+  const moisLabel = now.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+  document.getElementById('bilanMoisLabel').textContent = moisLabel.charAt(0).toUpperCase() + moisLabel.slice(1);
+
+  const benefice = ca - chargesFixes - coutMatiere;
+
+  document.getElementById('bilanChargesFixes').textContent = BIPE.fmt(chargesFixes) + ' DT';
+  document.getElementById('bilanCA').textContent = BIPE.fmt(ca) + ' DT';
+  document.getElementById('bilanAchats').textContent = BIPE.fmt(achats) + ' DT';
+  document.getElementById('bilanCoutMatiere').textContent = BIPE.fmt(coutMatiere) + ' DT';
+
+  const benEl = document.getElementById('bilanBenefice');
+  benEl.textContent = BIPE.fmt(benefice) + ' DT';
+  benEl.className = 'val ' + (benefice > 0 ? 'pos' : benefice < 0 ? 'neg' : '');
+
+  const statutEl = document.getElementById('bilanStatut');
+  const btnCloturer = document.getElementById('btnCloturer');
+  const btnReouvrir = document.getElementById('btnReouvrir');
+
+  if(cloture){
+    statutEl.innerHTML = '<span class="statut cloture">✓ Clôturé</span>';
+    btnCloturer.style.display = 'none';
+    btnReouvrir.style.display = 'inline-flex';
+  } else {
+    statutEl.innerHTML = '<span class="statut ouvert">● Ouvert</span>';
+    btnCloturer.style.display = 'inline-flex';
+    btnReouvrir.style.display = 'none';
+  }
+}
+
+/* ============================================================
+   CLÔTURER / RÉOUVRIR
+   ============================================================ */
+function cloturerMois(){
+  const now = new Date();
+  const ym = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+  const debut = getStartOfMonth(now);
+  const fin = getEndOfMonth(now);
+
+  if(!confirm(`Clôturer le mois de ${now.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })} ?`)) return;
+
+  const ca = getCAPeriode(debut, fin);
+  const chargesFixes = getChargesFixesMois(now);
+  const achats = getAchatsPeriode(debut, fin);
+  const coutMatiere = getCoutMatierePeriode(debut, fin);
+  const benefice = ca - chargesFixes - coutMatiere;
+
+  const clotures = getClotures().filter(c => c.mois !== ym);
+  clotures.push({ mois: ym, date: new Date().toISOString(), ca, chargesFixes, achats, coutMatiere, benefice });
+  saveClotures(clotures);
+
+  BIPE.toast('🔒 Mois clôturé');
+  render();
+}
+
+function reouvrirMois(){
+  const now = new Date();
+  const ym = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+  if(!confirm('Réouvrir le mois ? Les chiffres seront recalculés.')) return;
+
+  const clotures = getClotures().filter(c => c.mois !== ym);
+  saveClotures(clotures);
+
+  BIPE.toast('🔓 Mois réouvert');
+  render();
+}
+
+document.addEventListener('DOMContentLoaded', render);
+</script>
+</body>
+</html>

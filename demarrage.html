@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>BIPE — Démarrage</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="shared.js"></script>
+<style>
+  :root{
+    --black:#000000; --black-2:#0a0a0a; --black-3:#141414;
+    --line:#2a2a2a; --line-soft:#1f1f1f;
+    --gold:#d4af37; --gold-bright:#f0d060; --gold-soft:#e8c96a;
+    --gold-dim:#8a7433; --gold-deep:#5a4a1f;
+    --txt:#f5f0e1; --txt-muted:#9a9384; --txt-dim:#5a564e;
+    --ok:#6b9a5a; --warn:#c9a040; --bad:#b84040; --info:#7cc4e8;
+    --radius:16px; --radius-sm:12px;
+    --groupe-couleur:#d4af37;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overscroll-behavior:none}
+  body{
+    font-family:'Baloo Bhaijaan 2', -apple-system, "Segoe UI", sans-serif;
+    background:var(--black); color:var(--txt); line-height:1.6; font-weight:500;
+    -webkit-font-smoothing:antialiased; min-height:100vh;
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(212,175,55,.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(212,175,55,.03) 0%, transparent 40%);
+    background-attachment:fixed;
+  }
+  .app{max-width:min(900px,92vw);margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding-bottom:clamp(24px,4vw,40px)}
+
+  .header{
+    position:sticky;top:0;z-index:50;background:rgba(0,0,0,.92);
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--line-soft);
+    padding:clamp(12px,2vw,16px) clamp(16px,3vw,20px);
+    display:flex;align-items:center;gap:clamp(8px,1.5vw,16px);
+  }
+  .header .back{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;text-decoration:none;
+  }
+  .header .title-block{flex:1;min-width:0}
+  .header .logo{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2.5vw,1.5rem);
+    font-weight:700;color:#f0d060;line-height:1.2;letter-spacing:.02em;
+  }
+  .header .logo .b,.header .logo .pe{color:var(--txt)}
+  .header .logo .excl{color:var(--gold);font-size:1.3em;vertical-align:middle;text-shadow:0 0 20px rgba(212,175,55,.5)}
+  .header .subtitle{
+    font-size:clamp(.6rem,1vw,.7rem);color:var(--txt-muted);
+    font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  }
+  
+  /* LANG SWITCHER */
+  .lang-switch {
+    display: flex; background: var(--black-3); border-radius: 8px; padding: 2px; border: 1px solid var(--line);
+  }
+  .lang-btn {
+    padding: 4px 8px; border-radius: 6px; border: none; background: transparent;
+    color: var(--txt-muted); font-size: .75rem; font-weight: 700; cursor: pointer; transition: all .2s;
+    font-family: 'Baloo Bhaijaan 2', sans-serif;
+  }
+  .lang-btn.active { background: var(--gold); color: #000; }
+
+  .header .menu{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;
+  }
+
+  .content{flex:1;padding:clamp(16px,3vw,24px) clamp(16px,3vw,20px)}
+
+  .hero-demarrage{
+    text-align:center;
+    padding:clamp(20px,4vw,32px) clamp(16px,3vw,24px);
+    background:linear-gradient(135deg,var(--black-2) 0%,var(--black-3) 100%);
+    border:2px solid var(--gold-deep);border-radius:var(--radius);
+    margin-bottom:clamp(16px,3vw,20px);
+    position:relative;overflow:hidden;
+  }
+  .hero-demarrage::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:2px;
+    background:linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .hero-demarrage .ico{font-size:clamp(2.2rem,5vw,3rem);margin-bottom:8px}
+  .hero-demarrage h1{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.4rem,2.5vw,1.9rem);
+    font-weight:700;color:var(--gold-bright);line-height:1.2;margin-bottom:8px;
+  }
+  .hero-demarrage p{
+    font-size:clamp(.88rem,1.1vw,1rem);color:var(--txt-muted);max-width:500px;margin:0 auto;
+  }
+
+  .progression-box{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(16px,3vw,22px);
+    margin-bottom:clamp(16px,3vw,20px);
+  }
+  .progression-head{
+    display:flex;justify-content:space-between;align-items:baseline;
+    margin-bottom:10px;gap:10px;flex-wrap:wrap;
+  }
+  .progression-head .txt{
+    font-family:'Fredoka',sans-serif;font-size:clamp(.95rem,1.4vw,1.1rem);
+    color:var(--gold-soft);font-weight:700;
+  }
+  .progression-head .num{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.1rem,1.8vw,1.4rem);
+    font-weight:700;color:var(--gold-bright);
+  }
+  .progression-bar{
+    width:100%;height:10px;border-radius:999px;
+    background:var(--black-3);overflow:hidden;
+  }
+  .progression-fill{
+    height:100%;border-radius:999px;
+    background:linear-gradient(90deg,var(--gold-soft),var(--gold));
+    transition:width .4s cubic-bezier(.32,.72,0,1);
+    box-shadow:0 0 12px rgba(212,175,55,.5);
+  }
+
+  .etape-card{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(16px,3vw,22px);
+    margin-bottom:12px;display:flex;gap:clamp(12px,2vw,16px);
+    align-items:flex-start;transition:all .2s;position:relative;overflow:hidden;
+  }
+  .etape-card::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--line);transition:background .2s;
+  }
+  .etape-card.faite{border-color:rgba(107,154,90,.4)}
+  .etape-card.faite::before{background:var(--ok)}
+  .etape-card:hover{border-color:var(--gold-dim)}
+  .etape-card.faite:hover{border-color:rgba(107,154,90,.6)}
+
+  .etape-check{
+    width:clamp(32px,4.5vw,38px);height:clamp(32px,4.5vw,38px);
+    border-radius:50%;border:2px solid var(--line);
+    background:var(--black-3);cursor:pointer;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    font-size:clamp(.95rem,1.4vw,1.1rem);color:var(--txt-dim);
+    transition:.2s;margin-top:2px;
+  }
+  .etape-check.fait{background:var(--ok);border-color:var(--ok);color:#fff}
+  .etape-check:hover:not(.fait){border-color:var(--gold);color:var(--gold-soft)}
+
+  .etape-body{flex:1;min-width:0}
+  .etape-num{
+    font-family:'Fredoka',sans-serif;font-size:.72rem;
+    font-weight:700;color:var(--gold-dim);letter-spacing:.1em;
+    text-transform:uppercase;margin-bottom:4px;
+  }
+  .etape-card.faite .etape-num{color:var(--ok)}
+  .etape-titre{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1rem,1.5vw,1.15rem);
+    font-weight:700;color:var(--txt);line-height:1.3;margin-bottom:4px;
+  }
+  .etape-card.faite .etape-titre{color:var(--txt-muted);text-decoration:line-through}
+  .etape-desc{
+    font-size:clamp(.82rem,1vw,.9rem);color:var(--txt-muted);line-height:1.5;
+    margin-bottom:10px;
+  }
+  .etape-card.faite .etape-desc{color:var(--txt-dim)}
+  .etape-actions{display:flex;gap:8px;flex-wrap:wrap}
+  .etape-btn{
+    padding:8px 16px;border-radius:999px;border:none;cursor:pointer;
+    font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:.85rem;font-weight:700;transition:all .15s;
+    display:inline-flex;align-items:center;gap:6px;
+    text-decoration:none;
+  }
+  .etape-btn.gold{
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold));
+    color:#0a0a0a;box-shadow:0 4px 12px rgba(212,175,55,.25);
+  }
+  .etape-btn.gold:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  .etape-btn.ghost{
+    background:var(--black-3);color:var(--txt);border:2px solid var(--line);
+  }
+  .etape-btn.ghost:hover{border-color:var(--gold-dim)}
+  .etape-card.faite .etape-btn{opacity:.7}
+
+  .info-bloc{
+    background:rgba(212,175,55,.05);border:1px solid rgba(212,175,55,.25);
+    border-radius:12px;padding:14px 16px;margin-top:16px;
+    font-size:.85rem;color:var(--txt-muted);line-height:1.6;
+  }
+  .info-bloc strong{color:var(--gold-soft)}
+
+  .actions-finales{
+    display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;
+  }
+  .actions-finales .btn{
+    flex:1 1 200px;padding:14px 20px;border-radius:12px;border:none;
+    font-family:'Baloo Bhaijaan 2',sans-serif;font-size:.95rem;font-weight:700;
+    cursor:pointer;display:inline-flex;align-items:center;justify-content:center;
+    gap:8px;transition:all .15s;text-decoration:none;
+  }
+  .actions-finales .btn-gold{
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold));
+    color:#0a0a0a;box-shadow:0 4px 16px rgba(212,175,55,.3);
+  }
+  .actions-finales .btn-gold:hover{filter:brightness(1.08)}
+  .actions-finales .btn-ghost{
+    background:var(--black-2);color:var(--txt);border:2px solid var(--line);
+  }
+  .actions-finales .btn-ghost:hover{border-color:var(--gold-dim)}
+
+  .footer{
+    text-align:center;padding:clamp(20px,3vw,28px) 16px 16px;
+    font-size:clamp(.72rem,.9vw,.8rem);color:var(--txt-dim);
+    line-height:1.8;font-weight:500;border-top:1px solid var(--line-soft);margin-top:auto;
+  }
+  .footer .brand{color:var(--gold-soft);font-weight:700}
+
+  @media (max-width:500px){
+    .actions-finales .btn{flex:1 1 100%}
+  }
+</style>
+</head>
+<body data-groupe="structure">
+
+<div class="app">
+
+  <div class="header">
+    <a href="index.html" class="back">←</a>
+    <div class="title-block">
+      <div class="logo"><span class="b">B</span><span class="excl">!</span><span class="pe">PE</span></div>
+      <div class="subtitle" data-i18n="subtitle">Démarrage</div>
+    </div>
+    
+    <!-- LANG SWITCHER -->
+    <div class="lang-switch">
+      <button class="lang-btn active" id="btn-lang-fr" onclick="setLang('fr')">FR</button>
+      <button class="lang-btn" id="btn-lang-tn" onclick="setLang('tn')">TN</button>
+    </div>
+
+    <button class="menu" onclick="BIPE.openMenu()">⋮</button>
+  </div>
+
+  <div class="content">
+
+    <div class="hero-demarrage">
+      <div class="ico">🚀</div>
+      <h1 data-i18n="hero_title">Bienvenue sur B!PE</h1>
+      <p data-i18n="hero_sub">3 étapes, 5 minutes. C'est tout ce qu'il faut pour démarrer proprement.</p>
+    </div>
+
+    <div class="progression-box">
+      <div class="progression-head">
+        <span class="txt" data-i18n="prog_titre">Ta progression</span>
+        <span class="num" id="progNum">0 / 3</span>
+      </div>
+      <div class="progression-bar">
+        <div class="progression-fill" id="progFill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div id="etapesContainer"></div>
+
+    <div class="info-bloc">
+      <span data-i18n="info_bloc"><strong>💡 Info :</strong> Tu peux reprendre ces étapes à tout moment depuis le menu. Une fois les 3 étapes faites, la bannière de démarrage disparaît du tableau de bord.</span>
+    </div>
+
+    <div class="actions-finales">
+      <a href="dashboard.html" class="btn btn-gold" data-i18n="btn_dashboard">
+        📊 Aller au tableau de bord
+      </a>
+      <button class="btn btn-ghost" onclick="ignorerOnboarding()" data-i18n="btn_passer">
+        ⏭ Passer cette étape
+      </button>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <span class="brand">BIPE</span> · <span data-i18n="footer_version">Démarrage · Onboarding · Version 1.1</span>
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   BIPE — demarrage.html v1.1 (Bilingue FR/TN)
+   ============================================================ */
+
+// --- DICTIONNAIRE DE TRADUCTION ---
+const I18N = {
+  fr: {
+    subtitle: "Démarrage",
+    hero_title: "Bienvenue sur B!PE",
+    hero_sub: "3 étapes, 5 minutes. C'est tout ce qu'il faut pour démarrer proprement.",
+    prog_titre: "Ta progression",
+    info_bloc: "<strong>💡 Info :</strong> Tu peux reprendre ces étapes à tout moment depuis le menu. Une fois les 3 étapes faites, la bannière de démarrage disparaît du tableau de bord.",
+    btn_dashboard: "📊 Aller au tableau de bord",
+    btn_passer: "⏭ Passer cette étape",
+    footer_version: "Démarrage · Onboarding · Version 1.1",
+    // Étapes
+    etape_num: "Étape {n}",
+    et1_titre: "Crée ton premier produit",
+    et1_desc: "Ajoute un produit à ton stock via une entrée de stock ou un achat. C'est la base de tout.",
+    et1_btn1: "📦 Stock",
+    et1_btn2: "🛒 Achats",
+    et2_titre: "Enregistre ta première vente",
+    et2_desc: "Encaisse une vente via la caisse tactile ou enregistre-la manuellement.",
+    et2_btn1: "🛒 Caisse tactile",
+    et2_btn2: "💰 Ventes",
+    et3_titre: "Sauvegarde tes données",
+    et3_desc: "Exporte ta première sauvegarde. C'est ta garantie : elle te permet de tout restaurer.",
+    et3_btn1: "💾 Sauvegarder",
+    // Toasts
+    toast_fait: "✅ Étape marquée comme faite",
+    toast_reactiver: "↩ Étape réactivée",
+    toast_bravo: "🎉 Bravo ! Tu es prêt à utiliser B!PE",
+    confirm_passer: "Passer cette étape ? Tu pourras la reprendre depuis le menu.",
+    toast_ignore: "Onboarding ignoré"
+  },
+  tn: {
+    subtitle: "البداية",
+    hero_title: "مرحبا بيك في B!PE",
+    hero_sub: "3 خطوات، 5 دقايق. هذا الكل اللي تحتاجو باش تبدا بلباس.",
+    prog_titre: "تقدمك",
+    info_bloc: "<strong>💡 معلومة :</strong> تنجم ترجع للخطوات هاذم في أي وقت من المينو. كي تكمل الـ 3 خطوات، البانيير متاع البداية تختفي من لوحة القيادة.",
+    btn_dashboard: "📊 إمشي للوحة القيادة",
+    btn_passer: "⏭ فوت هالخطوة",
+    footer_version: "البداية · Onboarding · نسخة 1.1",
+    // Étapes
+    etape_num: "الخطوة {n}",
+    et1_titre: "أعمل أول منتوج",
+    et1_desc: "زيد منتوج للستوك متاعك عن طريق دخول ستوك ولا شراء. هذا أساس الكل.",
+    et1_btn1: "📦 الستوك",
+    et1_btn2: "🛒 الشراء",
+    et2_titre: "سجل أول بيعة",
+    et2_desc: "خلص بيعة من الكاسة التاكتيل ولا سجلها بيدك.",
+    et2_btn1: "🛒 الكاسة التاكتيل",
+    et2_btn2: "💰 البيوع",
+    et3_titre: "سوفغاردي الداتا متاعك",
+    et3_desc: "صدّر أول سوفغارد. هذا ضمانك: يخليك ترجع الكل كي تخسر.",
+    et3_btn1: "💾 سوفغارد",
+    // Toasts
+    toast_fait: "✅ الخطوة تسجلت كاملة",
+    toast_reactiver: "↩ الخطوة رجعت",
+    toast_bravo: "🎉 برافو ! وليت جاهز تستعمل B!PE",
+    confirm_passer: "تحب تفوت هالخطوة ؟ تنجم ترجع لها من المينو.",
+    toast_ignore: "البداية تفوتت"
+  }
+};
+
+let currentLang = BIPE.storage.get('bipe_langue') || 'fr';
+
+function setLang(lang) {
+  currentLang = lang;
+  BIPE.storage.set('bipe_langue', lang);
+  
+  document.getElementById('btn-lang-fr').classList.toggle('active', lang === 'fr');
+  document.getElementById('btn-lang-tn').classList.toggle('active', lang === 'tn');
+  
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if(I18N[lang][key]) el.innerHTML = I18N[lang][key];
+  });
+
+  // Re-générer les étapes (car elles sont dynamiques)
+  render();
+}
+
+function t(key, vars = {}) {
+  let text = I18N[currentLang][key] || key;
+  for(const k in vars) {
+    text = text.replace(`{${k}}`, vars[k]);
+  }
+  return text;
+}
+
+BIPE.checkSession();
+
+/* ---------- State ---------- */
+function getOnboarding(){
+  const o = BIPE.storage.get(BIPE.KEYS.onboarding);
+  if(!o || typeof o !== 'object'){
+    return { etape1: false, etape2: false, etape3: false, ignore: false };
+  }
+  return {
+    etape1: !!o.etape1,
+    etape2: !!o.etape2,
+    etape3: !!o.etape3,
+    ignore: !!o.ignore
+  };
+}
+
+function saveOnboarding(o){
+  BIPE.storage.set(BIPE.KEYS.onboarding, o);
+}
+
+/* ---------- Configuration des étapes ---------- */
+const ETAPES = [
+  {
+    id: 'etape1',
+    numKey: 1,
+    ico: '📦',
+    titreKey: 'et1_titre',
+    descKey: 'et1_desc',
+    actions: [
+      { labelKey: 'et1_btn1', url: 'f-stock.html', style: 'gold' },
+      { labelKey: 'et1_btn2', url: 'f-achats.html', style: 'ghost' }
+    ]
+  },
+  {
+    id: 'etape2',
+    numKey: 2,
+    ico: '💰',
+    titreKey: 'et2_titre',
+    descKey: 'et2_desc',
+    actions: [
+      { labelKey: 'et2_btn1', url: 'f-caisse-tactile.html', style: 'gold' },
+      { labelKey: 'et2_btn2', url: 'f-ventes.html', style: 'ghost' }
+    ]
+  },
+  {
+    id: 'etape3',
+    numKey: 3,
+    ico: '💾',
+    titreKey: 'et3_titre',
+    descKey: 'et3_desc',
+    actions: [
+      { labelKey: 'et3_btn1', url: 'sauvegarde.html', style: 'gold' }
+    ]
+  }
+];
+
+/* ---------- Rendu ---------- */
+function render(){
+  const ob = getOnboarding();
+  const container = document.getElementById('etapesContainer');
+
+  container.innerHTML = ETAPES.map(e => {
+    const fait = ob[e.id];
+    const titreAction = fait ? (currentLang === 'fr' ? 'Marquer non fait' : 'رجعها غير كاملة') : (currentLang === 'fr' ? 'Marquer fait' : 'سجلها كاملة');
+    return `
+      <div class="etape-card ${fait ? 'faite' : ''}">
+        <button class="etape-check ${fait ? 'fait' : ''}" onclick="toggleEtape('${e.id}')" title="${titreAction}">
+          ${fait ? '✓' : ''}
+        </button>
+        <div class="etape-body">
+          <div class="etape-num">${t('etape_num', {n: e.numKey})}</div>
+          <div class="etape-titre">${e.ico} ${t(e.titreKey)}</div>
+          <div class="etape-desc">${t(e.descKey)}</div>
+          <div class="etape-actions">
+            ${e.actions.map(a => `
+              <a href="${a.url}" class="etape-btn ${a.style}">${t(a.labelKey)}</a>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  const nbFaits = (ob.etape1 ? 1 : 0) + (ob.etape2 ? 1 : 0) + (ob.etape3 ? 1 : 0);
+  document.getElementById('progNum').textContent = nbFaits + ' / 3';
+  document.getElementById('progFill').style.width = (nbFaits / 3 * 100) + '%';
+}
+
+/* ---------- Actions ---------- */
+function toggleEtape(id){
+  const ob = getOnboarding();
+  ob[id] = !ob[id];
+  saveOnboarding(ob);
+  render();
+
+  if(ob[id]){
+    BIPE.toast(t('toast_fait'));
+  } else {
+    BIPE.toast(t('toast_reactiver'));
+  }
+
+  if(ob.etape1 && ob.etape2 && ob.etape3){
+    setTimeout(() => BIPE.toast(t('toast_bravo')), 400);
+  }
+}
+
+function ignorerOnboarding(){
+  if(!confirm(t('confirm_passer'))) return;
+  const ob = getOnboarding();
+  ob.ignore = true;
+  saveOnboarding(ob);
+  BIPE.toast(t('toast_ignore'));
+  window.location.href = 'dashboard.html';
+}
+
+/* ---------- Init ---------- */
+document.addEventListener('DOMContentLoaded', () => {
+  setLang(currentLang);
+});
+</script>
+</body>
+</html>

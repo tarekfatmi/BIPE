@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>BIPE — Équipe & Salariés</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="shared.js"></script>
+<style>
+  :root{
+    --black:#000000; --black-2:#0a0a0a; --black-3:#141414;
+    --line:#2a2a2a; --line-soft:#1f1f1f;
+    --gold:#d4af37; --gold-bright:#f0d060; --gold-soft:#e8c96a;
+    --gold-dim:#8a7433; --gold-deep:#5a4a1f;
+    --txt:#f5f0e1; --txt-muted:#9a9384; --txt-dim:#5a564e;
+    --ok:#6b9a5a; --warn:#c9a040; --bad:#b84040; --info:#7cc4e8;
+    --radius:16px; --radius-sm:12px;
+    --groupe-couleur:#d98ca8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overscroll-behavior:none}
+  body{
+    font-family:'Baloo Bhaijaan 2', -apple-system, "Segoe UI", sans-serif;
+    background:var(--black); color:var(--txt); line-height:1.6; font-weight:500;
+    -webkit-font-smoothing:antialiased; min-height:100vh;
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(217,140,168,.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(212,175,55,.02) 0%, transparent 40%);
+    background-attachment:fixed;
+  }
+  .app{max-width:min(1100px,92vw);margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding-bottom:clamp(24px,4vw,40px)}
+
+  .bipe-sheet{transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1)}
+  .bipe-sheet.show{transform:translateY(0) !important}
+  #bipe-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s}
+  #bipe-overlay.show{opacity:1 !important;pointer-events:auto !important}
+
+  .header{
+    position:sticky;top:0;z-index:50;background:rgba(0,0,0,.92);
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--line-soft);
+    padding:clamp(12px,2vw,16px) clamp(16px,3vw,20px);
+    display:flex;align-items:center;gap:clamp(8px,1.5vw,16px);
+  }
+  .header .back{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;text-decoration:none;transition:transform .15s;
+  }
+  .header .back:active{transform:scale(.92)}
+  .header .title-block{flex:1;min-width:0}
+  .header .logo{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2.5vw,1.5rem);
+    font-weight:700;color:#f0d060;line-height:1.2;letter-spacing:.02em;
+  }
+  .header .logo .b,.header .logo .pe{color:var(--txt)}
+  .header .logo .excl{color:var(--gold);font-size:1.3em;vertical-align:middle;text-shadow:0 0 20px rgba(212,175,55,.5)}
+  .header .subtitle{
+    font-size:clamp(.6rem,1vw,.7rem);color:var(--txt-muted);
+    font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  }
+  .header .menu{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;transition:transform .15s;
+  }
+  .header .menu:active{transform:scale(.92)}
+
+  .content{flex:1;padding:clamp(16px,3vw,24px) clamp(16px,3vw,20px)}
+
+  .hero-groupe{
+    background:linear-gradient(135deg,var(--black-2) 0%,var(--black-3) 100%);
+    border:2px solid var(--gold-deep);border-radius:var(--radius);
+    padding:clamp(18px,3vw,24px);margin-bottom:clamp(16px,3vw,20px);
+    position:relative;overflow:hidden;
+  }
+  .hero-groupe::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--groupe-couleur);opacity:.8;
+  }
+  .hero-groupe .num{
+    font-family:'Fredoka',sans-serif;font-size:clamp(.75rem,1vw,.85rem);
+    font-weight:700;color:var(--groupe-couleur);letter-spacing:.05em;margin-bottom:6px;
+  }
+  .hero-groupe .ico{font-size:clamp(1.6rem,2.5vw,2rem);line-height:1;margin-bottom:6px}
+  .hero-groupe h1{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.3rem,2.2vw,1.7rem);
+    font-weight:700;color:var(--gold-bright);line-height:1.2;margin-bottom:4px;
+  }
+  .hero-groupe p{font-size:clamp(.85rem,1.1vw,1rem);color:var(--txt-muted);font-weight:500}
+
+  .stats{
+    display:grid;grid-template-columns:repeat(3,1fr);
+    gap:clamp(8px,1.5vw,12px);margin-bottom:clamp(16px,3vw,20px);
+  }
+  .stat{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(12px,2vw,16px) clamp(10px,1.5vw,14px);
+  }
+  .stat .num{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.3rem,2.5vw,1.7rem);
+    font-weight:700;line-height:1;margin-bottom:4px;color:var(--gold-bright);
+  }
+  .stat .lab{font-size:clamp(.7rem,.95vw,.8rem);color:var(--txt-muted);font-weight:600;line-height:1.3}
+
+  /* Paie box */
+  .paie-box{
+    background:linear-gradient(135deg, rgba(217,140,168,.08) 0%, rgba(107,154,90,.05) 100%);
+    border:2px solid var(--groupe-couleur);
+    border-radius:var(--radius);
+    padding:clamp(16px,2.5vw,20px);
+    margin-bottom:clamp(16px,3vw,20px);
+    position:relative;overflow:hidden;
+  }
+  .paie-box .paie-head{
+    display:flex;justify-content:space-between;align-items:center;
+    gap:12px;flex-wrap:wrap;margin-bottom:12px;
+  }
+  .paie-box .paie-head h3{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1rem,1.6vw,1.15rem);
+    color:var(--groupe-couleur);font-weight:700;
+    display:flex;align-items:center;gap:8px;
+  }
+  .paie-box .paie-info{
+    font-size:clamp(.82rem,1vw,.92rem);
+    color:var(--txt-muted);font-weight:500;margin-bottom:12px;line-height:1.6;
+  }
+  .paie-box .paie-info strong{color:var(--gold-bright);font-weight:700}
+  .paie-box .paie-status{
+    display:inline-block;padding:4px 10px;border-radius:999px;
+    font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+    margin-left:8px;
+  }
+  .paie-status.ok{background:rgba(107,154,90,.15);color:#8fc47a;border:1px solid rgba(107,154,90,.4)}
+  .paie-status.todo{background:rgba(201,160,64,.15);color:var(--warn);border:1px solid rgba(201,160,64,.4)}
+
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:clamp(14px,2.5vw,18px)}
+  .btn{
+    padding:clamp(11px,1.5vw,13px) clamp(16px,2vw,20px);
+    border-radius:999px;border:none;cursor:pointer;
+    font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:clamp(.88rem,1.1vw,1rem);font-weight:700;
+    display:inline-flex;align-items:center;gap:8px;transition:all .2s;
+  }
+  .btn-gold{
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold));
+    color:#0a0a0a;box-shadow:0 4px 16px rgba(212,175,55,.25);
+  }
+  .btn-gold:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  .btn-gold:active{transform:scale(.97)}
+  .btn-gold:disabled{opacity:.5;cursor:not-allowed;transform:none}
+  .btn-ghost{background:var(--black-2);border:2px solid var(--line);color:var(--txt)}
+  .btn-ghost:hover{border-color:var(--gold-dim)}
+  .btn-paie{
+    background:linear-gradient(180deg,#e8a0bc,#d98ca8);
+    color:#0a0a0a;box-shadow:0 4px 16px rgba(217,140,168,.25);
+  }
+  .btn-paie:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  .btn-paie:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+  .filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:clamp(14px,2.5vw,18px)}
+  .filter-chip{
+    padding:8px 14px;border-radius:999px;border:2px solid var(--line);
+    background:var(--black-2);color:var(--txt-muted);
+    font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:clamp(.8rem,1vw,.9rem);font-weight:600;cursor:pointer;transition:.2s;
+  }
+  .filter-chip.active{border-color:var(--groupe-couleur);color:var(--groupe-couleur);background:rgba(217,140,168,.08)}
+  .filter-chip:hover:not(.active){color:var(--txt)}
+
+  .list{display:flex;flex-direction:column;gap:clamp(8px,1.5vw,10px)}
+  .membre-card{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(14px,2.5vw,18px) clamp(16px,2.5vw,20px);
+    display:flex;gap:clamp(12px,2vw,14px);align-items:flex-start;
+    transition:transform .15s,border-color .15s;position:relative;overflow:hidden;
+  }
+  .membre-card::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--groupe-couleur);opacity:.7;
+  }
+  .membre-card.inactif{opacity:.55}
+  .membre-card:hover{border-color:var(--gold-dim)}
+  .membre-avatar{
+    width:clamp(44px,6vw,52px);height:clamp(44px,6vw,52px);
+    border-radius:50%;background:linear-gradient(180deg,var(--gold-soft),var(--gold));
+    color:#0a0a0a;display:flex;align-items:center;justify-content:center;
+    font-family:'Fredoka',sans-serif;font-weight:700;
+    font-size:clamp(.95rem,1.5vw,1.15rem);flex-shrink:0;
+  }
+  .membre-body{flex:1;min-width:0}
+  .membre-head{
+    display:flex;justify-content:space-between;align-items:baseline;
+    gap:8px;margin-bottom:4px;flex-wrap:wrap;
+  }
+  .membre-nom{
+    font-family:'Fredoka',sans-serif;font-size:clamp(.95rem,1.4vw,1.1rem);
+    font-weight:700;color:var(--txt);line-height:1.3;flex:1;min-width:0;
+  }
+  .membre-poste{
+    font-size:clamp(.78rem,1vw,.88rem);color:var(--txt-muted);
+    font-weight:600;margin-bottom:6px;
+  }
+  .membre-meta{
+    display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+    font-size:clamp(.75rem,.95vw,.85rem);font-weight:600;
+  }
+  .membre-meta .badge{
+    padding:2px 8px;border-radius:6px;font-size:.75em;font-weight:700;
+    text-transform:uppercase;letter-spacing:.04em;
+  }
+  .badge-cdi{background:rgba(107,154,90,.15);color:#8fc47a}
+  .badge-cdd{background:rgba(201,160,64,.15);color:var(--warn)}
+  .badge-stage{background:rgba(124,196,232,.15);color:var(--info)}
+  .badge-freelance{background:rgba(167,139,250,.15);color:#b8a0f0}
+  .badge-inactif{background:rgba(184,64,64,.15);color:#e08a8a}
+  .membre-meta .salaire{color:var(--gold-soft);font-weight:700}
+  .membre-actions{display:flex;gap:4px;flex-shrink:0}
+  .icon-btn{
+    width:clamp(32px,4.5vw,36px);height:clamp(32px,4.5vw,36px);
+    border-radius:10px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--txt-muted);font-size:clamp(.85rem,1.2vw,.95rem);
+    cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;
+  }
+  .icon-btn:hover{border-color:var(--gold-dim);color:var(--gold-soft)}
+  .icon-btn.danger:hover{border-color:var(--bad);color:#e08a8a}
+
+  .empty{
+    text-align:center;padding:clamp(40px,8vw,60px) clamp(20px,3vw,24px);
+    background:var(--black-2);border:2px dashed var(--line);border-radius:var(--radius);
+  }
+  .empty .ico{font-size:clamp(2.5rem,6vw,3.5rem);margin-bottom:12px;opacity:.6}
+  .empty h3{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.1rem,1.8vw,1.3rem);
+    color:var(--gold-soft);margin-bottom:8px;
+  }
+  .empty p{font-size:clamp(.85rem,1.1vw,1rem);color:var(--txt-muted);margin-bottom:16px}
+
+  .footer{
+    text-align:center;padding:clamp(20px,3vw,28px) 16px 16px;
+    font-size:clamp(.72rem,.9vw,.8rem);color:var(--txt-dim);
+    line-height:1.8;font-weight:500;border-top:1px solid var(--line-soft);margin-top:auto;
+  }
+  .footer .brand{color:var(--gold-soft);font-weight:700}
+
+  .form-group{margin-bottom:clamp(14px,2vw,18px)}
+  label{
+    display:block;font-size:clamp(.85rem,1vw,.95rem);
+    color:var(--txt-muted);margin-bottom:6px;font-weight:600;
+  }
+  label .required{color:var(--bad);margin-left:2px}
+  input,textarea,select{
+    width:100%;padding:clamp(12px,1.5vw,14px) clamp(14px,2vw,16px);
+    border-radius:var(--radius-sm);border:2px solid var(--line);
+    background:var(--black-3);color:var(--txt);
+    font-size:clamp(.95rem,1.1vw,1rem);
+    font-family:'Baloo Bhaijaan 2',sans-serif;font-weight:500;transition:all .2s;
+  }
+  input:focus,textarea:focus,select:focus{
+    outline:none;border-color:var(--gold);box-shadow:0 0 0 4px rgba(212,175,55,.12);
+  }
+  input::placeholder,textarea::placeholder{color:var(--txt-dim)}
+  textarea{resize:vertical;min-height:80px}
+  select{cursor:pointer}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  @media (max-width:600px){
+    .stats{grid-template-columns:1fr}
+    .row{grid-template-columns:1fr}
+    .membre-actions{flex-direction:column}
+  }
+</style>
+</head>
+<body data-groupe="g5">
+
+<div class="app">
+
+  <div class="header">
+    <a href="groupe-rh-culture.html" class="back">←</a>
+    <div class="title-block">
+      <div class="logo"><span class="b">B</span><span class="excl">!</span><span class="pe">PE</span></div>
+      <div class="subtitle">RH · Équipe</div>
+    </div>
+    <button class="menu" onclick="BIPE.openMenu()">⋮</button>
+  </div>
+
+  <div class="content">
+
+    <div class="hero-groupe">
+      <div class="num">GROUPE 05</div>
+      <div class="ico">🧑‍💼</div>
+      <h1>Équipe & Salariés</h1>
+      <p>Fiches, contrats, postes, salaires. Ton équipe, sans tableur.</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="num" id="statActifs">0</div><div class="lab">Actifs</div></div>
+      <div class="stat"><div class="num" id="statInactifs">0</div><div class="lab">Inactifs</div></div>
+      <div class="stat"><div class="num" id="statMasse">0</div><div class="lab">Masse<br>salariale (DT)</div></div>
+    </div>
+
+    <!-- BANNIÈRE PAIE -->
+    <div class="paie-box">
+      <div class="paie-head">
+        <h3>💼 Paie du mois</h3>
+        <span class="paie-status" id="paieStatus">—</span>
+      </div>
+      <div class="paie-info">
+        Masse salariale à provisionner : <strong id="paieMontant">0 DT</strong>
+        <br><span id="paieDetail" style="font-size:.8rem;opacity:.7;"></span>
+      </div>
+      <button class="btn btn-paie" id="btnPaie" style="width:100%;justify-content:center;" onclick="genererPaie()">
+        💼 Générer la paie du mois
+      </button>
+    </div>
+
+    <div class="toolbar">
+      <button class="btn btn-gold" onclick="openForm()"><span>＋</span> Nouveau membre</button>
+      <button class="btn btn-ghost" onclick="exportRH()"><span>📤</span> Exporter</button>
+    </div>
+
+    <div class="filters" id="filters">
+      <button class="filter-chip active" data-filter="tous" onclick="setFilter('tous')">Tous</button>
+      <button class="filter-chip" data-filter="actifs" onclick="setFilter('actifs')">Actifs</button>
+      <button class="filter-chip" data-filter="inactifs" onclick="setFilter('inactifs')">Inactifs</button>
+      <button class="filter-chip" data-filter="cdi" onclick="setFilter('cdi')">CDI</button>
+      <button class="filter-chip" data-filter="cdd" onclick="setFilter('cdd')">CDD</button>
+    </div>
+
+    <div class="list" id="list"></div>
+
+  </div>
+
+  <div class="footer">
+    <span class="brand">BIPE</span> · Bureau Intelligent Pour Entrepreneur<br>
+    RH & Culture · Équipe · Version 1.0
+  </div>
+
+</div>
+
+<div id="bipe-overlay" onclick="BIPE.closeAllSheets()"></div>
+
+<!-- SHEET FORMULAIRE MEMBRE -->
+<div id="sheet-form" class="bipe-sheet" style="
+  position:fixed;left:0;right:0;bottom:0;background:#0a0a0a;
+  border-radius:24px 24px 0 0;border-top:2px solid #5a4a1f;
+  z-index:1001;max-height:92vh;display:flex;flex-direction:column;
+  transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);
+  max-width:720px;margin:0 auto;
+">
+  <div style="width:48px;height:5px;background:#2a2a2a;border-radius:3px;margin:12px auto 8px;flex-shrink:0;"></div>
+  <div style="padding:8px 24px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1f1f1f;">
+    <h3 id="formTitle" style="font-family:'Fredoka',sans-serif;font-size:1.5rem;color:#e8c96a;font-weight:700;">Nouveau membre</h3>
+    <button onclick="BIPE.closeAllSheets()" style="
+      width:44px;height:44px;border-radius:12px;background:#141414;
+      border:1px solid #2a2a2a;color:#f5f0e1;font-size:1.4rem;
+      display:flex;align-items:center;justify-content:center;cursor:pointer;
+    ">✕</button>
+  </div>
+  <div style="padding:20px 24px 24px;overflow-y:auto;flex:1;">
+    <div class="form-group">
+      <label>Nom complet <span class="required">*</span></label>
+      <input type="text" id="fNom" placeholder="Ex : Ahmed Ben Ali" maxlength="80">
+    </div>
+    <div class="row">
+      <div class="form-group">
+        <label>Poste <span class="required">*</span></label>
+        <input type="text" id="fPoste" placeholder="Ex : Commercial" maxlength="60">
+      </div>
+      <div class="form-group">
+        <label>Contrat</label>
+        <select id="fContrat">
+          <option value="cdi">CDI</option>
+          <option value="cdd">CDD</option>
+          <option value="stage">Stage</option>
+          <option value="freelance">Freelance</option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="form-group">
+        <label>Salaire (DT / mois)</label>
+        <input type="number" id="fSalaire" placeholder="0" step="0.01" min="0">
+      </div>
+      <div class="form-group">
+        <label>Statut</label>
+        <select id="fStatut">
+          <option value="actif">Actif</option>
+          <option value="inactif">Inactif</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="fEmail" placeholder="ahmed@exemple.tn" maxlength="80">
+    </div>
+    <div class="form-group">
+      <label>Téléphone</label>
+      <input type="tel" id="fTel" placeholder="+216 ..." maxlength="30">
+    </div>
+    <div class="form-group">
+      <label>Date d'embauche</label>
+      <input type="date" id="fDate">
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <textarea id="fNotes" placeholder="Notes internes..." maxlength="300"></textarea>
+    </div>
+    <button class="btn btn-gold" style="width:100%;justify-content:center;margin-top:8px;" onclick="saveMembre()">💾 Enregistrer</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   BIPE — f-rh.html (avec génération de paie)
+   Groupe 5 — RH & Culture : équipe / salariés
+   - Masse salariale calculée
+   - Bouton "Générer la paie du mois" → écriture dans bipe_compta
+   ============================================================ */
+
+BIPE.checkSession();
+
+let membres = [];
+let filter = 'tous';
+let editingId = null;
+
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+
+function currentMois(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+}
+
+function getMoisLabel(moisStr){
+  const [y, m] = moisStr.split('-');
+  const noms = ['Janvier','Février','Mars','Avril','Mai','Juin',
+                'Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  return noms[parseInt(m) - 1] + ' ' + y;
+}
+
+/* ---------- Sheet ---------- */
+function ouvrirSheet(id){
+  let overlay = document.getElementById('bipe-overlay');
+  if(!overlay){
+    overlay = document.createElement('div');
+    overlay.id = 'bipe-overlay';
+    overlay.onclick = BIPE.closeAllSheets;
+    document.body.appendChild(overlay);
+  }
+  overlay.classList.add('show');
+  const sheet = document.getElementById(id);
+  if(sheet) sheet.classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function fermerSheet(){
+  const overlay = document.getElementById('bipe-overlay');
+  if(overlay) overlay.classList.remove('show');
+  document.querySelectorAll('.bipe-sheet').forEach(s => s.classList.remove('show'));
+  document.body.style.overflow = '';
+}
+
+/* ---------- Données ---------- */
+function load(){
+  membres = BIPE.storage.get(BIPE.KEYS.rh, []) || [];
+  render();
+}
+
+function save(){
+  BIPE.storage.set(BIPE.KEYS.rh, membres);
+}
+
+/* ---------- Paie ---------- */
+function getMasseSalariale(){
+  return membres
+    .filter(m => m.statut !== 'inactif')
+    .reduce((s, m) => s + (Number(m.salaire) || 0), 0);
+}
+
+function getMembresActifsPayes(){
+  return membres.filter(m => m.statut !== 'inactif' && Number(m.salaire) > 0);
+}
+
+function paieDejaGeneree(mois){
+  const compta = BIPE.storage.get(BIPE.KEYS.compta, []) || [];
+  return compta.some(e => e.source === 'rh-paie' && e.mois === mois);
+}
+
+function getEcriturePaie(mois){
+  const compta = BIPE.storage.get(BIPE.KEYS.compta, []) || [];
+  return compta.find(e => e.source === 'rh-paie' && e.mois === mois);
+}
+
+function renderPaieBox(){
+  const mois = currentMois();
+  const montant = getMasseSalariale();
+  const actifsPayes = getMembresActifsPayes();
+  const deja = paieDejaGeneree(mois);
+
+  document.getElementById('paieMontant').textContent = BIPE.fmt(montant) + ' DT';
+
+  const detail = actifsPayes.length === 0
+    ? 'Aucun membre actif avec un salaire renseigné.'
+    : `${actifsPayes.length} membre${actifsPayes.length > 1 ? 's' : ''} actif${actifsPayes.length > 1 ? 's' : ''} · Mois de ${getMoisLabel(mois)}`;
+  document.getElementById('paieDetail').textContent = detail;
+
+  const status = document.getElementById('paieStatus');
+  const btn = document.getElementById('btnPaie');
+
+  if(montant === 0 || actifsPayes.length === 0){
+    status.className = 'paie-status todo';
+    status.textContent = 'Rien à générer';
+    btn.disabled = true;
+    btn.textContent = '💼 Aucun salaire à provisionner';
+    return;
+  }
+
+  if(deja){
+    status.className = 'paie-status ok';
+    status.textContent = '✅ Déjà générée';
+    btn.disabled = true;
+    const ecriture = getEcriturePaie(mois);
+    btn.textContent = `✅ Paie ${getMoisLabel(mois)} déjà enregistrée`;
+  } else {
+    status.className = 'paie-status todo';
+    status.textContent = '⏳ À générer';
+    btn.disabled = false;
+    btn.textContent = `💼 Générer la paie de ${getMoisLabel(mois)}`;
+  }
+}
+
+function genererPaie(){
+  const mois = currentMois();
+  const actifs = getMembresActifsPayes();
+  const montant = getMasseSalariale();
+
+  if(actifs.length === 0 || montant === 0){
+    BIPE.toast('⚠ Aucun salaire à provisionner', true);
+    return;
+  }
+
+  if(paieDejaGeneree(mois)){
+    BIPE.toast('⚠ La paie de ce mois est déjà générée', true);
+    return;
+  }
+
+  if(!confirm(`Générer la paie de ${getMoisLabel(mois)} pour ${BIPE.fmt(montant)} DT ?\n\n${actifs.length} membre(s) actif(s).\n\nCela va créer une écriture comptable (Débit : Charges de personnel / Crédit : Dettes sociales).`)){
+    return;
+  }
+
+  // Construire le détail
+  const detail = actifs.map(m =>
+    `${m.nom} (${m.poste || '—'}) : ${BIPE.fmt(m.salaire)} DT`
+  ).join('\n');
+
+  const ecriture = {
+    id: 'ec-' + Date.now().toString(36),
+    libelle: `Paie ${getMoisLabel(mois)}`,
+    date: todayISO(),
+    compte: '641 Charges de personnel',
+    sens: 'debit',
+    montant: montant,
+    note: `Masse salariale ${getMoisLabel(mois)} — ${actifs.length} membre(s) actif(s)\n\n${detail}`,
+    source: 'rh-paie',
+    mois: mois,
+    nbMembres: actifs.length,
+    detailMembres: actifs.map(m => ({
+      id: m.id,
+      nom: m.nom,
+      poste: m.poste,
+      salaire: m.salaire
+    })),
+    createdAt: new Date().toISOString()
+  };
+
+  const compta = BIPE.storage.get(BIPE.KEYS.compta, []) || [];
+  compta.push(ecriture);
+  BIPE.storage.set(BIPE.KEYS.compta, compta);
+
+  BIPE.toast(`✅ Paie ${getMoisLabel(mois)} générée`);
+  renderPaieBox();
+}
+
+/* ---------- Rendu ---------- */
+function render(){
+  renderStats();
+  renderPaieBox();
+  renderList();
+}
+
+function renderStats(){
+  const actifs = membres.filter(m => m.statut !== 'inactif');
+  const inactifs = membres.filter(m => m.statut === 'inactif');
+  const masse = actifs.reduce((s,m) => s + (Number(m.salaire)||0), 0);
+  document.getElementById('statActifs').textContent = actifs.length;
+  document.getElementById('statInactifs').textContent = inactifs.length;
+  document.getElementById('statMasse').textContent = BIPE.fmt(masse);
+}
+
+function matchFilter(m){
+  if(filter === 'tous') return true;
+  if(filter === 'actifs') return m.statut !== 'inactif';
+  if(filter === 'inactifs') return m.statut === 'inactif';
+  if(filter === 'cdi') return m.contrat === 'cdi';
+  if(filter === 'cdd') return m.contrat === 'cdd';
+  return true;
+}
+
+function initiales(nom){
+  return (nom||'?').split(' ').map(x => x.charAt(0).toUpperCase()).slice(0,2).join('');
+}
+
+function renderList(){
+  const list = document.getElementById('list');
+  let items = membres.filter(matchFilter);
+  items.sort((a,b) => (a.nom||'').localeCompare(b.nom||''));
+
+  if(items.length === 0){
+    list.innerHTML = `
+      <div class="empty">
+        <div class="ico">🧑‍💼</div>
+        <h3>Aucun membre</h3>
+        <p>${filter === 'tous' ? "Ajoute ton premier membre d'équipe." : 'Aucun membre dans ce filtre.'}</p>
+        <button class="btn btn-gold" style="margin:0 auto;" onclick="openForm()">＋ Nouveau membre</button>
+      </div>
+    `;
+    return;
+  }
+
+  list.innerHTML = items.map(m => {
+    const contrat = m.contrat || 'cdi';
+    const inactif = m.statut === 'inactif';
+    return `
+      <div class="membre-card ${inactif ? 'inactif' : ''}">
+        <div class="membre-avatar">${initiales(m.nom)}</div>
+        <div class="membre-body">
+          <div class="membre-head">
+            <div class="membre-nom">${BIPE.esc(m.nom)}</div>
+          </div>
+          <div class="membre-poste">${BIPE.esc(m.poste||'—')}</div>
+          <div class="membre-meta">
+            <span class="badge badge-${inactif ? 'inactif' : contrat}">${inactif ? 'Inactif' : contrat.toUpperCase()}</span>
+            ${m.salaire ? `<span class="salaire">${BIPE.fmt(m.salaire)} DT</span>` : ''}
+            ${m.dateEmbauche ? `<span>📅 ${BIPE.fmtDate(m.dateEmbauche)}</span>` : ''}
+          </div>
+        </div>
+        <div class="membre-actions">
+          <button class="icon-btn" onclick="openForm('${m.id}')" title="Modifier">✏️</button>
+          <button class="icon-btn danger" onclick="deleteMembre('${m.id}')" title="Supprimer">🗑</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ---------- Filtres ---------- */
+function setFilter(f){
+  filter = f;
+  document.querySelectorAll('.filter-chip').forEach(b => {
+    b.classList.toggle('active', b.dataset.filter === f);
+  });
+  renderList();
+}
+
+/* ---------- Formulaire ---------- */
+function openForm(id){
+  editingId = id || null;
+  const title = document.getElementById('formTitle');
+  if(id){
+    const m = membres.find(x => x.id === id);
+    if(!m) return;
+    title.textContent = 'Modifier le membre';
+    document.getElementById('fNom').value = m.nom || '';
+    document.getElementById('fPoste').value = m.poste || '';
+    document.getElementById('fContrat').value = m.contrat || 'cdi';
+    document.getElementById('fSalaire').value = m.salaire || '';
+    document.getElementById('fStatut').value = m.statut || 'actif';
+    document.getElementById('fEmail').value = m.email || '';
+    document.getElementById('fTel').value = m.tel || '';
+    document.getElementById('fDate').value = m.dateEmbauche || '';
+    document.getElementById('fNotes').value = m.notes || '';
+  } else {
+    title.textContent = 'Nouveau membre';
+    document.getElementById('fNom').value = '';
+    document.getElementById('fPoste').value = '';
+    document.getElementById('fContrat').value = 'cdi';
+    document.getElementById('fSalaire').value = '';
+    document.getElementById('fStatut').value = 'actif';
+    document.getElementById('fEmail').value = '';
+    document.getElementById('fTel').value = '';
+    document.getElementById('fDate').value = todayISO();
+    document.getElementById('fNotes').value = '';
+  }
+  ouvrirSheet('sheet-form');
+  setTimeout(() => { try { document.getElementById('fNom').focus(); } catch(e){} }, 300);
+}
+
+function saveMembre(){
+  const nom = document.getElementById('fNom').value.trim();
+  const poste = document.getElementById('fPoste').value.trim();
+  const contrat = document.getElementById('fContrat').value;
+  const salaire = parseFloat(document.getElementById('fSalaire').value) || 0;
+  const statut = document.getElementById('fStatut').value;
+  const email = document.getElementById('fEmail').value.trim();
+  const tel = document.getElementById('fTel').value.trim();
+  const dateEmbauche = document.getElementById('fDate').value;
+  const notes = document.getElementById('fNotes').value.trim();
+
+  if(!nom || !poste){
+    BIPE.toast('⚠ Nom et poste obligatoires', true);
+    return;
+  }
+
+  if(editingId){
+    const m = membres.find(x => x.id === editingId);
+    if(m){
+      Object.assign(m, {nom, poste, contrat, salaire, statut, email, tel, dateEmbauche, notes});
+      m.updatedAt = new Date().toISOString();
+    }
+    BIPE.toast('✅ Membre modifié');
+  } else {
+    membres.push({
+      id: Date.now().toString(36),
+      nom, poste, contrat, salaire, statut, email, tel, dateEmbauche, notes,
+      createdAt: new Date().toISOString()
+    });
+    BIPE.toast('✅ Membre ajouté');
+  }
+
+  save();
+  fermerSheet();
+  render();
+}
+
+function deleteMembre(id){
+  const m = membres.find(x => x.id === id);
+  if(!m) return;
+  if(!confirm(`Supprimer "${m.nom}" de l'équipe ?`)) return;
+  membres = membres.filter(x => x.id !== id);
+  save();
+  render();
+  BIPE.toast('🗑 Membre supprimé');
+}
+
+function exportRH(){
+  BIPE.exportJSON('rh', membres);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  load();
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape') fermerSheet();
+  });
+});
+</script>
+</body>
+</html>

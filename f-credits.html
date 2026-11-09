@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>BIPE — Crédits clients</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="shared.js"></script>
+<style>
+  :root{
+    --black:#000000; --black-2:#0a0a0a; --black-3:#141414;
+    --line:#2a2a2a; --line-soft:#1f1f1f;
+    --gold:#d4af37; --gold-bright:#f0d060; --gold-soft:#e8c96a;
+    --gold-dim:#8a7433; --gold-deep:#5a4a1f;
+    --txt:#f5f0e1; --txt-muted:#9a9384; --txt-dim:#5a564e;
+    --ok:#6b9a5a; --warn:#c9a040; --bad:#b84040; --info:#7cc4e8;
+    --radius:16px; --radius-sm:12px;
+    --groupe-couleur:#b19cd9;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overscroll-behavior:none}
+  body{
+    font-family:'Baloo Bhaijaan 2', -apple-system, "Segoe UI", sans-serif;
+    background:var(--black); color:var(--txt); line-height:1.6; font-weight:500;
+    -webkit-font-smoothing:antialiased; min-height:100vh;
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(177,156,217,.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(212,175,55,.02) 0%, transparent 40%);
+    background-attachment:fixed;
+  }
+  .app{max-width:min(1100px,92vw);margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding-bottom:clamp(24px,4vw,40px)}
+
+  .bipe-sheet{transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1)}
+  .bipe-sheet.show{transform:translateY(0) !important}
+  #bipe-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s}
+  #bipe-overlay.show{opacity:1 !important;pointer-events:auto !important}
+
+  .header{
+    position:sticky;top:0;z-index:50;background:rgba(0,0,0,.92);
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--line-soft);
+    padding:clamp(12px,2vw,16px) clamp(16px,3vw,20px);
+    display:flex;align-items:center;gap:clamp(8px,1.5vw,16px);
+  }
+  .header .back{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;text-decoration:none;transition:transform .15s;
+  }
+  .header .back:active{transform:scale(.92)}
+  .header .title-block{flex:1;min-width:0}
+  .header .logo{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2.5vw,1.5rem);
+    font-weight:700;color:#f0d060;line-height:1.2;letter-spacing:.02em;
+  }
+  .header .logo .b,.header .logo .pe{color:var(--txt)}
+  .header .logo .excl{color:var(--gold);font-size:1.3em;vertical-align:middle;text-shadow:0 0 20px rgba(212,175,55,.5)}
+  .header .subtitle{
+    font-size:clamp(.6rem,1vw,.7rem);color:var(--txt-muted);
+    font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  }
+  .header .menu{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;transition:transform .15s;
+  }
+  .header .menu:active{transform:scale(.92)}
+
+  .content{flex:1;padding:clamp(16px,3vw,24px) clamp(16px,3vw,20px)}
+
+  .hero-groupe{
+    background:linear-gradient(135deg,var(--black-2) 0%,var(--black-3) 100%);
+    border:2px solid var(--gold-deep);border-radius:var(--radius);
+    padding:clamp(18px,3vw,24px);margin-bottom:clamp(16px,3vw,20px);
+    position:relative;overflow:hidden;
+  }
+  .hero-groupe::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--groupe-couleur);opacity:.8;
+  }
+  .hero-groupe .num{
+    font-family:'Fredoka',sans-serif;font-size:clamp(.75rem,1vw,.85rem);
+    font-weight:700;color:var(--groupe-couleur);letter-spacing:.05em;margin-bottom:6px;
+  }
+  .hero-groupe .ico{font-size:clamp(1.6rem,2.5vw,2rem);line-height:1;margin-bottom:6px}
+  .hero-groupe h1{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.3rem,2.2vw,1.7rem);
+    font-weight:700;color:var(--gold-bright);line-height:1.2;margin-bottom:4px;
+  }
+  .hero-groupe p{font-size:clamp(.85rem,1.1vw,1rem);color:var(--txt-muted);font-weight:500}
+
+  .stats{
+    display:grid;grid-template-columns:repeat(4,1fr);
+    gap:clamp(8px,1.5vw,12px);margin-bottom:clamp(16px,3vw,20px);
+  }
+  .stat{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(12px,2vw,16px) clamp(10px,1.5vw,14px);
+  }
+  .stat .num{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2.2vw,1.5rem);
+    font-weight:700;line-height:1;margin-bottom:4px;
+  }
+  .stat .lab{font-size:clamp(.68rem,.9vw,.76rem);color:var(--txt-muted);font-weight:600;line-height:1.3}
+  .stat.dette .num{color:var(--gold-bright)}
+  .stat.clients .num{color:var(--info)}
+  .stat.encaisse .num{color:var(--ok)}
+  .stat.retard .num{color:var(--bad)}
+
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:clamp(14px,2.5vw,18px)}
+  .btn{
+    padding:clamp(11px,1.5vw,13px) clamp(16px,2vw,20px);
+    border-radius:999px;border:none;cursor:pointer;
+    font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:clamp(.88rem,1.1vw,1rem);font-weight:700;
+    display:inline-flex;align-items:center;gap:8px;transition:all .2s;
+  }
+  .btn-gold{
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold));
+    color:#0a0a0a;box-shadow:0 4px 16px rgba(212,175,55,.25);
+  }
+  .btn-gold:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  .btn-gold:active{transform:scale(.97)}
+  .btn-ghost{background:var(--black-2);border:2px solid var(--line);color:var(--txt)}
+  .btn-ghost:hover{border-color:var(--gold-dim)}
+
+  .search-bar{
+    display:flex;gap:8px;margin-bottom:clamp(12px,2vw,16px);
+    flex-wrap:wrap;
+  }
+  .search-bar input{
+    flex:1;min-width:200px;
+    padding:clamp(10px,1.5vw,12px) clamp(14px,2vw,16px);
+    border-radius:999px;border:2px solid var(--line);
+    background:var(--black-2);color:var(--txt);
+    font-size:clamp(.88rem,1vw,.95rem);
+    font-family:'Baloo Bhaijaan 2',sans-serif;font-weight:500;
+  }
+  .search-bar input:focus{
+    outline:none;border-color:var(--gold);
+    box-shadow:0 0 0 4px rgba(212,175,55,.12);
+  }
+  .search-bar select{
+    padding:clamp(10px,1.5vw,12px) clamp(14px,2vw,16px);
+    border-radius:999px;border:2px solid var(--line);
+    background:var(--black-2);color:var(--txt);
+    font-size:clamp(.85rem,1vw,.92rem);
+    font-family:'Baloo Bhaijaan 2',sans-serif;font-weight:600;
+    cursor:pointer;
+  }
+  .search-bar select:focus{outline:none;border-color:var(--gold)}
+
+  .filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:clamp(14px,2.5vw,18px)}
+  .filter-chip{
+    padding:8px 14px;border-radius:999px;border:2px solid var(--line);
+    background:var(--black-2);color:var(--txt-muted);
+    font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:clamp(.8rem,1vw,.9rem);font-weight:600;cursor:pointer;transition:.2s;
+  }
+  .filter-chip.active{border-color:var(--groupe-couleur);color:var(--groupe-couleur);background:rgba(177,156,217,.08)}
+  .filter-chip:hover:not(.active){color:var(--txt)}
+
+  .list{display:flex;flex-direction:column;gap:clamp(8px,1.5vw,10px)}
+  .credit-card{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(14px,2.5vw,18px) clamp(16px,2.5vw,20px);
+    display:flex;gap:clamp(12px,2vw,14px);align-items:flex-start;
+    transition:transform .15s,border-color .15s;position:relative;overflow:hidden;
+  }
+  .credit-card::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--groupe-couleur);opacity:.7;
+  }
+  .credit-card.retard::before{background:var(--bad)}
+  .credit-card.solde::before{background:var(--ok)}
+  .credit-card.solde{opacity:.65}
+  .credit-card:hover{border-color:var(--gold-dim)}
+
+  .client-avatar{
+    width:clamp(44px,6vw,52px);height:clamp(44px,6vw,52px);
+    border-radius:50%;background:linear-gradient(180deg,var(--gold-soft),var(--gold));
+    color:#0a0a0a;display:flex;align-items:center;justify-content:center;
+    font-family:'Fredoka',sans-serif;font-weight:700;
+    font-size:clamp(.95rem,1.5vw,1.15rem);flex-shrink:0;
+  }
+
+  .credit-body{flex:1;min-width:0}
+  .credit-head{
+    display:flex;justify-content:space-between;align-items:baseline;
+    gap:8px;margin-bottom:4px;flex-wrap:wrap;
+  }
+  .credit-nom{
+    font-family:'Fredoka',sans-serif;font-size:clamp(.95rem,1.4vw,1.1rem);
+    font-weight:700;color:var(--txt);line-height:1.3;flex:1;min-width:0;
+  }
+  .credit-solde{
+    font-family:'Fredoka',sans-serif;
+    font-size:clamp(1.1rem,1.8vw,1.4rem);
+    font-weight:700;color:var(--bad);
+    white-space:nowrap;
+  }
+  .credit-card.solde .credit-solde{color:var(--ok)}
+
+  .credit-meta{
+    display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+    font-size:clamp(.75rem,.95vw,.85rem);font-weight:600;color:var(--txt-muted);
+    margin-bottom:8px;
+  }
+  .credit-meta .badge{
+    padding:2px 8px;border-radius:6px;font-size:.75em;font-weight:700;
+    text-transform:uppercase;letter-spacing:.04em;
+  }
+  .badge-cr{background:rgba(201,160,64,.15);color:var(--warn)}
+  .badge-pay{background:rgba(107,154,90,.15);color:#8fc47a}
+  .badge-old{background:rgba(184,64,64,.15);color:#e08a8a}
+
+  .credit-actions{
+    display:flex;gap:6px;flex-wrap:wrap;
+    margin-top:10px;padding-top:10px;border-top:1px solid var(--line-soft);
+  }
+  .action-btn{
+    padding:8px 14px;border-radius:999px;border:2px solid var(--line);
+    background:var(--black-3);color:var(--txt);
+    font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:.82rem;font-weight:700;cursor:pointer;
+    display:inline-flex;align-items:center;gap:6px;transition:.15s;
+  }
+  .action-btn:hover{border-color:var(--gold-dim)}
+  .action-btn.gold{
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold));
+    color:#0a0a0a;border-color:var(--gold);
+  }
+  .action-btn.gold:hover{filter:brightness(1.08)}
+  .action-btn.danger:hover{border-color:var(--bad);color:#e08a8a}
+
+  .empty{
+    text-align:center;padding:clamp(40px,8vw,60px) clamp(20px,3vw,24px);
+    background:var(--black-2);border:2px dashed var(--line);border-radius:var(--radius);
+  }
+  .empty .ico{font-size:clamp(2.5rem,6vw,3.5rem);margin-bottom:12px;opacity:.6}
+  .empty h3{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.1rem,1.8vw,1.3rem);
+    color:var(--gold-soft);margin-bottom:8px;
+  }
+  .empty p{font-size:clamp(.85rem,1.1vw,1rem);color:var(--txt-muted);margin-bottom:16px}
+
+  .footer{
+    text-align:center;padding:clamp(20px,3vw,28px) 16px 16px;
+    font-size:clamp(.72rem,.9vw,.8rem);color:var(--txt-dim);
+    line-height:1.8;font-weight:500;border-top:1px solid var(--line-soft);margin-top:auto;
+  }
+  .footer .brand{color:var(--gold-soft);font-weight:700}
+
+  .form-group{margin-bottom:clamp(14px,2vw,18px)}
+  label{
+    display:block;font-size:clamp(.85rem,1vw,.95rem);
+    color:var(--txt-muted);margin-bottom:6px;font-weight:600;
+  }
+  label .required{color:var(--bad);margin-left:2px}
+  input,textarea,select{
+    width:100%;padding:clamp(12px,1.5vw,14px) clamp(14px,2vw,16px);
+    border-radius:var(--radius-sm);border:2px solid var(--line);
+    background:var(--black-3);color:var(--txt);
+    font-size:clamp(.95rem,1.1vw,1rem);
+    font-family:'Baloo Bhaijaan 2',sans-serif;font-weight:500;transition:all .2s;
+  }
+  input:focus,textarea:focus,select:focus{
+    outline:none;border-color:var(--gold);box-shadow:0 0 0 4px rgba(212,175,55,.12);
+  }
+  input::placeholder,textarea::placeholder{color:var(--txt-dim)}
+  textarea{resize:vertical;min-height:80px}
+
+  .histo-item{
+    background:var(--black-3);border:1px solid var(--line);
+    border-radius:10px;padding:12px 14px;
+    display:flex;justify-content:space-between;align-items:center;
+    gap:10px;flex-wrap:wrap;margin-bottom:8px;
+  }
+  .histo-item .info{flex:1;min-width:0}
+  .histo-item .info .titre{
+    font-weight:700;color:var(--txt);font-size:.9rem;
+    margin-bottom:2px;
+  }
+  .histo-item .info .det{
+    font-size:.75rem;color:var(--txt-muted);
+  }
+  .histo-item .montant{
+    font-family:'Fredoka',sans-serif;font-weight:700;
+    font-size:1rem;color:var(--gold-bright);
+  }
+  .histo-item.paiement .montant{color:var(--ok)}
+
+  @media (max-width:700px){
+    .stats{grid-template-columns:repeat(2,1fr)}
+  }
+</style>
+</head>
+<body data-groupe="g1">
+
+<div class="app">
+
+  <div class="header">
+    <a href="groupe-commercial.html" class="back">←</a>
+    <div class="title-block">
+      <div class="logo"><span class="b">B</span><span class="excl">!</span><span class="pe">PE</span></div>
+      <div class="subtitle">Commercial · Crédits</div>
+    </div>
+    <button class="menu" onclick="BIPE.openMenu()">⋮</button>
+  </div>
+
+  <div class="content">
+
+    <div class="hero-groupe">
+      <div class="num">GROUPE 01</div>
+      <div class="ico">💳</div>
+      <h1>Crédits clients</h1>
+      <p>Suis les soldes dus, encaisse les paiements, relance les retardataires.</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat dette"><div class="num" id="statDette">0</div><div class="lab">Total dû<br>(DT)</div></div>
+      <div class="stat clients"><div class="num" id="statClients">0</div><div class="lab">Clients<br>débiteurs</div></div>
+      <div class="stat encaisse"><div class="num" id="statEncaisse">0</div><div class="lab">Encaissé ce mois<br>(DT)</div></div>
+      <div class="stat retard"><div class="num" id="statRetard">0</div><div class="lab">Clients<br>en retard &gt;30j</div></div>
+    </div>
+
+    <div class="toolbar">
+      <button class="btn btn-ghost" onclick="exportCredits()"><span>📤</span> Exporter</button>
+      <button class="btn btn-ghost" onclick="window.location.href='f-clients.html'">
+        <span>👤</span> Gérer les clients
+      </button>
+    </div>
+
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="🔍 Rechercher un client..." oninput="renderList()">
+      <select id="sortSelect" onchange="renderList()">
+        <option value="solde">Trier par solde dû</option>
+        <option value="anciennete">Trier par ancienneté</option>
+        <option value="nom">Trier par nom (A-Z)</option>
+      </select>
+    </div>
+
+    <div class="filters" id="filters">
+      <button class="filter-chip active" data-filter="tous" onclick="setFilter('tous')">Tous</button>
+      <button class="filter-chip" data-filter="dette" onclick="setFilter('dette')">Avec dette</button>
+      <button class="filter-chip" data-filter="retard" onclick="setFilter('retard')">En retard &gt;30j</button>
+      <button class="filter-chip" data-filter="solde" onclick="setFilter('solde')">Soldés</button>
+    </div>
+
+    <div class="list" id="list"></div>
+
+  </div>
+
+  <div class="footer">
+    <span class="brand">BIPE</span> · Bureau Intelligent Pour Entrepreneur<br>
+    Commercial · Crédits · Version 1.0
+  </div>
+
+</div>
+
+<div id="bipe-overlay" onclick="BIPE.closeAllSheets()"></div>
+
+<!-- SHEET PAIEMENT -->
+<div id="sheet-paiement" class="bipe-sheet" style="
+  position:fixed;left:0;right:0;bottom:0;background:#0a0a0a;
+  border-radius:24px 24px 0 0;border-top:2px solid #5a4a1f;
+  z-index:1001;max-height:92vh;display:flex;flex-direction:column;
+  max-width:720px;margin:0 auto;
+">
+  <div style="width:48px;height:5px;background:#2a2a2a;border-radius:3px;margin:12px auto 8px;flex-shrink:0;"></div>
+  <div style="padding:8px 24px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1f1f1f;">
+    <h3 id="payTitle" style="font-family:'Fredoka',sans-serif;font-size:1.5rem;color:#e8c96a;font-weight:700;">Encaisser un paiement</h3>
+    <button onclick="BIPE.closeAllSheets()" style="
+      width:44px;height:44px;border-radius:12px;background:#141414;
+      border:1px solid #2a2a2a;color:#f5f0e1;font-size:1.4rem;
+      display:flex;align-items:center;justify-content:center;cursor:pointer;
+    ">✕</button>
+  </div>
+  <div style="padding:20px 24px 24px;overflow-y:auto;flex:1;">
+    <div id="payResume" style="margin-bottom:20px;padding:14px;background:rgba(212,175,55,.06);border:1px solid var(--gold-dim);border-radius:12px;"></div>
+
+    <div class="form-group">
+      <label>Montant encaissé (DT) <span class="required">*</span></label>
+      <input type="number" id="fMontant" placeholder="0" step="0.01" min="0">
+    </div>
+
+    <div class="form-group">
+      <label>Date <span class="required">*</span></label>
+      <input type="date" id="fDate">
+    </div>
+
+    <div class="form-group">
+      <label>Note</label>
+      <textarea id="fNote" placeholder="Ex : Paiement espèces, virement..." maxlength="300"></textarea>
+    </div>
+
+    <button class="btn btn-gold" style="width:100%;justify-content:center;margin-top:8px;" onclick="savePaiement()">
+      💾 Encaisser
+    </button>
+  </div>
+</div>
+
+<!-- SHEET HISTORIQUE CLIENT -->
+<div id="sheet-histo" class="bipe-sheet" style="
+  position:fixed;left:0;right:0;bottom:0;background:#0a0a0a;
+  border-radius:24px 24px 0 0;border-top:2px solid #5a4a1f;
+  z-index:1001;max-height:92vh;display:flex;flex-direction:column;
+  max-width:720px;margin:0 auto;
+">
+  <div style="width:48px;height:5px;background:#2a2a2a;border-radius:3px;margin:12px auto 8px;flex-shrink:0;"></div>
+  <div style="padding:8px 24px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1f1f1f;">
+    <h3 id="histoTitle" style="font-family:'Fredoka',sans-serif;font-size:1.5rem;color:#e8c96a;font-weight:700;">Historique</h3>
+    <button onclick="BIPE.closeAllSheets()" style="
+      width:44px;height:44px;border-radius:12px;background:#141414;
+      border:1px solid #2a2a2a;color:#f5f0e1;font-size:1.4rem;
+      display:flex;align-items:center;justify-content:center;cursor:pointer;
+    ">✕</button>
+  </div>
+  <div id="histoBody" style="padding:20px 24px 24px;overflow-y:auto;flex:1;"></div>
+</div>
+
+<script>
+/* ============================================================
+   BIPE — f-credits.html v1.0
+   Suivi des crédits clients
+   - Liste par client avec solde dû
+   - Encaissement de paiement (FIFO)
+   - Relance (crée un rappel via f-rappels)
+   - Historique des crédits + paiements
+   ============================================================ */
+
+BIPE.checkSession();
+
+let credits = [];
+let filter = 'tous';
+let editingClientId = null;
+
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+
+/* ---------- Sheet ---------- */
+function ouvrirSheet(id){
+  let overlay = document.getElementById('bipe-overlay');
+  if(!overlay){
+    overlay = document.createElement('div');
+    overlay.id = 'bipe-overlay';
+    overlay.onclick = BIPE.closeAllSheets;
+    document.body.appendChild(overlay);
+  }
+  overlay.classList.add('show');
+  const sheet = document.getElementById(id);
+  if(sheet) sheet.classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function fermerSheet(){
+  const overlay = document.getElementById('bipe-overlay');
+  if(overlay) overlay.classList.remove('show');
+  document.querySelectorAll('.bipe-sheet').forEach(s => s.classList.remove('show'));
+  document.body.style.overflow = '';
+}
+
+/* ---------- Data ---------- */
+function load(){
+  credits = BIPE.storage.get(BIPE.KEYS.credits, []) || [];
+  render();
+}
+
+function save(){
+  BIPE.storage.set(BIPE.KEYS.credits, credits);
+}
+
+function getClients(){
+  return BIPE.storage.get(BIPE.KEYS.clients, []) || [];
+}
+
+function clientExiste(clientId){
+  if(!clientId) return true;
+  return getClients().some(c => c.id === clientId);
+}
+
+/* ---------- Calculs par client ---------- */
+
+/**
+ * Retourne un objet { clientId: { nom, credits:[], paiements:[], soldeDu, oldestDate, nbCredits } }
+ * pour tous les clients ayant au moins un crédit ou paiement.
+ */
+function agregerParClient(){
+  const map = {};
+
+  credits.forEach(c => {
+    if(!c.clientId) return; // ignore les crédits sans client (ne devrait pas arriver)
+    const key = c.clientId;
+    if(!map[key]){
+      map[key] = {
+        clientId: key,
+        clientNom: c.clientNom || 'Client',
+        credits: [],
+        paiements: [],
+        soldeDu: 0,
+        oldestDate: null,
+        nbCredits: 0
+      };
+    }
+
+    const isPaiement = c.type === 'paiement';
+    if(isPaiement){
+      map[key].paiements.push(c);
+    } else {
+      map[key].credits.push(c);
+      map[key].nbCredits++;
+      map[key].soldeDu += (Number(c.montant) || 0) - (Number(c.montantPaye) || 0);
+      const d = c.date || c.createdAt;
+      if(d && (!map[key].oldestDate || d < map[key].oldestDate)){
+        map[key].oldestDate = d;
+      }
+    }
+  });
+
+  return Object.values(map);
+}
+
+/* ---------- Rendu ---------- */
+function render(){
+  renderStats();
+  renderList();
+}
+
+function renderStats(){
+  const parClient = agregerParClient();
+  const detteTotale = parClient.reduce((s, c) => s + Math.max(0, c.soldeDu), 0);
+  const nbClients = parClient.filter(c => c.soldeDu > 0).length;
+
+  // Encaissé ce mois = somme des paiements du mois courant
+  const now = new Date();
+  const moisDebut = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0,10);
+  const encaisseMois = credits
+    .filter(c => c.type === 'paiement' && (c.date || '') >= moisDebut)
+    .reduce((s, c) => s + (Number(c.montant) || 0), 0);
+
+  // Retard >30j
+  const today = todayISO();
+  const seuilRetard = new Date();
+  seuilRetard.setDate(seuilRetard.getDate() - 30);
+  const seuilIso = seuilRetard.toISOString().slice(0,10);
+  const enRetard = parClient.filter(c => c.soldeDu > 0 && c.oldestDate && c.oldestDate < seuilIso).length;
+
+  document.getElementById('statDette').textContent = BIPE.fmt(detteTotale);
+  document.getElementById('statClients').textContent = nbClients;
+  document.getElementById('statEncaisse').textContent = BIPE.fmt(encaisseMois);
+  document.getElementById('statRetard').textContent = enRetard;
+}
+
+function initiales(nom){
+  return (nom||'?').split(' ').map(x => x.charAt(0).toUpperCase()).slice(0,2).join('');
+}
+
+function isRetard(clientData){
+  if(clientData.soldeDu <= 0) return false;
+  if(!clientData.oldestDate) return false;
+  const seuil = new Date();
+  seuil.setDate(seuil.getDate() - 30);
+  return clientData.oldestDate < seuil.toISOString().slice(0,10);
+}
+
+function matchFilter(c){
+  if(filter === 'dette') return c.soldeDu > 0;
+  if(filter === 'solde') return c.soldeDu <= 0;
+  if(filter === 'retard') return isRetard(c);
+  return true;
+}
+
+function matchSearch(c, query){
+  if(!query) return true;
+  const q = query.toLowerCase();
+  return (c.clientNom || '').toLowerCase().includes(q);
+}
+
+function renderList(){
+  const list = document.getElementById('list');
+  const query = (document.getElementById('searchInput')?.value || '').trim();
+  const sortBy = document.getElementById('sortSelect')?.value || 'solde';
+
+  let items = agregerParClient().filter(c => matchFilter(c) && matchSearch(c, query));
+
+  items.sort((a, b) => {
+    if(sortBy === 'solde') return b.soldeDu - a.soldeDu;
+    if(sortBy === 'anciennete'){
+      const da = a.oldestDate || '9999';
+      const db = b.oldestDate || '9999';
+      return da.localeCompare(db);
+    }
+    return (a.clientNom || '').localeCompare(b.clientNom || '');
+  });
+
+  if(items.length === 0){
+    list.innerHTML = `
+      <div class="empty">
+        <div class="ico">💳</div>
+        <h3>Aucun crédit</h3>
+        <p>${query ? 'Aucun résultat pour cette recherche.' : (filter === 'tous' ? 'Aucun crédit enregistré. Les ventes à crédit apparaîtront ici.' : 'Aucun client dans ce filtre.')}</p>
+        <button class="btn btn-gold" style="margin:0 auto;" onclick="window.location.href='f-ventes.html'">
+          ＋ Créer une vente à crédit
+        </button>
+      </div>
+    `;
+    return;
+  }
+
+  list.innerHTML = items.map(c => {
+    const retard = isRetard(c);
+    const solde = c.soldeDu;
+    const estSolde = solde <= 0;
+    const cls = estSolde ? 'solde' : (retard ? 'retard' : '');
+    const cliSuppr = !clientExiste(c.clientId);
+    const nomAffiche = cliSuppr
+      ? `${BIPE.esc(c.clientNom)} <span style="color:#e08a8a;font-size:.75em;font-weight:600;">(supprimé)</span>`
+      : BIPE.esc(c.clientNom);
+
+    const badges = [];
+    if(c.nbCredits > 0) badges.push(`<span class="badge badge-cr">${c.nbCredits} crédit${c.nbCredits>1?'s':''}</span>`);
+    if(c.paiements.length > 0) badges.push(`<span class="badge badge-pay">${c.paiements.length} paiement${c.paiements.length>1?'s':''}</span>`);
+    if(retard) badges.push(`<span class="badge badge-old">⚠ >30j</span>`);
+
+    return `
+      <div class="credit-card ${cls}">
+        <div class="client-avatar">${initiales(c.clientNom)}</div>
+        <div class="credit-body">
+          <div class="credit-head">
+            <div class="credit-nom">${nomAffiche}</div>
+            <div class="credit-solde">${estSolde ? '✓ Soldé' : BIPE.fmt(solde) + ' DT'}</div>
+          </div>
+          <div class="credit-meta">
+            ${badges.join(' ')}
+            ${c.oldestDate ? `<span>Plus ancien : ${BIPE.fmtDate(c.oldestDate)}</span>` : ''}
+          </div>
+          <div class="credit-actions">
+            ${!estSolde ? `
+              <button class="action-btn gold" onclick="ouvrirPaiement('${c.clientId}')">
+                💰 Encaisser
+              </button>
+              <button class="action-btn" onclick="relancer('${c.clientId}')">
+                🔔 Relancer
+              </button>
+            ` : ''}
+            <button class="action-btn" onclick="ouvrirHisto('${c.clientId}')">
+              📋 Historique
+            </button>
+            ${!cliSuppr ? `
+              <button class="action-btn" onclick="window.location.href='f-ventes.html?clientId=${encodeURIComponent(c.clientId)}'">
+                🛒 Ventes
+              </button>
+            ` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function setFilter(f){
+  filter = f;
+  document.querySelectorAll('.filter-chip').forEach(b => {
+    b.classList.toggle('active', b.dataset.filter === f);
+  });
+  renderList();
+}
+
+/* ---------- Encaissement (FIFO) ---------- */
+function ouvrirPaiement(clientId){
+  const parClient = agregerParClient();
+  const data = parClient.find(c => c.clientId === clientId);
+  if(!data || data.soldeDu <= 0){
+    BIPE.toast('⚠ Ce client n\'a pas de dette', true);
+    return;
+  }
+
+  editingClientId = clientId;
+  document.getElementById('payTitle').textContent = 'Encaisser — ' + data.clientNom;
+
+  document.getElementById('payResume').innerHTML = `
+    <div style="font-size:.85rem;color:var(--txt-muted);margin-bottom:6px;">
+      Solde dû
+    </div>
+    <div style="font-family:'Fredoka',sans-serif;font-size:1.8rem;font-weight:700;color:var(--bad);line-height:1;">
+      ${BIPE.fmt(data.soldeDu)} DT
+    </div>
+    <div style="font-size:.78rem;color:var(--txt-dim);margin-top:6px;">
+      ${data.nbCredits} crédit${data.nbCredits>1?'s':''} ouvert${data.nbCredits>1?'s':''}
+      ${data.oldestDate ? ' · Plus ancien : ' + BIPE.fmtDate(data.oldestDate) : ''}
+    </div>
+  `;
+
+  document.getElementById('fMontant').value = data.soldeDu.toFixed(2);
+  document.getElementById('fDate').value = todayISO();
+  document.getElementById('fNote').value = '';
+
+  ouvrirSheet('sheet-paiement');
+}
+
+function savePaiement(){
+  if(!editingClientId) return;
+
+  const montant = parseFloat(document.getElementById('fMontant').value);
+  const date = document.getElementById('fDate').value;
+  const note = document.getElementById('fNote').value.trim();
+
+  if(!montant || montant <= 0){
+    BIPE.toast('⚠ Montant invalide', true);
+    return;
+  }
+  if(!date){
+    BIPE.toast('⚠ Date obligatoire', true);
+    return;
+  }
+
+  const parClient = agregerParClient();
+  const data = parClient.find(c => c.clientId === editingClientId);
+  if(!data) return;
+
+  if(montant > data.soldeDu + 0.01){
+    if(!confirm(`Le montant (${BIPE.fmt(montant)} DT) dépasse le solde dû (${BIPE.fmt(data.soldeDu)} DT).\n\nContinuer quand même ?`)){
+      return;
+    }
+  }
+
+  // 1. Créer l'entrée paiement
+  const paiement = {
+    id: 'cr-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,6),
+    clientId: data.clientId,
+    clientNom: data.clientNom,
+    montant,
+    montantPaye: 0,
+    date,
+    venteId: null,
+    type: 'paiement',
+    note: note || 'Paiement client',
+    createdAt: new Date().toISOString()
+  };
+  credits.push(paiement);
+
+  // 2. Appliquer en FIFO aux crédits ouverts
+  let reste = montant;
+  const creditsClient = data.credits
+    .filter(c => (Number(c.montant) || 0) > (Number(c.montantPaye) || 0))
+    .sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+
+  creditsClient.forEach(c => {
+    if(reste <= 0) return;
+    const du = (Number(c.montant) || 0) - (Number(c.montantPaye) || 0);
+    const applique = Math.min(du, reste);
+    c.montantPaye = (Number(c.montantPaye) || 0) + applique;
+    c.dateDernierPaiement = date;
+    reste -= applique;
+  });
+
+  save();
+  fermerSheet();
+  render();
+  BIPE.toast(`✅ Paiement de ${BIPE.fmt(montant)} DT enregistré`);
+}
+
+/* ---------- Historique client ---------- */
+function ouvrirHisto(clientId){
+  const parClient = agregerParClient();
+  const data = parClient.find(c => c.clientId === clientId);
+  if(!data) return;
+
+  document.getElementById('histoTitle').textContent = 'Historique — ' + data.clientNom;
+
+  const toutes = [
+    ...data.credits.map(c => ({...c, _type: 'credit'})),
+    ...data.paiements.map(p => ({...p, _type: 'paiement'}))
+  ].sort((a, b) => (b.date || b.createdAt || '').localeCompare(a.date || a.createdAt || ''));
+
+  let html = `
+    <div style="margin-bottom:16px;padding:14px;background:rgba(212,175,55,.06);border:1px solid var(--gold-dim);border-radius:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;">
+        <span style="font-size:.85rem;color:var(--txt-muted);">Solde dû</span>
+        <span style="font-family:'Fredoka',sans-serif;font-size:1.6rem;font-weight:700;color:${data.soldeDu > 0 ? 'var(--bad)' : 'var(--ok)'};">
+          ${data.soldeDu > 0 ? BIPE.fmt(data.soldeDu) + ' DT' : '✓ Soldé'}
+        </span>
+      </div>
+    </div>
+  `;
+
+  if(toutes.length === 0){
+    html += `<div style="text-align:center;padding:30px 20px;color:var(--txt-muted);font-size:.9rem;">
+      Aucun mouvement enregistré.
+    </div>`;
+  } else {
+    html += toutes.map(t => {
+      if(t._type === 'credit'){
+        const du = (Number(t.montant) || 0) - (Number(t.montantPaye) || 0);
+        const statut = du <= 0 ? '✓ Soldé' : `Dû : ${BIPE.fmt(du)} DT`;
+        return `
+          <div class="histo-item">
+            <div class="info">
+              <div class="titre">📝 Crédit — ${BIPE.fmt(t.montant)} DT</div>
+              <div class="det">${BIPE.fmtDate(t.date)} · ${statut}${t.note ? ' · ' + BIPE.esc(t.note) : ''}</div>
+            </div>
+            <div class="montant">+${BIPE.fmt(t.montant)} DT</div>
+          </div>
+        `;
+      } else {
+        return `
+          <div class="histo-item paiement">
+            <div class="info">
+              <div class="titre">💰 Paiement</div>
+              <div class="det">${BIPE.fmtDate(t.date)}${t.note ? ' · ' + BIPE.esc(t.note) : ''}</div>
+            </div>
+            <div class="montant">−${BIPE.fmt(t.montant)} DT</div>
+          </div>
+        `;
+      }
+    }).join('');
+  }
+
+  document.getElementById('histoBody').innerHTML = html;
+  ouvrirSheet('sheet-histo');
+}
+
+/* ---------- Relance (synchro #15) ---------- */
+function relancer(clientId){
+  const parClient = agregerParClient();
+  const data = parClient.find(c => c.clientId === clientId);
+  if(!data || data.soldeDu <= 0) return;
+
+  const rappels = BIPE.storage.get(BIPE.KEYS.rappels, []) || [];
+  const echeance = new Date();
+  echeance.setDate(echeance.getDate() + 7);
+
+  rappels.push({
+    id: Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,6),
+    titre: `Relance crédit — ${data.clientNom}`,
+    description: `Solde dû : ${BIPE.fmt(data.soldeDu)} DT${data.oldestDate ? ' (depuis le ' + BIPE.fmtDate(data.oldestDate) + ')' : ''}.`,
+    date: echeance.toISOString().slice(0,10),
+    priorite: 'moyenne',
+    cibleType: 'client',
+    cibleId: data.clientId,
+    cibleNom: data.clientNom,
+    cibleDetail: `Solde dû : ${BIPE.fmt(data.soldeDu)} DT`,
+    fait: false,
+    dateFait: null,
+    createdAt: new Date().toISOString()
+  });
+
+  BIPE.storage.set(BIPE.KEYS.rappels, rappels);
+  BIPE.toast(`✅ Rappel créé — échéance dans 7 jours`);
+}
+
+/* ---------- Export ---------- */
+function exportCredits(){
+  BIPE.exportJSON('credits', credits);
+}
+
+/* ---------- Init ---------- */
+document.addEventListener('DOMContentLoaded', () => {
+  load();
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape') fermerSheet();
+  });
+});
+</script>
+</body>
+</html>

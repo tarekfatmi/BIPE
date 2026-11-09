@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>BIPE — Planning</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="shared.js"></script>
+<style>
+  :root{
+    --black:#000000; --black-2:#0a0a0a; --black-3:#141414;
+    --line:#2a2a2a; --line-soft:#1f1f1f;
+    --gold:#d4af37; --gold-bright:#f0d060; --gold-soft:#e8c96a;
+    --gold-dim:#8a7433; --gold-deep:#5a4a1f;
+    --txt:#f5f0e1; --txt-muted:#9a9384; --txt-dim:#5a564e;
+    --ok:#6b9a5a; --warn:#c9a040; --bad:#b84040; --info:#7cc4e8;
+    --radius:16px; --radius-sm:12px;
+    --groupe-couleur:#d98ca8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overscroll-behavior:none}
+  body{
+    font-family:'Baloo Bhaijaan 2', -apple-system, "Segoe UI", sans-serif;
+    background:var(--black); color:var(--txt); line-height:1.6; font-weight:500;
+    -webkit-font-smoothing:antialiased; min-height:100vh;
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(217,140,168,.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(212,175,55,.02) 0%, transparent 40%);
+    background-attachment:fixed;
+  }
+  .app{max-width:min(1100px,92vw);margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding-bottom:clamp(24px,4vw,40px)}
+
+  /* ============================================================
+     SHEET + OVERLAY — CSS de fallback (au cas où shared.js
+     ne serait pas encore patché)
+     ============================================================ */
+  .bipe-sheet{
+    transform:translateY(100%);
+    transition:transform .3s cubic-bezier(.32,.72,0,1);
+  }
+  .bipe-sheet.show{
+    transform:translateY(0) !important;
+  }
+  #bipe-overlay{
+    position:fixed;inset:0;
+    background:rgba(0,0,0,.7);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    z-index:1000;
+    opacity:0;pointer-events:none;
+    transition:opacity .3s;
+  }
+  #bipe-overlay.show{
+    opacity:1 !important;
+    pointer-events:auto !important;
+  }
+
+  .header{
+    position:sticky;top:0;z-index:50;background:rgba(0,0,0,.92);
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--line-soft);
+    padding:clamp(12px,2vw,16px) clamp(16px,3vw,20px);
+    display:flex;align-items:center;gap:clamp(8px,1.5vw,16px);
+  }
+  .header .back{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;text-decoration:none;transition:transform .15s;
+  }
+  .header .back:active{transform:scale(.92)}
+  .header .title-block{flex:1;min-width:0}
+  .header .logo{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2.5vw,1.5rem);
+    font-weight:700;color:#f0d060;line-height:1.2;letter-spacing:.02em;
+  }
+  .header .logo .b,.header .logo .pe{color:var(--txt)}
+  .header .logo .excl{color:var(--gold);font-size:1.3em;vertical-align:middle;text-shadow:0 0 20px rgba(212,175,55,.5)}
+  .header .subtitle{
+    font-size:clamp(.6rem,1vw,.7rem);color:var(--txt-muted);
+    font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  }
+  .header .menu{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;transition:transform .15s;
+  }
+  .header .menu:active{transform:scale(.92)}
+
+  .content{flex:1;padding:clamp(16px,3vw,24px) clamp(16px,3vw,20px)}
+
+  .hero-groupe{
+    background:linear-gradient(135deg,var(--black-2) 0%,var(--black-3) 100%);
+    border:2px solid var(--gold-deep);border-radius:var(--radius);
+    padding:clamp(18px,3vw,24px);margin-bottom:clamp(16px,3vw,20px);
+    position:relative;overflow:hidden;
+  }
+  .hero-groupe::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--groupe-couleur);opacity:.8;
+  }
+  .hero-groupe .num{
+    font-family:'Fredoka',sans-serif;font-size:clamp(.75rem,1vw,.85rem);
+    font-weight:700;color:var(--groupe-couleur);letter-spacing:.05em;margin-bottom:6px;
+  }
+  .hero-groupe .ico{font-size:clamp(1.6rem,2.5vw,2rem);line-height:1;margin-bottom:6px}
+  .hero-groupe h1{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.3rem,2.2vw,1.7rem);
+    font-weight:700;color:var(--gold-bright);line-height:1.2;margin-bottom:4px;
+  }
+  .hero-groupe p{font-size:clamp(.85rem,1.1vw,1rem);color:var(--txt-muted);font-weight:500}
+
+  .stats{
+    display:grid;grid-template-columns:repeat(4,1fr);
+    gap:clamp(8px,1.5vw,12px);margin-bottom:clamp(16px,3vw,20px);
+  }
+  .stat{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(12px,2vw,16px) clamp(10px,1.5vw,14px);
+  }
+  .stat .num{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.3rem,2.5vw,1.7rem);
+    font-weight:700;line-height:1;margin-bottom:4px;
+  }
+  .stat .lab{font-size:clamp(.7rem,.95vw,.8rem);color:var(--txt-muted);font-weight:600;line-height:1.3}
+  .stat.conges .num{color:var(--info)}
+  .stat.absences .num{color:var(--warn)}
+  .stat.presences .num{color:var(--ok)}
+  .stat.total .num{color:var(--gold-bright)}
+
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:clamp(14px,2.5vw,18px)}
+  .btn{
+    padding:clamp(11px,1.5vw,13px) clamp(16px,2vw,20px);
+    border-radius:999px;border:none;cursor:pointer;
+    font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:clamp(.88rem,1.1vw,1rem);font-weight:700;
+    display:inline-flex;align-items:center;gap:8px;transition:all .2s;
+  }
+  .btn-gold{
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold));
+    color:#0a0a0a;box-shadow:0 4px 16px rgba(212,175,55,.25);
+  }
+  .btn-gold:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  .btn-gold:active{transform:scale(.97)}
+  .btn-ghost{background:var(--black-2);border:2px solid var(--line);color:var(--txt)}
+  .btn-ghost:hover{border-color:var(--gold-dim)}
+
+  .filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:clamp(14px,2.5vw,18px)}
+  .filter-chip{
+    padding:8px 14px;border-radius:999px;border:2px solid var(--line);
+    background:var(--black-2);color:var(--txt-muted);
+    font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:clamp(.8rem,1vw,.9rem);font-weight:600;cursor:pointer;transition:.2s;
+  }
+  .filter-chip.active{border-color:var(--groupe-couleur);color:var(--groupe-couleur);background:rgba(217,140,168,.08)}
+  .filter-chip:hover:not(.active){color:var(--txt)}
+
+  .list{display:flex;flex-direction:column;gap:clamp(8px,1.5vw,10px)}
+  .event-card{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(14px,2.5vw,18px) clamp(16px,2.5vw,20px);
+    display:flex;gap:clamp(10px,2vw,14px);align-items:flex-start;
+    transition:transform .15s,border-color .15s;position:relative;overflow:hidden;
+  }
+  .event-card::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--type-couleur,var(--groupe-couleur));opacity:.9;
+  }
+  .event-card:hover{border-color:var(--gold-dim)}
+  .event-card.conge::before{background:var(--info)}
+  .event-card.absence::before{background:var(--warn)}
+  .event-card.presence::before{background:var(--ok)}
+  .event-card.autre::before{background:var(--txt-muted)}
+  .event-body{flex:1;min-width:0}
+  .event-head{
+    display:flex;justify-content:space-between;align-items:baseline;
+    gap:8px;margin-bottom:4px;flex-wrap:wrap;
+  }
+  .event-titre{
+    font-family:'Fredoka',sans-serif;font-size:clamp(.95rem,1.4vw,1.1rem);
+    font-weight:700;color:var(--txt);line-height:1.3;flex:1;min-width:0;
+  }
+  .event-dates{
+    font-size:clamp(.72rem,.95vw,.82rem);color:var(--txt-dim);
+    font-weight:600;white-space:nowrap;
+  }
+  .event-meta{
+    display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+    font-size:clamp(.75rem,.95vw,.85rem);font-weight:600;color:var(--txt-muted);
+  }
+  .event-meta .badge{
+    padding:2px 8px;border-radius:6px;font-size:.75em;font-weight:700;
+    text-transform:uppercase;letter-spacing:.04em;
+  }
+  .badge-conge{background:rgba(124,196,232,.15);color:var(--info)}
+  .badge-absence{background:rgba(201,160,64,.15);color:var(--warn)}
+  .badge-presence{background:rgba(107,154,90,.15);color:#8fc47a}
+  .badge-autre{background:rgba(255,255,255,.06);color:var(--txt-muted)}
+  .event-actions{display:flex;gap:4px;flex-shrink:0}
+  .icon-btn{
+    width:clamp(32px,4.5vw,36px);height:clamp(32px,4.5vw,36px);
+    border-radius:10px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--txt-muted);font-size:clamp(.85rem,1.2vw,.95rem);
+    cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;
+  }
+  .icon-btn:hover{border-color:var(--gold-dim);color:var(--gold-soft)}
+  .icon-btn.danger:hover{border-color:var(--bad);color:#e08a8a}
+
+  .empty{
+    text-align:center;padding:clamp(40px,8vw,60px) clamp(20px,3vw,24px);
+    background:var(--black-2);border:2px dashed var(--line);border-radius:var(--radius);
+  }
+  .empty .ico{font-size:clamp(2.5rem,6vw,3.5rem);margin-bottom:12px;opacity:.6}
+  .empty h3{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.1rem,1.8vw,1.3rem);
+    color:var(--gold-soft);margin-bottom:8px;
+  }
+  .empty p{font-size:clamp(.85rem,1.1vw,1rem);color:var(--txt-muted);margin-bottom:16px}
+
+  .footer{
+    text-align:center;padding:clamp(20px,3vw,28px) 16px 16px;
+    font-size:clamp(.72rem,.9vw,.8rem);color:var(--txt-dim);
+    line-height:1.8;font-weight:500;border-top:1px solid var(--line-soft);margin-top:auto;
+  }
+  .footer .brand{color:var(--gold-soft);font-weight:700}
+
+  .form-group{margin-bottom:clamp(14px,2vw,18px)}
+  label{
+    display:block;font-size:clamp(.85rem,1vw,.95rem);
+    color:var(--txt-muted);margin-bottom:6px;font-weight:600;
+  }
+  label .required{color:var(--bad);margin-left:2px}
+  input,textarea,select{
+    width:100%;padding:clamp(12px,1.5vw,14px) clamp(14px,2vw,16px);
+    border-radius:var(--radius-sm);border:2px solid var(--line);
+    background:var(--black-3);color:var(--txt);
+    font-size:clamp(.95rem,1.1vw,1rem);
+    font-family:'Baloo Bhaijaan 2',sans-serif;font-weight:500;transition:all .2s;
+  }
+  input:focus,textarea:focus,select:focus{
+    outline:none;border-color:var(--gold);box-shadow:0 0 0 4px rgba(212,175,55,.12);
+  }
+  input::placeholder,textarea::placeholder{color:var(--txt-dim)}
+  textarea{resize:vertical;min-height:80px}
+  select{cursor:pointer}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  @media (max-width:700px){
+    .stats{grid-template-columns:repeat(2,1fr)}
+  }
+  @media (max-width:600px){
+    .row{grid-template-columns:1fr}
+    .event-actions{flex-direction:column}
+  }
+</style>
+</head>
+<body data-groupe="g5">
+
+<div class="app">
+
+  <div class="header">
+    <a href="groupe-rh-culture.html" class="back">←</a>
+    <div class="title-block">
+      <div class="logo"><span class="b">B</span><span class="excl">!</span><span class="pe">PE</span></div>
+      <div class="subtitle">RH · Planning</div>
+    </div>
+    <button class="menu" onclick="BIPE.openMenu()">⋮</button>
+  </div>
+
+  <div class="content">
+
+    <div class="hero-groupe">
+      <div class="num">GROUPE 05</div>
+      <div class="ico">📅</div>
+      <h1>Planning</h1>
+      <p>Congés, absences, présences. Qui est là, quand, et pourquoi.</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat total"><div class="num" id="statTotal">0</div><div class="lab">Total<br>événements</div></div>
+      <div class="stat conges"><div class="num" id="statConges">0</div><div class="lab">Congés</div></div>
+      <div class="stat absences"><div class="num" id="statAbsences">0</div><div class="lab">Absences</div></div>
+      <div class="stat presences"><div class="num" id="statPresences">0</div><div class="lab">Présences</div></div>
+    </div>
+
+    <div class="toolbar">
+      <button class="btn btn-gold" onclick="openForm()"><span>＋</span> Nouvel événement</button>
+      <button class="btn btn-ghost" onclick="exportPlanning()"><span>📤</span> Exporter</button>
+    </div>
+
+    <div class="filters" id="filters">
+      <button class="filter-chip active" data-filter="tous" onclick="setFilter('tous')">Tous</button>
+      <button class="filter-chip" data-filter="conge" onclick="setFilter('conge')">Congés</button>
+      <button class="filter-chip" data-filter="absence" onclick="setFilter('absence')">Absences</button>
+      <button class="filter-chip" data-filter="presence" onclick="setFilter('presence')">Présences</button>
+      <button class="filter-chip" data-filter="avenir" onclick="setFilter('avenir')">À venir</button>
+    </div>
+
+    <div class="list" id="list"></div>
+
+  </div>
+
+  <div class="footer">
+    <span class="brand">BIPE</span> · Bureau Intelligent Pour Entrepreneur<br>
+    RH & Culture · Planning · Version 1.0
+  </div>
+
+</div>
+
+<!-- OVERLAY (présent dès le chargement) -->
+<div id="bipe-overlay" onclick="BIPE.closeAllSheets()"></div>
+
+<!-- SHEET FORMULAIRE -->
+<div id="sheet-form" class="bipe-sheet" style="
+  position:fixed;left:0;right:0;bottom:0;background:#0a0a0a;
+  border-radius:24px 24px 0 0;border-top:2px solid #5a4a1f;
+  z-index:1001;max-height:92vh;display:flex;flex-direction:column;
+  max-width:720px;margin:0 auto;
+">
+  <div style="width:48px;height:5px;background:#2a2a2a;border-radius:3px;margin:12px auto 8px;flex-shrink:0;"></div>
+  <div style="padding:8px 24px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1f1f1f;">
+    <h3 id="formTitle" style="font-family:'Fredoka',sans-serif;font-size:1.5rem;color:#e8c96a;font-weight:700;">Nouvel événement</h3>
+    <button onclick="BIPE.closeAllSheets()" style="
+      width:44px;height:44px;border-radius:12px;background:#141414;
+      border:1px solid #2a2a2a;color:#f5f0e1;font-size:1.4rem;
+      display:flex;align-items:center;justify-content:center;cursor:pointer;
+    ">✕</button>
+  </div>
+  <div style="padding:20px 24px 24px;overflow-y:auto;flex:1;">
+    <div class="form-group">
+      <label>Type <span class="required">*</span></label>
+      <select id="fType">
+        <option value="conge">Congé</option>
+        <option value="absence">Absence</option>
+        <option value="presence">Présence</option>
+        <option value="autre">Autre</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Membre <span class="required">*</span></label>
+      <select id="fMembreId"><option value="">— Choisir —</option></select>
+    </div>
+    <div class="form-group">
+      <label>Motif / Titre <span class="required">*</span></label>
+      <input type="text" id="fTitre" placeholder="Ex : Congé annuel" maxlength="120">
+    </div>
+    <div class="row">
+      <div class="form-group">
+        <label>Date début <span class="required">*</span></label>
+        <input type="date" id="fDebut">
+      </div>
+      <div class="form-group">
+        <label>Date fin</label>
+        <input type="date" id="fFin">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <textarea id="fNotes" placeholder="Détails..." maxlength="300"></textarea>
+    </div>
+    <button class="btn btn-gold" style="width:100%;justify-content:center;margin-top:8px;" onclick="saveEvent()">💾 Enregistrer</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   BIPE — f-planning.html (CORRIGÉ)
+   Groupe 5 — RH & Culture : planning
+   ============================================================ */
+
+BIPE.checkSession();
+
+let events = [];
+let filter = 'tous';
+let editingId = null;
+
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+
+/* ---------- Sheet sécurisée ---------- */
+function ouvrirSheet(id){
+  let overlay = document.getElementById('bipe-overlay');
+  if(!overlay){
+    overlay = document.createElement('div');
+    overlay.id = 'bipe-overlay';
+    overlay.onclick = BIPE.closeAllSheets;
+    document.body.appendChild(overlay);
+  }
+  overlay.classList.add('show');
+  const sheet = document.getElementById(id);
+  if(sheet) sheet.classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function fermerSheet(){
+  const overlay = document.getElementById('bipe-overlay');
+  if(overlay) overlay.classList.remove('show');
+  document.querySelectorAll('.bipe-sheet').forEach(s => s.classList.remove('show'));
+  document.body.style.overflow = '';
+}
+
+/* ---------- Chargement ---------- */
+function load(){
+  events = BIPE.storage.get(BIPE.KEYS.planning, []) || [];
+  populateMembres();
+  render();
+}
+
+function save(){
+  BIPE.storage.set(BIPE.KEYS.planning, events);
+}
+
+function populateMembres(){
+  const rh = BIPE.storage.get(BIPE.KEYS.rh, []) || [];
+  const sel = document.getElementById('fMembreId');
+  if(!sel) return;
+  sel.innerHTML = '<option value="">— Choisir —</option>' +
+    rh.map(m => `<option value="${m.id}">${BIPE.esc(m.nom)}</option>`).join('');
+}
+
+/* ---------- Rendu ---------- */
+function render(){
+  renderStats();
+  renderList();
+}
+
+function renderStats(){
+  const conges = events.filter(e => e.type === 'conge').length;
+  const absences = events.filter(e => e.type === 'absence').length;
+  const presences = events.filter(e => e.type === 'presence').length;
+  document.getElementById('statTotal').textContent = events.length;
+  document.getElementById('statConges').textContent = conges;
+  document.getElementById('statAbsences').textContent = absences;
+  document.getElementById('statPresences').textContent = presences;
+}
+
+function matchFilter(e){
+  if(filter === 'tous') return true;
+  if(filter === 'conge') return e.type === 'conge';
+  if(filter === 'absence') return e.type === 'absence';
+  if(filter === 'presence') return e.type === 'presence';
+  if(filter === 'avenir') return e.dateDebut && e.dateDebut >= todayISO();
+  return true;
+}
+
+function membreNom(id){
+  const rh = BIPE.storage.get(BIPE.KEYS.rh, []) || [];
+  const m = rh.find(x => x.id === id);
+  return m ? m.nom : '—';
+}
+
+function renderList(){
+  const list = document.getElementById('list');
+  let items = events.filter(matchFilter);
+  items.sort((a,b) => (b.dateDebut||'').localeCompare(a.dateDebut||''));
+
+  if(items.length === 0){
+    list.innerHTML = `
+      <div class="empty">
+        <div class="ico">📅</div>
+        <h3>Aucun événement</h3>
+        <p>${filter === 'tous' ? 'Ajoute ton premier événement de planning.' : 'Aucun événement dans ce filtre.'}</p>
+        <button class="btn btn-gold" style="margin:0 auto;" onclick="openForm()">＋ Nouvel événement</button>
+      </div>
+    `;
+    return;
+  }
+
+  const labels = {conge:'Congé', absence:'Absence', presence:'Présence', autre:'Autre'};
+  list.innerHTML = items.map(e => {
+    const type = e.type || 'autre';
+    const label = labels[type] || 'Autre';
+    let periode = e.dateDebut ? BIPE.fmtDate(e.dateDebut) : '—';
+    if(e.dateFin && e.dateFin !== e.dateDebut){
+      periode += ' → ' + BIPE.fmtDate(e.dateFin);
+    }
+    return `
+      <div class="event-card ${type}">
+        <div class="event-body">
+          <div class="event-head">
+            <div class="event-titre">${BIPE.esc(e.titre)}</div>
+            <div class="event-dates">${periode}</div>
+          </div>
+          <div class="event-meta">
+            <span class="badge badge-${type}">${label}</span>
+            <span>👤 ${BIPE.esc(membreNom(e.membreId))}</span>
+          </div>
+          ${e.notes ? `<div style="margin-top:6px;font-size:.82rem;color:var(--txt-dim);">${BIPE.esc(e.notes)}</div>` : ''}
+        </div>
+        <div class="event-actions">
+          <button class="icon-btn" onclick="openForm('${e.id}')" title="Modifier">✏️</button>
+          <button class="icon-btn danger" onclick="deleteEvent('${e.id}')" title="Supprimer">🗑</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ---------- Filtres ---------- */
+function setFilter(f){
+  filter = f;
+  document.querySelectorAll('.filter-chip').forEach(b => {
+    b.classList.toggle('active', b.dataset.filter === f);
+  });
+  renderList();
+}
+
+/* ---------- Formulaire ---------- */
+function openForm(id){
+  editingId = id || null;
+  const title = document.getElementById('formTitle');
+  populateMembres();
+
+  // Vérifier qu'il y a au moins un membre avant d'ouvrir
+  const rh = BIPE.storage.get(BIPE.KEYS.rh, []) || [];
+  if(rh.length === 0){
+    BIPE.toast('⚠ Crée d\'abord un membre dans Équipe & Salariés', true);
+    return;
+  }
+
+  if(id){
+    const e = events.find(x => x.id === id);
+    if(!e) return;
+    title.textContent = 'Modifier l\'événement';
+    document.getElementById('fType').value = e.type || 'conge';
+    document.getElementById('fMembreId').value = e.membreId || '';
+    document.getElementById('fTitre').value = e.titre || '';
+    document.getElementById('fDebut').value = e.dateDebut || '';
+    document.getElementById('fFin').value = e.dateFin || '';
+    document.getElementById('fNotes').value = e.notes || '';
+  } else {
+    title.textContent = 'Nouvel événement';
+    document.getElementById('fType').value = 'conge';
+    document.getElementById('fMembreId').value = '';
+    document.getElementById('fTitre').value = '';
+    document.getElementById('fDebut').value = todayISO();
+    document.getElementById('fFin').value = '';
+    document.getElementById('fNotes').value = '';
+  }
+
+  ouvrirSheet('sheet-form');
+  setTimeout(() => {
+    try { document.getElementById('fTitre').focus(); } catch(e){}
+  }, 300);
+}
+
+function saveEvent(){
+  const type = document.getElementById('fType').value;
+  const membreId = document.getElementById('fMembreId').value;
+  const titre = document.getElementById('fTitre').value.trim();
+  const dateDebut = document.getElementById('fDebut').value;
+  const dateFin = document.getElementById('fFin').value;
+  const notes = document.getElementById('fNotes').value.trim();
+
+  if(!membreId || !titre || !dateDebut){
+    BIPE.toast('⚠ Membre, titre et date début obligatoires', true);
+    return;
+  }
+
+  if(editingId){
+    const e = events.find(x => x.id === editingId);
+    if(e){
+      Object.assign(e, {type, membreId, titre, dateDebut, dateFin, notes});
+      e.updatedAt = new Date().toISOString();
+    }
+    BIPE.toast('✅ Événement modifié');
+  } else {
+    events.push({
+      id: Date.now().toString(36),
+      type, membreId, titre, dateDebut, dateFin, notes,
+      createdAt: new Date().toISOString()
+    });
+    BIPE.toast('✅ Événement ajouté');
+  }
+
+  save();
+  fermerSheet();
+  render();
+}
+
+function deleteEvent(id){
+  const e = events.find(x => x.id === id);
+  if(!e) return;
+  if(!confirm(`Supprimer "${e.titre}" ?`)) return;
+  events = events.filter(x => x.id !== id);
+  save();
+  render();
+  BIPE.toast('🗑 Événement supprimé');
+}
+
+function exportPlanning(){
+  BIPE.exportJSON('planning', events);
+}
+
+/* ---------- Init ---------- */
+document.addEventListener('DOMContentLoaded', () => {
+  load();
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape') fermerSheet();
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>B!PE by MCE — Accès</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="shared.js"></script>
+<style>
+  :root{
+    --black:#000000;
+    --black-2:#0a0a0a;
+    --black-3:#141414;
+    --line:#2a2a2a;
+    --line-soft:#1f1f1f;
+    --gold:#d4af37;
+    --gold-bright:#f0d060;
+    --gold-soft:#e8c96a;
+    --gold-dim:#8a7433;
+    --gold-deep:#5a4a1f;
+    --txt:#f5f0e1;
+    --txt-muted:#9a9384;
+    --txt-dim:#5a564e;
+    --ok:#6b9a5a;
+    --warn:#c9a040;
+    --bad:#b84040;
+    --info:#7cc4e8;
+    --radius:16px;
+    --radius-sm:12px;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+
+  html,body{height:100%;overscroll-behavior:none}
+
+  body{
+    font-family:'Baloo Bhaijaan 2', -apple-system, "Segoe UI", sans-serif;
+    background:var(--black);
+    color:var(--txt);
+    line-height:1.6;
+    font-weight:500;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:clamp(16px, 3vw, 32px);
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(212,175,55,.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(212,175,55,.03) 0%, transparent 40%);
+    background-attachment:fixed;
+  }
+
+  .login-shell{
+    width:100%;
+    max-width:640px;
+    position:relative;
+  }
+
+  /* ===== HERO ===== */
+  .hero{
+    text-align:center;
+    margin-bottom:clamp(24px, 4vw, 40px);
+  }
+  .hero .logo{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(4rem, 10vw, 6rem);
+    font-weight:700;
+    line-height:1;
+    margin-bottom:16px;
+    letter-spacing:.02em;
+  }
+  .hero .logo .b,
+  .hero .logo .pe{
+    color:var(--txt);
+  }
+  .hero .logo .excl{
+    color:var(--gold);
+    font-size:1.3em;
+    vertical-align:middle;
+    text-shadow:0 0 40px rgba(212,175,55,.6);
+  }
+  .hero .nom{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(1.3rem, 2.5vw, 1.9rem);
+    color:var(--gold-soft);
+    font-weight:700;
+    letter-spacing:.01em;
+    margin-bottom:10px;
+    line-height:1.2;
+    text-shadow:0 0 24px rgba(212,175,55,.25);
+  }
+  .hero .tagline{
+    color:var(--txt-muted);
+    font-size:clamp(.85rem, 1.2vw, 1rem);
+    font-weight:500;
+    font-style:italic;
+  }
+
+  /* ===== CARD ===== */
+  .card{
+    background:var(--black-2);
+    border:2px solid var(--gold-deep);
+    border-radius:var(--radius);
+    padding:clamp(28px, 4vw, 40px) clamp(20px, 3vw, 32px);
+    position:relative;
+    overflow:hidden;
+  }
+  .card::before{
+    content:'';
+    position:absolute;
+    top:0;left:0;right:0;
+    height:2px;
+    background:linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  .card h2{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(1.4rem, 2vw, 1.8rem);
+    color:var(--gold-soft);
+    font-weight:700;
+    margin-bottom:6px;
+    text-align:center;
+  }
+  .card .sub{
+    color:var(--txt-muted);
+    font-size:clamp(.85rem, 1vw, .95rem);
+    text-align:center;
+    margin-bottom:clamp(20px, 3vw, 28px);
+    font-weight:500;
+  }
+
+  /* ===== TABS ===== */
+  .tabs{
+    display:flex;
+    gap:6px;
+    background:var(--black-3);
+    border:2px solid var(--line);
+    border-radius:999px;
+    padding:5px;
+    margin-bottom:clamp(20px, 3vw, 28px);
+  }
+  .tab{
+    flex:1;
+    padding:clamp(10px, 1.5vw, 12px) clamp(12px, 2vw, 16px);
+    border-radius:999px;
+    background:transparent;
+    border:none;
+    color:var(--txt-muted);
+    font-family:'Baloo Bhaijaan 2', sans-serif;
+    font-size:clamp(.9rem, 1.1vw, 1rem);
+    font-weight:700;
+    cursor:pointer;
+    transition:all .2s;
+  }
+  .tab.active{
+    background:linear-gradient(180deg, var(--gold-soft), var(--gold));
+    color:#0a0a0a;
+  }
+  .tab:hover:not(.active){
+    color:var(--gold-soft);
+  }
+
+  /* ===== FORM ===== */
+  .form-group{
+    margin-bottom:clamp(14px, 2vw, 18px);
+  }
+  label{
+    display:block;
+    font-size:clamp(.85rem, 1vw, .95rem);
+    color:var(--txt-muted);
+    margin-bottom:6px;
+    font-weight:600;
+  }
+  label .required{
+    color:var(--bad);
+    margin-left:2px;
+  }
+  input{
+    width:100%;
+    padding:clamp(13px, 1.5vw, 15px) clamp(14px, 2vw, 18px);
+    border-radius:var(--radius-sm);
+    border:2px solid var(--line);
+    background:var(--black-3);
+    color:var(--txt);
+    font-size:clamp(.95rem, 1.1vw, 1.05rem);
+    font-family:'Baloo Bhaijaan 2', sans-serif;
+    font-weight:500;
+    transition:all .2s;
+  }
+  input:focus{
+    outline:none;
+    border-color:var(--gold);
+    box-shadow:0 0 0 4px rgba(212,175,55,.12);
+  }
+  input::placeholder{color:var(--txt-dim);}
+  input.code-input{
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    font-weight:700;
+  }
+
+  /* ===== PASSWORD ===== */
+  .pwd-wrap{
+    position:relative;
+  }
+  .pwd-wrap input{
+    padding-right:56px;
+  }
+  .pwd-toggle{
+    position:absolute;
+    right:12px;
+    top:50%;
+    transform:translateY(-50%);
+    background:transparent;
+    border:none;
+    color:var(--txt-muted);
+    font-size:1.2rem;
+    cursor:pointer;
+    padding:8px;
+    border-radius:8px;
+    transition:.2s;
+  }
+  .pwd-toggle:hover{color:var(--gold-soft);}
+
+  /* ===== BOUTON ===== */
+  .btn-gold{
+    width:100%;
+    padding:clamp(16px, 2vw, 18px);
+    border-radius:999px;
+    background:linear-gradient(180deg, var(--gold-soft), var(--gold));
+    color:#0a0a0a;
+    border:none;
+    font-family:'Baloo Bhaijaan 2', sans-serif;
+    font-size:clamp(1.05rem, 1.3vw, 1.2rem);
+    font-weight:700;
+    cursor:pointer;
+    transition:all .2s;
+    margin-top:8px;
+    box-shadow:0 4px 16px rgba(212,175,55,.25);
+  }
+  .btn-gold:hover{
+    filter:brightness(1.08);
+    transform:translateY(-2px);
+    box-shadow:0 8px 24px rgba(212,175,55,.35);
+  }
+  .btn-gold:active{
+    transform:scale(.98);
+  }
+  .btn-gold:disabled{
+    opacity:.5;
+    cursor:not-allowed;
+    transform:none;
+  }
+
+  .btn-ghost{
+    background:transparent;
+    border:2px solid var(--line);
+    color:var(--txt);
+    padding:10px 16px;
+    border-radius:999px;
+    font-family:'Baloo Bhaijaan 2', sans-serif;
+    font-size:.85rem;
+    font-weight:700;
+    cursor:pointer;
+    transition:.2s;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+  }
+  .btn-ghost:hover{border-color:var(--gold-dim); color:var(--gold-soft);}
+
+  /* ===== MESSAGES ===== */
+  .msg{
+    padding:clamp(12px, 1.5vw, 14px) clamp(16px, 2vw, 18px);
+    border-radius:12px;
+    font-size:clamp(.85rem, 1vw, .95rem);
+    font-weight:600;
+    margin-bottom:18px;
+    display:none;
+    line-height:1.5;
+  }
+  .msg.show{display:block;}
+  .msg.error{
+    background:rgba(184,64,64,.1);
+    border:2px solid var(--bad);
+    color:#e08a8a;
+  }
+  .msg.success{
+    background:rgba(107,154,90,.1);
+    border:2px solid var(--ok);
+    color:#8fc47a;
+  }
+
+  /* ===== INFO BOX ===== */
+  .info-box{
+    margin-top:clamp(18px, 2.5vw, 24px);
+    padding:clamp(12px, 1.5vw, 16px) clamp(14px, 2vw, 18px);
+    background:var(--black-3);
+    border:1px solid var(--line);
+    border-radius:12px;
+    font-size:clamp(.78rem, .95vw, .85rem);
+    color:var(--txt-muted);
+    line-height:1.6;
+    font-weight:500;
+  }
+  .info-box b{color:var(--gold-soft);}
+  .info-box .code-example{
+    display:inline-block;
+    background:rgba(212,175,55,.1);
+    border:1px solid var(--gold-dim);
+    color:var(--gold-soft);
+    padding:2px 8px;
+    border-radius:6px;
+    font-family:monospace;
+    font-size:.85em;
+    letter-spacing:.05em;
+  }
+
+  /* ===== BACKUP SECTION ===== */
+  .backup-section {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px dashed var(--line);
+    text-align: center;
+  }
+  .backup-title {
+    font-size: .8rem;
+    color: var(--txt-muted);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    font-weight: 700;
+  }
+  .backup-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  /* ===== FOOTER ===== */
+  .footer{
+    text-align:center;
+    margin-top:clamp(20px, 3vw, 28px);
+    font-size:clamp(.78rem, .95vw, .85rem);
+    color:var(--txt-dim);
+    line-height:1.8;
+    font-weight:500;
+  }
+  .footer .brand{
+    color:var(--gold-soft);
+    font-weight:700;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width:600px){
+    .hero .logo{font-size:4rem;}
+    .hero .nom{font-size:1.3rem;}
+    .hero .tagline{font-size:.85rem;}
+    .card{padding:28px 20px;}
+    .card h2{font-size:1.4rem;}
+    .tab{font-size:.9rem; padding:10px 12px;}
+    input{font-size:1rem; padding:14px 16px;}
+    .btn-gold{font-size:1.1rem; padding:16px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="login-shell">
+
+  <!-- ===== HERO ===== -->
+  <div class="hero">
+    <div class="logo">
+      <span class="b">B</span><span class="excl">!</span><span class="pe">PE</span>
+    </div>
+    <div class="nom">Bureau Intelligent pour Entrepreneur</div>
+    <div class="tagline">Votre ERP Personnel Simplifié</div>
+  </div>
+
+  <!-- ===== CARD ===== -->
+  <div class="card">
+    <h2 id="formTitle">Bienvenue</h2>
+    <div class="sub" id="formSub">Entre tes informations pour accéder à B!PE</div>
+
+    <!-- Messages -->
+    <div class="msg error" id="msgError"></div>
+    <div class="msg success" id="msgSuccess"></div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" data-tab="login" onclick="switchTab('login')">Connexion</button>
+      <button class="tab" data-tab="register" onclick="switchTab('register')">Nouveau compte</button>
+    </div>
+
+    <!-- ===== FORM LOGIN ===== -->
+    <div id="view-login">
+      <div class="form-group">
+        <label>Email ou nom</label>
+        <input type="text" id="loginIdentifiant" placeholder="Ex : ahmed@bipe.tn" autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label>Mot de passe</label>
+        <div class="pwd-wrap">
+          <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+          <button class="pwd-toggle" onclick="togglePwd('loginPassword')" aria-label="Afficher le mot de passe">👁</button>
+        </div>
+      </div>
+      <button class="btn-gold" id="btnLogin" onclick="doLogin()">
+        🔓 Connexion
+      </button>
+
+      <div class="info-box">
+        <b>💡 Note :</b> Toutes tes données sont stockées <b>en local</b> dans le navigateur. Pas de serveur, pas de cloud. Tes données t'appartiennent.
+      </div>
+
+      <!-- SECTION DE SECOURS (BACKUP) -->
+      <div class="backup-section">
+        <div class="backup-title">🔐 Sécurité de ton compte</div>
+        <div class="backup-actions">
+          <button class="btn-ghost" onclick="exporterCompte()">📤 Sauvegarder mon compte</button>
+          <button class="btn-ghost" onclick="document.getElementById('file-import').click()">📥 Restaurer un compte</button>
+          <input type="file" id="file-import" accept=".json" style="display:none" onchange="importerCompte(event)">
+        </div>
+        <div style="font-size:.72rem; color:var(--txt-dim); margin-top:8px;">
+          Sauvegarde régulièrement ton fichier de compte. Il te permettra de récupérer ton accès si tu changes d'appareil ou vides ton navigateur.
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ===== FORM REGISTER ===== -->
+    <div id="view-register" style="display:none">
+      <div class="form-group">
+        <label>Nom complet <span class="required">*</span></label>
+        <input type="text" id="regNom" placeholder="Ex : Ahmed Ben Ali">
+      </div>
+      <div class="form-group">
+        <label>Email <span class="required">*</span></label>
+        <input type="email" id="regEmail" placeholder="ahmed@bipe.tn">
+      </div>
+      <div class="form-group">
+        <label>Code d'accès <span class="required">*</span></label>
+        <input type="text" id="regCode" class="code-input" placeholder="Ex : TUNIS1024" maxlength="20">
+      </div>
+      <div class="form-group">
+        <label>Mot de passe <span class="required">*</span></label>
+        <div class="pwd-wrap">
+          <input type="password" id="regPassword" placeholder="6 caractères minimum">
+          <button class="pwd-toggle" onclick="togglePwd('regPassword')" aria-label="Afficher le mot de passe">👁</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Confirme le mot de passe <span class="required">*</span></label>
+        <div class="pwd-wrap">
+          <input type="password" id="regPassword2" placeholder="Retape le mot de passe">
+          <button class="pwd-toggle" onclick="togglePwd('regPassword2')" aria-label="Afficher le mot de passe">👁</button>
+        </div>
+      </div>
+      <button class="btn-gold" id="btnRegister" onclick="doRegister()">
+        ✅ Créer le compte
+      </button>
+
+      <div class="info-box">
+        <b>🔐 Code d'accès :</b> Ton code t'est transmis par mail après ton achat. Il est <b>unique</b> et ne peut être utilisé qu'<b>une seule fois</b>. Exemple : <span class="code-example">TUNIS1024</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <div class="footer">
+    <span class="brand">B!PE by MCE</span> · Version 1.0 · 2026<br>
+    Bureau Intelligent pour Entrepreneur
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   B!PE — f-acces.html v1.1
+   + Persistance du stockage
+   + Sauvegarde/Restauration du compte
+   ============================================================ */
+
+// 1. DEMANDER UN STOCKAGE PERSISTANT AU NAVIGATEUR
+if (navigator.storage && navigator.storage.persist) {
+  navigator.storage.persist().then(granted => {
+    if (granted) {
+      console.log("✅ Stockage persistant accordé. Le navigateur ne supprimera pas tes données.");
+    } else {
+      console.warn("⚠️ Stockage persistant refusé par le navigateur.");
+    }
+  });
+}
+
+const CODES_VALIDES = [
+  'TUNIS1024', 'TUNIS2048', 'TUNIS3141', 'TUNIS4096', 'TUNIS5120',
+  'TUNIS6144', 'TUNIS7168', 'TUNIS8192', 'TUNIS9216', 'TUNIS2026',
+  'PARIS1024', 'PARIS2048', 'PARIS3141', 'PARIS4096', 'PARIS5120',
+  'PARIS6144', 'PARIS7168', 'PARIS8192', 'PARIS9216', 'PARIS2026',
+  'LONDRES1024', 'LONDRES2048', 'LONDRES3141', 'LONDRES4096', 'LONDRES5120',
+  'LONDRES6144', 'LONDRES7168', 'LONDRES8192', 'LONDRES9216', 'LONDRES2026',
+  'NEWYORK1024', 'NEWYORK2048', 'NEWYORK3141', 'NEWYORK4096', 'NEWYORK5120',
+  'NEWYORK6144', 'NEWYORK7168', 'NEWYORK8192', 'NEWYORK9216', 'NEWYORK2026',
+  'TOKYO1024', 'TOKYO2048', 'TOKYO3141', 'TOKYO4096', 'TOKYO5120',
+  'TOKYO6144', 'TOKYO7168', 'TOKYO8192', 'TOKYO9216', 'TOKYO2026',
+  'DUBAI1024', 'DUBAI2048', 'DUBAI3141', 'DUBAI4096', 'DUBAI5120',
+  'DUBAI6144', 'DUBAI7168', 'DUBAI8192', 'DUBAI9216', 'DUBAI2026',
+  'ROME1024', 'ROME2048', 'ROME3141', 'ROME4096', 'ROME5120',
+  'ROME6144', 'ROME7168', 'ROME8192', 'ROME9216', 'ROME2026',
+  'BERLIN1024', 'BERLIN2048', 'BERLIN3141', 'BERLIN4096', 'BERLIN5120',
+  'BERLIN6144', 'BERLIN7168', 'BERLIN8192', 'BERLIN9216', 'BERLIN2026',
+  'MADRID1024', 'MADRID2048', 'MADRID3141', 'MADRID4096', 'MADRID5120',
+  'MADRID6144', 'MADRID7168', 'MADRID8192', 'MADRID9216', 'MADRID2026',
+  'ISTANBUL1024', 'ISTANBUL2048', 'ISTANBUL3141', 'ISTANBUL4096', 'ISTANBUL5120',
+  'ISTANBUL6144', 'ISTANBUL7168', 'ISTANBUL8192', 'ISTANBUL9216', 'ISTANBUL2026'
+];
+
+let currentTab = 'login';
+
+/* ============================================================ */
+function showMsg(id, text){
+  ['msgError','msgSuccess'].forEach(x=>{
+    document.getElementById(x).classList.remove('show');
+  });
+  if(id){
+    const el = document.getElementById(id);
+    el.textContent = text;
+    el.classList.add('show');
+  }
+}
+
+function togglePwd(id){
+  const el = document.getElementById(id);
+  el.type = el.type === 'password' ? 'text' : 'password';
+}
+
+function switchTab(tab){
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.classList.toggle('active', t.dataset.tab === tab);
+  });
+  document.getElementById('view-login').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('view-register').style.display = tab === 'register' ? 'block' : 'none';
+  document.getElementById('formTitle').textContent = tab === 'login' ? 'Bienvenue' : 'Nouveau compte';
+  document.getElementById('formSub').textContent = tab === 'login'
+    ? "Entre tes informations pour accéder à B!PE"
+    : "Crée ton compte avec ton code d'accès";
+  showMsg(null);
+}
+
+async function sha256(str){
+  const buf = new TextEncoder().encode(str);
+  const hash = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(hash))
+    .map(b=> b.toString(16).padStart(2,'0'))
+    .join('');
+}
+
+/* ============================================================ */
+function getLicences(){ return BIPE.storage.get('bipe_licences', []) || []; }
+function saveLicences(licences){ BIPE.storage.set('bipe_licences', licences); }
+function getLicence(code){ return getLicences().find(l => l.code === code); }
+
+function initLicence(code){
+  const licences = getLicences();
+  let licence = licences.find(l => l.code === code);
+  if(!licence){
+    licence = { code: code, utilise: false, email: null, dateUtilisation: null };
+    licences.push(licence);
+    saveLicences(licences);
+  }
+  return licence;
+}
+
+/* ============================================================ */
+/* CONNEXION */
+/* ============================================================ */
+async function doLogin(){
+  const ident = document.getElementById('loginIdentifiant').value.trim();
+  const pwd = document.getElementById('loginPassword').value;
+  const btn = document.getElementById('btnLogin');
+
+  if(!ident || !pwd){
+    showMsg('msgError', '❌ Il faut remplir l\'email et le mot de passe');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Connexion...';
+
+  try{
+    const users = BIPE.storage.get(BIPE.KEYS.users, []) || [];
+    const user = users.find(u=>
+      u.email.toLowerCase() === ident.toLowerCase() ||
+      u.nom.toLowerCase() === ident.toLowerCase()
+    );
+
+    if(!user){
+      showMsg('msgError', '❌ Compte introuvable. Crée un nouveau compte ou restaure ton compte.');
+      btn.disabled = false;
+      btn.textContent = '🔓 Connexion';
+      return;
+    }
+
+    const hash = await sha256(pwd);
+    if(hash !== user.passwordHash){
+      showMsg('msgError', '❌ Mot de passe incorrect');
+      btn.disabled = false;
+      btn.textContent = '🔓 Connexion';
+      return;
+    }
+
+    if(user.codeAcces){
+      const licence = getLicence(user.codeAcces);
+      if(licence && licence.email && licence.email.toLowerCase() !== user.email.toLowerCase()){
+        showMsg('msgError', '❌ Ce code d\'accès est lié à un autre email');
+        btn.disabled = false;
+        btn.textContent = '🔓 Connexion';
+        return;
+      }
+    }
+
+    const session = {
+      userId: user.id,
+      nom: user.nom,
+      email: user.email,
+      loginAt: new Date().toISOString()
+    };
+    BIPE.storage.set(BIPE.KEYS.session, session);
+
+    showMsg('msgSuccess', `✅ Bienvenue ${user.nom} ! Connexion en cours...`);
+    BIPE.toast(`Bienvenue ${user.nom} ! ✅`);
+
+    setTimeout(()=>{ window.location.href = 'index.html'; }, 1000);
+
+  }catch(err){
+    showMsg('msgError', '❌ Erreur : ' + err.message);
+    btn.disabled = false;
+    btn.textContent = '🔓 Connexion';
+  }
+}
+
+/* ============================================================ */
+/* INSCRIPTION */
+/* ============================================================ */
+async function doRegister(){
+  const nom = document.getElementById('regNom').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const code = document.getElementById('regCode').value.trim().toUpperCase();
+  const pwd = document.getElementById('regPassword').value;
+  const pwd2 = document.getElementById('regPassword2').value;
+  const btn = document.getElementById('btnRegister');
+
+  if(!nom || !email || !code || !pwd || !pwd2){
+    showMsg('msgError', '❌ Il faut remplir tous les champs');
+    return;
+  }
+  if(!email.includes('@') || !email.includes('.')){
+    showMsg('msgError', '❌ Email invalide');
+    return;
+  }
+  if(pwd.length < 6){
+    showMsg('msgError', '❌ Le mot de passe doit faire au moins 6 caractères');
+    return;
+  }
+  if(pwd !== pwd2){
+    showMsg('msgError', '❌ Les mots de passe ne correspondent pas');
+    return;
+  }
+  if(!CODES_VALIDES.includes(code)){
+    showMsg('msgError', '❌ Code d\'accès invalide. Vérifie ton code.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Création...';
+
+  try{
+    const licence = initLicence(code);
+
+    if(licence.utilise){
+      showMsg('msgError', '❌ Ce code d\'accès a déjà été utilisé.');
+      btn.disabled = false;
+      btn.textContent = '✅ Créer le compte';
+      return;
+    }
+
+    const users = BIPE.storage.get(BIPE.KEYS.users, []) || [];
+    if(users.find(u => u.email.toLowerCase() === email.toLowerCase())){
+      showMsg('msgError', '❌ Cet email est déjà utilisé');
+      btn.disabled = false;
+      btn.textContent = '✅ Créer le compte';
+      return;
+    }
+    if(users.find(u => u.nom.toLowerCase() === nom.toLowerCase())){
+      showMsg('msgError', '❌ Ce nom est déjà utilisé');
+      btn.disabled = false;
+      btn.textContent = '✅ Créer le compte';
+      return;
+    }
+
+    const hash = await sha256(pwd);
+    const newUser = {
+      id: Date.now().toString(36),
+      nom: nom,
+      email: email,
+      codeAcces: code,
+      passwordHash: hash,
+      createdAt: new Date().toISOString()
+    };
+    users.push(newUser);
+    BIPE.storage.set(BIPE.KEYS.users, users);
+
+    const licences = getLicences();
+    const idx = licences.findIndex(l => l.code === code);
+    if(idx > -1){
+      licences[idx].utilise = true;
+      licences[idx].email = email;
+      licences[idx].dateUtilisation = new Date().toISOString();
+      saveLicences(licences);
+    }
+
+    const session = {
+      userId: newUser.id,
+      nom: newUser.nom,
+      email: newUser.email,
+      loginAt: new Date().toISOString()
+    };
+    BIPE.storage.set(BIPE.KEYS.session, session);
+
+    showMsg('msgSuccess', `✅ Compte créé ! Bienvenue ${nom}...`);
+    BIPE.toast(`Bienvenue ${nom} ! ✅`);
+
+    setTimeout(()=>{ window.location.href = 'index.html'; }, 1200);
+
+  }catch(err){
+    showMsg('msgError', '❌ Erreur : ' + err.message);
+    btn.disabled = false;
+    btn.textContent = '✅ Créer le compte';
+  }
+}
+
+/* ============================================================ */
+/* EXPORT / IMPORT DU COMPTE (SÉCURITÉ) */
+/* ============================================================ */
+function exporterCompte() {
+  const users = BIPE.storage.get(BIPE.KEYS.users, []) || [];
+  const licences = BIPE.storage.get('bipe_licences', []) || [];
+
+  if (users.length === 0) {
+    BIPE.toast('⚠ Aucun compte à sauvegarder', true);
+    return;
+  }
+
+  const data = {
+    standard: 'BIPE-backup-account-v1',
+    date: new Date().toISOString(),
+    users: users,
+    licences: licences
+  };
+
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `bipe_compte_${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+
+  BIPE.toast('📤 Fichier de compte téléchargé. Conserve-le précieusement !');
+}
+
+function importerCompte(event) {
+  const file = event.target.files[0];
+  event.target.value = '';
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data.standard !== 'BIPE-backup-account-v1') {
+        throw new Error('Format invalide');
+      }
+
+      if (!confirm('⚠️ Attention : Cela va écraser tes comptes locaux actuels.\n\nContinuer ?')) {
+        return;
+      }
+
+      BIPE.storage.set(BIPE.KEYS.users, data.users || []);
+      BIPE.storage.set('bipe_licences', data.licences || []);
+      
+      BIPE.toast('✅ Compte restauré avec succès');
+      showMsg('msgSuccess', '✅ Ton compte a été restauré. Tu peux te connecter.');
+      
+      // Optionnel : recharger la page pour prendre en compte
+      setTimeout(() => window.location.reload(), 1500);
+
+    } catch (err) {
+      BIPE.toast('⚠ Fichier de compte invalide', true);
+    }
+  };
+  reader.readAsText(file);
+}
+
+/* ============================================================ */
+document.addEventListener('keydown', e=>{
+  if(e.key === 'Enter'){
+    if(currentTab === 'login') doLogin();
+    else doRegister();
+  }
+});
+
+(function init(){
+  if(BIPE.isConnected()){
+    window.location.href = 'index.html';
+    return;
+  }
+})();
+</script>
+</body>
+</html>

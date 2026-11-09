@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>BIPE — Campagnes marketing</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="shared.js"></script>
+<style>
+  :root{
+    --black:#000000; --black-2:#0a0a0a; --black-3:#141414;
+    --line:#2a2a2a; --line-soft:#1f1f1f;
+    --gold:#d4af37; --gold-bright:#f0d060; --gold-soft:#e8c96a;
+    --gold-dim:#8a7433; --gold-deep:#5a4a1f;
+    --txt:#f5f0e1; --txt-muted:#9a9384; --txt-dim:#5a564e;
+    --ok:#6b9a5a; --warn:#c9a040; --bad:#b84040; --info:#7cc4e8;
+    --radius:16px; --radius-sm:12px;
+    --groupe-couleur:#a78bfa;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overscroll-behavior:none}
+  body{
+    font-family:'Baloo Bhaijaan 2', -apple-system, "Segoe UI", sans-serif;
+    background:var(--black); color:var(--txt); line-height:1.6; font-weight:500;
+    -webkit-font-smoothing:antialiased; min-height:100vh;
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(167,139,250,.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(212,175,55,.02) 0%, transparent 40%);
+    background-attachment:fixed;
+  }
+  .app{max-width:min(1100px,92vw);margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding-bottom:clamp(24px,4vw,40px)}
+
+  .header{
+    position:sticky;top:0;z-index:50;background:rgba(0,0,0,.92);
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--line-soft);
+    padding:clamp(12px,2vw,16px) clamp(16px,3vw,20px);
+    display:flex;align-items:center;gap:clamp(8px,1.5vw,16px);
+  }
+  .header .back{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;text-decoration:none;transition:transform .15s;
+  }
+  .header .back:active{transform:scale(.92)}
+  .header .title-block{flex:1;min-width:0}
+  .header .logo{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2.5vw,1.5rem);
+    font-weight:700;color:#f0d060;line-height:1.2;letter-spacing:.02em;
+  }
+  .header .logo .b,.header .logo .pe{color:var(--txt)}
+  .header .logo .excl{color:var(--gold);font-size:1.3em;vertical-align:middle;text-shadow:0 0 20px rgba(212,175,55,.5)}
+  .header .subtitle{
+    font-size:clamp(.6rem,1vw,.7rem);color:var(--txt-muted);
+    font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  }
+  .header .menu{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;transition:transform .15s;
+  }
+  .header .menu:active{transform:scale(.92)}
+
+  .content{flex:1;padding:clamp(16px,3vw,24px) clamp(16px,3vw,20px)}
+
+  .hero-groupe{
+    background:linear-gradient(135deg,var(--black-2) 0%,var(--black-3) 100%);
+    border:2px solid var(--gold-deep);border-radius:var(--radius);
+    padding:clamp(18px,3vw,24px);margin-bottom:clamp(16px,3vw,20px);
+    position:relative;overflow:hidden;
+  }
+  .hero-groupe::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--groupe-couleur);opacity:.8;
+  }
+  .hero-groupe .num{
+    font-family:'Fredoka',sans-serif;font-size:clamp(.75rem,1vw,.85rem);
+    font-weight:700;color:var(--groupe-couleur);letter-spacing:.05em;margin-bottom:6px;
+  }
+  .hero-groupe .ico{font-size:clamp(1.6rem,2.5vw,2rem);line-height:1;margin-bottom:6px}
+  .hero-groupe h1{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.3rem,2.2vw,1.7rem);
+    font-weight:700;color:var(--gold-bright);line-height:1.2;margin-bottom:4px;
+  }
+  .hero-groupe p{font-size:clamp(.85rem,1.1vw,1rem);color:var(--txt-muted);font-weight:500}
+
+  .stats{
+    display:grid;grid-template-columns:repeat(3,1fr);
+    gap:clamp(8px,1.5vw,12px);margin-bottom:clamp(16px,3vw,20px);
+  }
+  .stat{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(12px,2vw,16px) clamp(10px,1.5vw,14px);
+  }
+  .stat .num{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.3rem,2.5vw,1.7rem);
+    font-weight:700;line-height:1;margin-bottom:4px;
+  }
+  .stat .lab{font-size:clamp(.7rem,.95vw,.8rem);color:var(--txt-muted);font-weight:600;line-height:1.3}
+  .stat.actives .num{color:var(--ok)}
+  .stat.planifiees .num{color:var(--info)}
+  .stat.terminees .num{color:var(--txt-muted)}
+
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:clamp(14px,2.5vw,18px)}
+  .btn{
+    padding:clamp(11px,1.5vw,13px) clamp(16px,2vw,20px);
+    border-radius:999px;border:none;cursor:pointer;
+    font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:clamp(.88rem,1.1vw,1rem);font-weight:700;
+    display:inline-flex;align-items:center;gap:8px;transition:all .2s;
+  }
+  .btn-gold{
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold));
+    color:#0a0a0a;box-shadow:0 4px 16px rgba(212,175,55,.25);
+  }
+  .btn-gold:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  .btn-gold:active{transform:scale(.97)}
+  .btn-ghost{background:var(--black-2);border:2px solid var(--line);color:var(--txt)}
+  .btn-ghost:hover{border-color:var(--gold-dim)}
+
+  .filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:clamp(14px,2.5vw,18px)}
+  .filter-chip{
+    padding:8px 14px;border-radius:999px;border:2px solid var(--line);
+    background:var(--black-2);color:var(--txt-muted);
+    font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:clamp(.8rem,1vw,.9rem);font-weight:600;cursor:pointer;transition:.2s;
+  }
+  .filter-chip.active{border-color:var(--groupe-couleur);color:var(--groupe-couleur);background:rgba(167,139,250,.08)}
+  .filter-chip:hover:not(.active){color:var(--txt)}
+
+  .list{display:flex;flex-direction:column;gap:clamp(8px,1.5vw,10px)}
+  .camp-card{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(14px,2.5vw,18px) clamp(16px,2.5vw,20px);
+    display:flex;gap:clamp(10px,2vw,14px);align-items:flex-start;
+    transition:transform .15s,border-color .15s;position:relative;overflow:hidden;
+  }
+  .camp-card::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--statut-couleur,var(--groupe-couleur));opacity:.9;
+  }
+  .camp-card:hover{border-color:var(--gold-dim)}
+  .camp-card.active::before{background:var(--ok)}
+  .camp-card.planifiee::before{background:var(--info)}
+  .camp-card.terminee::before{background:var(--txt-muted)}
+  .camp-card.pause::before{background:var(--warn)}
+  .camp-body{flex:1;min-width:0}
+  .camp-head{
+    display:flex;justify-content:space-between;align-items:baseline;
+    gap:8px;margin-bottom:4px;flex-wrap:wrap;
+  }
+  .camp-titre{
+    font-family:'Fredoka',sans-serif;font-size:clamp(.95rem,1.4vw,1.1rem);
+    font-weight:700;color:var(--txt);line-height:1.3;flex:1;min-width:0;
+  }
+  .camp-dates{
+    font-size:clamp(.72rem,.95vw,.82rem);color:var(--txt-dim);
+    font-weight:600;white-space:nowrap;
+  }
+  .camp-desc{
+    font-size:clamp(.8rem,1vw,.9rem);color:var(--txt-muted);
+    line-height:1.5;margin-bottom:8px;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  }
+  .camp-meta{
+    display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+    font-size:clamp(.75rem,.95vw,.85rem);font-weight:600;
+  }
+  .camp-meta .badge{
+    padding:2px 8px;border-radius:6px;font-size:.75em;font-weight:700;
+    text-transform:uppercase;letter-spacing:.04em;
+  }
+  .badge-active{background:rgba(107,154,90,.15);color:#8fc47a}
+  .badge-planifiee{background:rgba(124,196,232,.15);color:var(--info)}
+  .badge-terminee{background:rgba(255,255,255,.06);color:var(--txt-muted)}
+  .badge-pause{background:rgba(201,160,64,.15);color:var(--warn)}
+  .camp-meta .canal{color:var(--gold-soft);font-weight:700}
+  .camp-meta .budget{color:var(--gold-bright);font-weight:700}
+  .camp-actions{display:flex;gap:4px;flex-shrink:0}
+  .icon-btn{
+    width:clamp(32px,4.5vw,36px);height:clamp(32px,4.5vw,36px);
+    border-radius:10px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--txt-muted);font-size:clamp(.85rem,1.2vw,.95rem);
+    cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;
+  }
+  .icon-btn:hover{border-color:var(--gold-dim);color:var(--gold-soft)}
+  .icon-btn.danger:hover{border-color:var(--bad);color:#e08a8a}
+
+  .empty{
+    text-align:center;padding:clamp(40px,8vw,60px) clamp(20px,3vw,24px);
+    background:var(--black-2);border:2px dashed var(--line);border-radius:var(--radius);
+  }
+  .empty .ico{font-size:clamp(2.5rem,6vw,3.5rem);margin-bottom:12px;opacity:.6}
+  .empty h3{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.1rem,1.8vw,1.3rem);
+    color:var(--gold-soft);margin-bottom:8px;
+  }
+  .empty p{font-size:clamp(.85rem,1.1vw,1rem);color:var(--txt-muted);margin-bottom:16px}
+
+  .footer{
+    text-align:center;padding:clamp(20px,3vw,28px) 16px 16px;
+    font-size:clamp(.72rem,.9vw,.8rem);color:var(--txt-dim);
+    line-height:1.8;font-weight:500;border-top:1px solid var(--line-soft);margin-top:auto;
+  }
+  .footer .brand{color:var(--gold-soft);font-weight:700}
+
+  .form-group{margin-bottom:clamp(14px,2vw,18px)}
+  label{
+    display:block;font-size:clamp(.85rem,1vw,.95rem);
+    color:var(--txt-muted);margin-bottom:6px;font-weight:600;
+  }
+  label .required{color:var(--bad);margin-left:2px}
+  input,textarea,select{
+    width:100%;padding:clamp(12px,1.5vw,14px) clamp(14px,2vw,16px);
+    border-radius:var(--radius-sm);border:2px solid var(--line);
+    background:var(--black-3);color:var(--txt);
+    font-size:clamp(.95rem,1.1vw,1rem);
+    font-family:'Baloo Bhaijaan 2',sans-serif;font-weight:500;transition:all .2s;
+  }
+  input:focus,textarea:focus,select:focus{
+    outline:none;border-color:var(--gold);box-shadow:0 0 0 4px rgba(212,175,55,.12);
+  }
+  input::placeholder,textarea::placeholder{color:var(--txt-dim)}
+  textarea{resize:vertical;min-height:80px}
+  select{cursor:pointer}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  @media (max-width:600px){
+    .stats{grid-template-columns:1fr}
+    .row{grid-template-columns:1fr}
+    .camp-actions{flex-direction:column}
+  }
+</style>
+</head>
+<body data-groupe="g7">
+
+<div class="app">
+
+  <div class="header">
+    <a href="groupe-marketing.html" class="back">←</a>
+    <div class="title-block">
+      <div class="logo"><span class="b">B</span><span class="excl">!</span><span class="pe">PE</span></div>
+      <div class="subtitle">Marketing · Campagnes</div>
+    </div>
+    <button class="menu" onclick="BIPE.openMenu()">⋮</button>
+  </div>
+
+  <div class="content">
+
+    <div class="hero-groupe">
+      <div class="num">GROUPE 07</div>
+      <div class="ico">📢</div>
+      <h1>Campagnes</h1>
+      <p>Crée, suis et mesure. Chaque campagne compte.</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat actives"><div class="num" id="statActives">0</div><div class="lab">Actives</div></div>
+      <div class="stat planifiees"><div class="num" id="statPlanifiees">0</div><div class="lab">Planifiées</div></div>
+      <div class="stat terminees"><div class="num" id="statTerminees">0</div><div class="lab">Terminées</div></div>
+    </div>
+
+    <div class="toolbar">
+      <button class="btn btn-gold" onclick="openForm()"><span>＋</span> Nouvelle campagne</button>
+      <button class="btn btn-ghost" onclick="exportCampagnes()"><span>📤</span> Exporter</button>
+    </div>
+
+    <div class="filters" id="filters">
+      <button class="filter-chip active" data-filter="tous" onclick="setFilter('tous')">Toutes</button>
+      <button class="filter-chip" data-filter="active" onclick="setFilter('active')">Actives</button>
+      <button class="filter-chip" data-filter="planifiee" onclick="setFilter('planifiee')">Planifiées</button>
+      <button class="filter-chip" data-filter="pause" onclick="setFilter('pause')">En pause</button>
+      <button class="filter-chip" data-filter="terminee" onclick="setFilter('terminee')">Terminées</button>
+    </div>
+
+    <div class="list" id="list"></div>
+
+  </div>
+
+  <div class="footer">
+    <span class="brand">BIPE</span> · Bureau Intelligent Pour Entrepreneur<br>
+    Marketing · Campagnes · Version 1.0
+  </div>
+
+</div>
+
+<div id="sheet-form" class="bipe-sheet" style="
+  position:fixed;left:0;right:0;bottom:0;background:#0a0a0a;
+  border-radius:24px 24px 0 0;border-top:2px solid #5a4a1f;
+  z-index:1001;max-height:92vh;display:flex;flex-direction:column;
+  transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);
+  max-width:720px;margin:0 auto;
+">
+  <div style="width:48px;height:5px;background:#2a2a2a;border-radius:3px;margin:12px auto 8px;flex-shrink:0;"></div>
+  <div style="padding:8px 24px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1f1f1f;">
+    <h3 id="formTitle" style="font-family:'Fredoka',sans-serif;font-size:1.5rem;color:#e8c96a;font-weight:700;">Nouvelle campagne</h3>
+    <button onclick="BIPE.closeAllSheets()" style="
+      width:44px;height:44px;border-radius:12px;background:#141414;
+      border:1px solid #2a2a2a;color:#f5f0e1;font-size:1.4rem;
+      display:flex;align-items:center;justify-content:center;cursor:pointer;
+    ">✕</button>
+  </div>
+  <div style="padding:20px 24px 24px;overflow-y:auto;flex:1;">
+    <div class="form-group">
+      <label>Nom de la campagne <span class="required">*</span></label>
+      <input type="text" id="fTitre" placeholder="Ex : Lancement produit été" maxlength="120">
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <textarea id="fDesc" placeholder="Objectif, cible, message..." maxlength="500"></textarea>
+    </div>
+    <div class="row">
+      <div class="form-group">
+        <label>Canal</label>
+        <select id="fCanal">
+          <option value="email">Email</option>
+          <option value="reseaux">Réseaux sociaux</option>
+          <option value="ads">Publicité en ligne</option>
+          <option value="terrain">Terrain</option>
+          <option value="evenement">Événement</option>
+          <option value="autre">Autre</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Statut</label>
+        <select id="fStatut">
+          <option value="planifiee">Planifiée</option>
+          <option value="active">Active</option>
+          <option value="pause">En pause</option>
+          <option value="terminee">Terminée</option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="form-group">
+        <label>Date début</label>
+        <input type="date" id="fDebut">
+      </div>
+      <div class="form-group">
+        <label>Date fin</label>
+        <input type="date" id="fFin">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Budget (DT)</label>
+      <input type="number" id="fBudget" placeholder="0" step="0.01" min="0">
+    </div>
+    <button class="btn btn-gold" style="width:100%;justify-content:center;margin-top:8px;" onclick="saveCampagne()">💾 Enregistrer</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   BIPE — f-campagnes.html
+   Groupe 7 — Marketing : campagnes
+   ============================================================ */
+
+BIPE.checkSession();
+
+let campagnes = [];
+let filter = 'tous';
+let editingId = null;
+
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+
+function load(){
+  campagnes = BIPE.storage.get(BIPE.KEYS.campagnes, []) || [];
+  render();
+}
+
+function save(){
+  BIPE.storage.set(BIPE.KEYS.campagnes, campagnes);
+}
+
+function render(){
+  renderStats();
+  renderList();
+}
+
+function renderStats(){
+  document.getElementById('statActives').textContent = campagnes.filter(c => c.statut === 'active').length;
+  document.getElementById('statPlanifiees').textContent = campagnes.filter(c => c.statut === 'planifiee').length;
+  document.getElementById('statTerminees').textContent = campagnes.filter(c => c.statut === 'terminee').length;
+}
+
+function matchFilter(c){
+  if(filter === 'tous') return true;
+  return c.statut === filter;
+}
+
+function renderList(){
+  const list = document.getElementById('list');
+  let items = campagnes.filter(matchFilter);
+  items.sort((a,b) => (b.dateDebut||'').localeCompare(a.dateDebut||''));
+
+  if(items.length === 0){
+    list.innerHTML = `
+      <div class="empty">
+        <div class="ico">📢</div>
+        <h3>Aucune campagne</h3>
+        <p>${filter === 'tous' ? 'Crée ta première campagne marketing.' : 'Aucune campagne dans ce filtre.'}</p>
+        <button class="btn btn-gold" style="margin:0 auto;" onclick="openForm()">＋ Nouvelle campagne</button>
+      </div>
+    `;
+    return;
+  }
+
+  const labels = {planifiee:'Planifiée', active:'Active', pause:'En pause', terminee:'Terminée'};
+  const canaux = {email:'📧 Email', reseaux:'📱 Réseaux', ads:'📣 Ads', terrain:'🚶 Terrain', evenement:'🎉 Événement', autre:'📌 Autre'};
+
+  list.innerHTML = items.map(c => {
+    const statut = c.statut || 'planifiee';
+    let periode = c.dateDebut ? BIPE.fmtDate(c.dateDebut) : '—';
+    if(c.dateFin && c.dateFin !== c.dateDebut) periode += ' → ' + BIPE.fmtDate(c.dateFin);
+    return `
+      <div class="camp-card ${statut}">
+        <div class="camp-body">
+          <div class="camp-head">
+            <div class="camp-titre">${BIPE.esc(c.titre)}</div>
+            <div class="camp-dates">${periode}</div>
+          </div>
+          ${c.description ? `<div class="camp-desc">${BIPE.esc(c.description)}</div>` : ''}
+          <div class="camp-meta">
+            <span class="badge badge-${statut}">${labels[statut]}</span>
+            <span class="canal">${canaux[c.canal] || '📌 Autre'}</span>
+            ${c.budget ? `<span class="budget">💰 ${BIPE.fmt(c.budget)} DT</span>` : ''}
+          </div>
+        </div>
+        <div class="camp-actions">
+          <button class="icon-btn" onclick="openForm('${c.id}')" title="Modifier">✏️</button>
+          <button class="icon-btn danger" onclick="deleteCampagne('${c.id}')" title="Supprimer">🗑</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function setFilter(f){
+  filter = f;
+  document.querySelectorAll('.filter-chip').forEach(b => {
+    b.classList.toggle('active', b.dataset.filter === f);
+  });
+  renderList();
+}
+
+function openForm(id){
+  editingId = id || null;
+  const title = document.getElementById('formTitle');
+  if(id){
+    const c = campagnes.find(x => x.id === id);
+    if(!c) return;
+    title.textContent = 'Modifier la campagne';
+    document.getElementById('fTitre').value = c.titre || '';
+    document.getElementById('fDesc').value = c.description || '';
+    document.getElementById('fCanal').value = c.canal || 'email';
+    document.getElementById('fStatut').value = c.statut || 'planifiee';
+    document.getElementById('fDebut').value = c.dateDebut || '';
+    document.getElementById('fFin').value = c.dateFin || '';
+    document.getElementById('fBudget').value = c.budget || '';
+  } else {
+    title.textContent = 'Nouvelle campagne';
+    document.getElementById('fTitre').value = '';
+    document.getElementById('fDesc').value = '';
+    document.getElementById('fCanal').value = 'email';
+    document.getElementById('fStatut').value = 'planifiee';
+    document.getElementById('fDebut').value = todayISO();
+    document.getElementById('fFin').value = '';
+    document.getElementById('fBudget').value = '';
+  }
+  BIPE.openSheet('sheet-form');
+  setTimeout(() => document.getElementById('fTitre').focus(), 300);
+}
+
+function saveCampagne(){
+  const titre = document.getElementById('fTitre').value.trim();
+  const description = document.getElementById('fDesc').value.trim();
+  const canal = document.getElementById('fCanal').value;
+  const statut = document.getElementById('fStatut').value;
+  const dateDebut = document.getElementById('fDebut').value;
+  const dateFin = document.getElementById('fFin').value;
+  const budget = parseFloat(document.getElementById('fBudget').value) || 0;
+
+  if(!titre){ BIPE.toast('⚠ Le nom est obligatoire', true); return; }
+
+  if(editingId){
+    const c = campagnes.find(x => x.id === editingId);
+    if(c){
+      Object.assign(c, {titre, description, canal, statut, dateDebut, dateFin, budget});
+      c.updatedAt = new Date().toISOString();
+    }
+    BIPE.toast('✅ Campagne modifiée');
+  } else {
+    campagnes.push({
+      id: Date.now().toString(36),
+      titre, description, canal, statut, dateDebut, dateFin, budget,
+      createdAt: new Date().toISOString()
+    });
+    BIPE.toast('✅ Campagne créée');
+  }
+
+  save();
+  BIPE.closeAllSheets();
+  render();
+}
+
+function deleteCampagne(id){
+  const c = campagnes.find(x => x.id === id);
+  if(!c) return;
+  if(!confirm(`Supprimer "${c.titre}" ?`)) return;
+  campagnes = campagnes.filter(x => x.id !== id);
+  save();
+  render();
+  BIPE.toast('🗑 Campagne supprimée');
+}
+
+function exportCampagnes(){
+  BIPE.exportJSON('campagnes', campagnes);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  load();
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape') BIPE.closeAllSheets();
+  });
+});
+</script>
+</body>
+</html>

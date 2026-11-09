@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>BIPE — Facturation Électronique</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="shared.js"></script>
+<style>
+  :root{
+    --black:#000000; --black-2:#0a0a0a; --black-3:#141414;
+    --line:#2a2a2a; --line-soft:#1f1f1f;
+    --gold:#d4af37; --gold-bright:#f0d060; --gold-soft:#e8c96a;
+    --gold-dim:#8a7433; --gold-deep:#5a4a1f;
+    --txt:#f5f0e1; --txt-muted:#9a9384; --txt-dim:#5a564e;
+    --ok:#6b9a5a; --warn:#c9a040; --bad:#b84040; --info:#7cc4e8;
+    --radius:16px; --radius-sm:12px;
+    --groupe-couleur:#b19cd9;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overscroll-behavior:none}
+  body{
+    font-family:'Baloo Bhaijaan 2', -apple-system, "Segoe UI", sans-serif;
+    background:var(--black); color:var(--txt); line-height:1.6; font-weight:500;
+    -webkit-font-smoothing:antialiased; min-height:100vh;
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(177,156,217,.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(212,175,55,.02) 0%, transparent 40%);
+    background-attachment:fixed;
+  }
+  .app{max-width:min(1100px,92vw);margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding-bottom:clamp(24px,4vw,40px)}
+
+  .header{
+    position:sticky;top:0;z-index:50;background:rgba(0,0,0,.92);
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--line-soft);
+    padding:clamp(12px,2vw,16px) clamp(16px,3vw,20px);
+    display:flex;align-items:center;gap:clamp(8px,1.5vw,16px);
+  }
+  .header .back{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;text-decoration:none;transition:transform .15s;
+  }
+  .header .back:active{transform:scale(.92)}
+  .header .title-block{flex:1;min-width:0}
+  .header .logo{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2.5vw,1.5rem);
+    font-weight:700;color:#f0d060;line-height:1.2;letter-spacing:.02em;
+  }
+  .header .logo .b,.header .logo .pe{color:var(--txt)}
+  .header .logo .excl{color:var(--gold);font-size:1.3em;vertical-align:middle;text-shadow:0 0 20px rgba(212,175,55,.5)}
+  .header .subtitle{
+    font-size:clamp(.6rem,1vw,.7rem);color:var(--txt-muted);
+    font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  }
+  .header .menu{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;transition:transform .15s;
+  }
+  .header .menu:active{transform:scale(.92)}
+
+  .content{flex:1;padding:clamp(16px,3vw,24px) clamp(16px,3vw,20px)}
+
+  .hero-groupe{
+    background:linear-gradient(135deg,var(--black-2) 0%,var(--black-3) 100%);
+    border:2px solid var(--gold-deep);border-radius:var(--radius);
+    padding:clamp(18px,3vw,24px);margin-bottom:clamp(16px,3vw,20px);
+    position:relative;overflow:hidden;
+  }
+  .hero-groupe::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--groupe-couleur);opacity:.8;
+  }
+  .hero-groupe .num{
+    font-family:'Fredoka',sans-serif;font-size:clamp(.75rem,1vw,.85rem);
+    font-weight:700;color:var(--groupe-couleur);letter-spacing:.05em;margin-bottom:6px;
+  }
+  .hero-groupe .ico{font-size:clamp(1.6rem,2.5vw,2rem);line-height:1;margin-bottom:6px}
+  .hero-groupe h1{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.3rem,2.2vw,1.7rem);
+    font-weight:700;color:var(--gold-bright);line-height:1.2;margin-bottom:4px;
+  }
+  .hero-groupe p{font-size:clamp(.85rem,1.1vw,1rem);color:var(--txt-muted);font-weight:500}
+
+  /* FORMULAIRE DE PARAMETRES (SETUP) */
+  .setup-card{
+    background:var(--black-2); border:2px solid var(--warn);
+    border-radius:var(--radius); padding:clamp(18px,3vw,24px);
+    margin-bottom:20px;
+  }
+  .setup-card h2{
+    font-family:'Fredoka',sans-serif; font-size:1.2rem;
+    color:var(--warn); font-weight:700; margin-bottom:16px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .form-group{margin-bottom:16px;}
+  .form-group label{
+    display:block; font-size:.85rem; color:var(--txt-muted);
+    margin-bottom:6px; font-weight:600;
+  }
+  .form-group input{
+    width:100%; padding:12px 16px; border-radius:12px;
+    background:var(--black-3); border:2px solid var(--line);
+    color:var(--txt); font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:1rem; font-weight:500;
+  }
+  .form-group input:focus{outline:none; border-color:var(--gold)}
+
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:clamp(14px,2.5vw,18px)}
+  .btn{
+    padding:clamp(11px,1.5vw,13px) clamp(16px,2vw,20px);
+    border-radius:999px;border:none;cursor:pointer;
+    font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:clamp(.88rem,1.1vw,1rem);font-weight:700;
+    display:inline-flex;align-items:center;gap:8px;transition:all .2s;
+  }
+  .btn-gold{
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold));
+    color:#0a0a0a;box-shadow:0 4px 16px rgba(212,175,55,.25);
+  }
+  .btn-gold:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  .btn-ghost{background:var(--black-2);border:2px solid var(--line);color:var(--txt)}
+  .btn-ghost:hover{border-color:var(--gold-dim)}
+
+  .filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:clamp(14px,2.5vw,18px)}
+  .filter-chip{
+    padding:8px 14px;border-radius:999px;border:2px solid var(--line);
+    background:var(--black-2);color:var(--txt-muted);
+    font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:clamp(.8rem,1vw,.9rem);font-weight:600;cursor:pointer;transition:.2s;
+  }
+  .filter-chip.active{border-color:var(--groupe-couleur);color:var(--groupe-couleur);background:rgba(177,156,217,.08)}
+  .filter-chip:hover:not(.active){color:var(--txt)}
+
+  .list{display:flex;flex-direction:column;gap:clamp(8px,1.5vw,10px)}
+  .facture-card{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(14px,2.5vw,18px) clamp(16px,2.5vw,20px);
+    display:flex;gap:clamp(10px,2vw,14px);align-items:flex-start;
+    transition:transform .15s,border-color .15s;position:relative;overflow:hidden;
+  }
+  .facture-card::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--groupe-couleur);opacity:.7;
+  }
+  .facture-card.exporte::before{background:var(--ok)}
+  .facture-card:hover{border-color:var(--gold-dim)}
+  .facture-body{flex:1;min-width:0}
+  .facture-head{
+    display:flex;justify-content:space-between;align-items:baseline;
+    gap:8px;margin-bottom:6px;flex-wrap:wrap;
+  }
+  .facture-titre{
+    font-family:'Fredoka',sans-serif;font-size:clamp(.95rem,1.4vw,1.1rem);
+    font-weight:700;color:var(--txt);line-height:1.3;flex:1;min-width:0;
+  }
+  .facture-date{
+    font-size:clamp(.72rem,.95vw,.82rem);color:var(--txt-dim);
+    font-weight:600;white-space:nowrap;
+  }
+  .facture-meta{
+    display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+    font-size:clamp(.78rem,1vw,.88rem);font-weight:600;
+  }
+  .facture-meta .client{
+    padding:2px 8px;border-radius:6px;background:rgba(255,255,255,.04);
+    color:var(--txt-muted);
+  }
+  .facture-meta .montant{color:var(--ok);font-weight:700}
+  .facture-meta .badge{
+    padding:2px 8px;border-radius:6px;font-size:.75em;font-weight:700;
+    text-transform:uppercase;letter-spacing:.04em;
+  }
+  .badge-exporte{background:rgba(107,154,90,.15);color:#8fc47a}
+  .badge-attente{background:rgba(201,160,64,.15);color:var(--warn)}
+  
+  .facture-actions{display:flex;gap:4px;flex-shrink:0;flex-direction:column}
+  .icon-btn{
+    width:clamp(32px,4.5vw,36px);height:clamp(32px,4.5vw,36px);
+    border-radius:10px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--txt-muted);font-size:clamp(.85rem,1.2vw,.95rem);
+    cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;
+  }
+  .icon-btn:hover{border-color:var(--gold-dim);color:var(--gold-soft)}
+  .icon-btn.ok:hover{border-color:var(--ok);color:#8fc47a}
+
+  .empty{
+    text-align:center;padding:clamp(40px,8vw,60px) clamp(20px,3vw,24px);
+    background:var(--black-2);border:2px dashed var(--line);border-radius:var(--radius);
+  }
+  .empty .ico{font-size:clamp(2.5rem,6vw,3.5rem);margin-bottom:12px;opacity:.6}
+  .empty h3{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.1rem,1.8vw,1.3rem);
+    color:var(--gold-soft);margin-bottom:8px;
+  }
+  .empty p{font-size:clamp(.85rem,1.1vw,1rem);color:var(--txt-muted);margin-bottom:16px}
+
+  .footer{
+    text-align:center;padding:clamp(20px,3vw,28px) 16px 16px;
+    font-size:clamp(.72rem,.9vw,.8rem);color:var(--txt-dim);
+    line-height:1.8;font-weight:500;border-top:1px solid var(--line-soft);margin-top:auto;
+  }
+  .footer .brand{color:var(--gold-soft);font-weight:700}
+
+  /* MODAL XML */
+  .bipe-sheet{transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1)}
+  .bipe-sheet.show{transform:translateY(0) !important}
+  #bipe-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s}
+  #bipe-overlay.show{opacity:1 !important;pointer-events:auto !important}
+
+  .xml-preview{
+    background:#0a0a0a; border:1px solid #333; padding:16px;
+    border-radius:8px; font-family:monospace; font-size:.82rem;
+    color:#a0a0a0; overflow-x:auto; white-space:pre;
+    margin-bottom:16px; line-height:1.4;
+  }
+  .qr-box {
+    background:#fff; padding:10px; border-radius:8px; display:inline-block;
+  }
+</style>
+</head>
+<body data-groupe="g1">
+
+<div class="app">
+
+  <div class="header">
+    <a href="groupe-commercial.html" class="back">←</a>
+    <div class="title-block">
+      <div class="logo"><span class="b">B</span><span class="excl">!</span><span class="pe">PE</span></div>
+      <div class="subtitle">Commercial · Fact. Électronique</div>
+    </div>
+    <button class="menu" onclick="BIPE.openMenu()">⋮</button>
+  </div>
+
+  <div class="content">
+
+    <div class="hero-groupe">
+      <div class="num">GROUPE 01</div>
+      <div class="ico">🇹🇳</div>
+      <h1>Facturation Électronique</h1>
+      <p>Génère tes fichiers TEIF (XML) conformes pour la plateforme El Fatoora.</p>
+    </div>
+
+    <!-- CONFIGURATION (Affiché si MF ou TVA manquant) -->
+    <div id="setupZone" class="setup-card" style="display:none;">
+      <h2>⚙️ Configuration requise</h2>
+      <p style="font-size:.9rem; color:var(--txt-muted); margin-bottom:16px;">
+        Pour générer des factures conformes à la norme TTN, veuillez renseigner les informations de votre entreprise ci-dessous. Elles seront sauvegardées pour toutes vos prochaines factures.
+      </p>
+      
+      <div class="form-group">
+        <label>Matricule Fiscal (MF)</label>
+        <input type="text" id="inputMF" placeholder="Ex: 1234567X/P/M/000" maxlength="30">
+      </div>
+      
+      <div class="form-group">
+        <label>Taux de TVA par défaut (%)</label>
+        <input type="number" id="inputTVA" placeholder="Ex: 19" step="0.1" min="0" max="100">
+      </div>
+
+      <button class="btn btn-gold" onclick="saveSetup()" style="width:100%; justify-content:center;">
+        💾 Enregistrer et continuer
+      </button>
+    </div>
+
+    <!-- ZONE PRINCIPALE (Affichée si config OK) -->
+    <div id="mainZone" style="display:none;">
+      <div class="toolbar">
+        <button class="btn btn-gold" onclick="exportBatch()"><span>📥</span> Exporter tout (XML)</button>
+        <button class="btn btn-ghost" onclick="openSetup()"><span>⚙️</span> Modifier la config</button>
+      </div>
+
+      <div class="filters" id="filters">
+        <button class="filter-chip active" data-filter="attente" onclick="setFilter('attente')">À facturer</button>
+        <button class="filter-chip" data-filter="exporte" onclick="setFilter('exporte')">Facturées</button>
+        <button class="filter-chip" data-filter="tous" onclick="setFilter('tous')">Toutes les ventes</button>
+      </div>
+
+      <div class="list" id="list"></div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <span class="brand">BIPE</span> · Bureau Intelligent Pour Entrepreneur<br>
+    Commercial · Facturation Électronique · Version 1.1
+  </div>
+
+</div>
+
+<div id="bipe-overlay" onclick="BIPE.closeAllSheets()"></div>
+
+<!-- SHEET DETAIL XML -->
+<div id="sheet-xml" class="bipe-sheet" style="
+  position:fixed;left:0;right:0;bottom:0;background:#0a0a0a;
+  border-radius:24px 24px 0 0;border-top:2px solid #5a4a1f;
+  z-index:1001;max-height:92vh;display:flex;flex-direction:column;
+  max-width:720px;margin:0 auto;
+">
+  <div style="width:48px;height:5px;background:#2a2a2a;border-radius:3px;margin:12px auto 8px;flex-shrink:0;"></div>
+  <div style="padding:8px 24px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1f1f1f;">
+    <h3 id="xmlTitle" style="font-family:'Fredoka',sans-serif;font-size:1.5rem;color:#e8c96a;font-weight:700;">Détail de la facture</h3>
+    <button onclick="BIPE.closeAllSheets()" style="
+      width:44px;height:44px;border-radius:12px;background:#141414;
+      border:1px solid #2a2a2a;color:#f5f0e1;font-size:1.4rem;
+      display:flex;align-items:center;justify-content:center;cursor:pointer;
+    ">✕</button>
+  </div>
+  <div style="padding:20px 24px 24px;overflow-y:auto;flex:1;">
+    
+    <div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px;">
+      <div>
+        <div style="font-size:.8rem;color:var(--txt-muted);margin-bottom:4px;">Montant Total TTC</div>
+        <div style="font-family:'Fredoka',sans-serif;font-size:2rem;font-weight:700;color:var(--gold-bright);" id="xmlTotal">0 DT</div>
+        <div style="font-size:.8rem;color:var(--txt-muted);margin-top:4px;">TVA incluse</div>
+      </div>
+      <div class="qr-box">
+        <canvas id="qrcode" width="100" height="100"></canvas>
+      </div>
+    </div>
+
+    <div style="margin-bottom:8px;font-size:.85rem;color:var(--txt-muted);">Aperçu du fichier XML généré :</div>
+    <div class="xml-preview" id="xmlPreview"></div>
+
+    <div style="display:flex;gap:10px;margin-top:16px;">
+      <button class="btn btn-gold" style="flex:1;justify-content:center;" onclick="downloadCurrentXml()">
+        💾 Télécharger XML
+      </button>
+      <button class="btn btn-ghost" style="flex:1;justify-content:center;" onclick="marquerExporte()">
+        ✅ Marquer facturé
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<script>
+/* ============================================================
+   BIPE — f-facturation-electronique.html v1.1
+   Avec configuration MF et TVA
+   ============================================================ */
+
+BIPE.checkSession();
+
+let ventes = [];
+let filter = 'attente';
+let currentVenteId = null;
+
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+
+/* ---------- Sheet ---------- */
+function ouvrirSheet(id){
+  let overlay = document.getElementById('bipe-overlay');
+  if(!overlay){
+    overlay = document.createElement('div');
+    overlay.id = 'bipe-overlay';
+    overlay.onclick = BIPE.closeAllSheets;
+    document.body.appendChild(overlay);
+  }
+  overlay.classList.add('show');
+  const sheet = document.getElementById(id);
+  if(sheet) sheet.classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+/* ---------- Paramètres & Helpers ---------- */
+function getParams(){
+  return BIPE.storage.get(BIPE.KEYS.parametres, {}) || {};
+}
+
+function saveParams(p){
+  BIPE.storage.set(BIPE.KEYS.parametres, p);
+}
+
+function getMF(){
+  const p = getParams();
+  return p.matriculeFiscal || p.mf || '';
+}
+
+function getNomEntreprise(){
+  const p = getParams();
+  return p.nom || p.raisonSociale || 'Mon Entreprise';
+}
+
+function getTVA(){
+  const p = getParams();
+  const tva = parseFloat(p.tva || p.tauxTVA || 0);
+  return isNaN(tva) ? 0 : tva;
+}
+
+function getClients(){
+  return BIPE.storage.get(BIPE.KEYS.clients, []) || [];
+}
+
+/* ---------- Setup & Load ---------- */
+function load(){
+  ventes = BIPE.storage.get(BIPE.KEYS.ventes, []) || [];
+  
+  const mf = getMF();
+  const tva = getTVA();
+
+  // Si MF ou TVA manquant, on affiche le formulaire
+  if (!mf || tva === 0) {
+    document.getElementById('setupZone').style.display = 'block';
+    document.getElementById('mainZone').style.display = 'none';
+    document.getElementById('inputMF').value = mf || '';
+    document.getElementById('inputTVA').value = tva > 0 ? tva : '19';
+  } else {
+    document.getElementById('setupZone').style.display = 'none';
+    document.getElementById('mainZone').style.display = 'block';
+    render();
+  }
+}
+
+function saveSetup() {
+  const mf = document.getElementById('inputMF').value.trim();
+  const tva = parseFloat(document.getElementById('inputTVA').value);
+
+  if(!mf) {
+    BIPE.toast('⚠ Le Matricule Fiscal est obligatoire', true);
+    return;
+  }
+  if(isNaN(tva) || tva < 0) {
+    BIPE.toast('⚠ Le taux de TVA est invalide', true);
+    return;
+  }
+
+  const p = getParams();
+  p.matriculeFiscal = mf;
+  p.tva = tva;
+  saveParams(p);
+
+  BIPE.toast('✅ Configuration enregistrée');
+  load(); // Recharger
+}
+
+function openSetup() {
+  document.getElementById('setupZone').style.display = 'block';
+  document.getElementById('mainZone').style.display = 'none';
+  document.getElementById('inputMF').value = getMF();
+  document.getElementById('inputTVA').value = getTVA() > 0 ? getTVA() : '19';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function save(){
+  BIPE.storage.set(BIPE.KEYS.ventes, ventes);
+}
+
+/* ---------- Rendu ---------- */
+function render(){
+  const list = document.getElementById('list');
+  
+  let items = ventes.filter(v => {
+    if(filter === 'attente') return !v.exporteTTN;
+    if(filter === 'exporte') return v.exporteTTN;
+    return true;
+  });
+
+  items.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+  if(items.length === 0){
+    list.innerHTML = `
+      <div class="empty">
+        <div class="ico">📄</div>
+        <h3>Aucune vente ${filter === 'attente' ? 'à facturer' : (filter === 'exporte' ? 'facturée' : '')}</h3>
+        <p>${filter === 'attente' ? 'Toutes tes ventes ont été facturées.' : 'Aucune vente dans cette catégorie.'}</p>
+        <button class="btn btn-gold" style="margin:0 auto;" onclick="window.location.href='f-ventes.html'">＋ Créer une vente</button>
+      </div>
+    `;
+    return;
+  }
+
+  const clients = getClients();
+
+  list.innerHTML = items.map(v => {
+    const client = clients.find(c => c.id === v.clientId);
+    const clientNom = client ? client.nom : (v.clientNom || 'Sans client');
+    const isExporte = v.exporteTTN;
+
+    return `
+      <div class="facture-card ${isExporte ? 'exporte' : ''}">
+        <div class="facture-body">
+          <div class="facture-head">
+            <div class="facture-titre">${BIPE.esc(v.produitNom || 'Produit')}</div>
+            <div class="facture-date">${v.date ? BIPE.fmtDate(v.date) : '—'}</div>
+          </div>
+          <div class="facture-meta">
+            <span class="client">👤 ${BIPE.esc(clientNom)}</span>
+            <span>× ${v.quantite}</span>
+            <span class="montant">${BIPE.fmt(v.montant)} DT</span>
+            <span class="badge ${isExporte ? 'badge-exporte' : 'badge-attente'}">
+              ${isExporte ? 'Facturée' : 'À facturer'}
+            </span>
+          </div>
+        </div>
+        <div class="facture-actions">
+          <button class="icon-btn" onclick="showXml('${v.id}')" title="Voir le XML">👁</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function setFilter(f){
+  filter = f;
+  document.querySelectorAll('.filter-chip').forEach(b => {
+    b.classList.toggle('active', b.dataset.filter === f);
+  });
+  render();
+}
+
+/* ---------- Génération XML ---------- */
+function generateXML(v) {
+  const mf = getMF();
+  const nom = getNomEntreprise();
+  const tvaTaux = getTVA();
+  const clients = getClients();
+  const client = clients.find(c => c.id === v.clientId) || {};
+  
+  const totalTTC = Number(v.montant) || 0;
+  const totalHT = totalTTC / (1 + tvaTaux / 100);
+  const tvaMontant = totalTTC - totalHT;
+
+  const invoiceId = `INV-${v.id.substring(0, 8).toUpperCase()}`;
+  const dateISO = v.date + 'T00:00:00';
+
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<Invoice xmlns="urn:tn:gov:impots:facturation:teif:v1">
+  <Header>
+    <InvoiceNumber>${invoiceId}</InvoiceNumber>
+    <IssueDate>${dateISO}</IssueDate>
+    <InvoiceTypeCode>380</InvoiceTypeCode>
+    <DocumentCurrencyCode>TND</DocumentCurrencyCode>
+  </Header>
+  <AccountingSupplierParty>
+    <Name>${escapeXml(nom)}</Name>
+    <TaxIdentifier>${escapeXml(mf)}</TaxIdentifier>
+  </AccountingSupplierParty>
+  <AccountingCustomerParty>
+    <Name>${escapeXml(client.nom || v.clientNom || 'Client de passage')}</Name>
+    <TaxIdentifier>${escapeXml(client.mf || '000000000')}</TaxIdentifier>
+  </AccountingCustomerParty>
+  <InvoiceLine>
+    <ItemName>${escapeXml(v.produitNom)}</ItemName>
+    <Quantity>${v.quantite}</Quantity>
+    <UnitPrice>${(Number(v.prix)).toFixed(3)}</UnitPrice>
+    <LineExtensionAmount>${(totalHT).toFixed(3)}</LineExtensionAmount>
+    <TaxAmount>${(tvaMontant).toFixed(3)}</TaxAmount>
+    <TaxRate>${tvaTaux}</TaxRate>
+  </InvoiceLine>
+  <LegalMonetaryTotal>
+    <LineExtensionAmount>${(totalHT).toFixed(3)}</LineExtensionAmount>
+    <TaxExclusiveAmount>${(totalHT).toFixed(3)}</TaxExclusiveAmount>
+    <TaxInclusiveAmount>${(totalTTC).toFixed(3)}</TaxInclusiveAmount>
+  </LegalMonetaryTotal>
+</Invoice>`;
+
+  return xml;
+}
+
+function escapeXml(unsafe) {
+  if (!unsafe) return '';
+  return unsafe.toString().replace(/[<>&'"]/g, function (c) {
+    switch (c) {
+      case '<': return '&lt;';
+      case '>': return '&gt;';
+      case '&': return '&amp;';
+      case '\'': return '&apos;';
+      case '"': return '&quot;';
+    }
+  });
+}
+
+/* ---------- Actions ---------- */
+function showXml(id) {
+  const v = ventes.find(x => x.id === id);
+  if(!v) return;
+  
+  currentVenteId = id;
+  const xml = generateXML(v);
+  const total = Number(v.montant) || 0;
+
+  document.getElementById('xmlTitle').textContent = `Facture — ${v.produitNom}`;
+  document.getElementById('xmlTotal').textContent = BIPE.fmt(total) + ' DT';
+  document.getElementById('xmlPreview').textContent = xml;
+
+  const qrContent = `B!PE|${getMF()}|${v.date}|${total.toFixed(3)}`;
+  generateQR(qrContent);
+
+  ouvrirSheet('sheet-xml');
+}
+
+function generateQR(text) {
+  const canvas = document.getElementById('qrcode');
+  if(!window.qrcode) {
+    canvas.style.display = 'none';
+    return;
+  }
+  canvas.style.display = 'block';
+  
+  const qr = qrcode(0, 'M');
+  qr.addData(text);
+  qr.make();
+  
+  const ctx = canvas.getContext('2d');
+  const size = 100;
+  const cellSize = size / qr.getModuleCount();
+  
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, size, size);
+  ctx.fillStyle = '#000000';
+  
+  for (let row = 0; row < qr.getModuleCount(); row++) {
+    for (let col = 0; col < qr.getModuleCount(); col++) {
+      if (qr.isDark(row, col)) {
+        ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+      }
+    }
+  }
+}
+
+function downloadCurrentXml() {
+  if(!currentVenteId) return;
+  const v = ventes.find(x => x.id === currentVenteId);
+  if(!v) return;
+  telechargerFichierXml([v], `facture_${v.id.substring(0,6)}.xml`);
+}
+
+function exportBatch() {
+  const ventesAExporter = ventes.filter(v => !v.exporteTTN);
+  if(ventesAExporter.length === 0) {
+    BIPE.toast('ℹ Aucune vente à facturer', false);
+    return;
+  }
+
+  telechargerFichierXml(ventesAExporter, 'lot_factures_bipe.xml');
+}
+
+function telechargerFichierXml(listeVentes, filename) {
+  let xmlContent = `<?xml version="1.0" encoding="UTF-8"?>\n<InvoiceBatch xmlns="urn:tn:gov:impots:facturation:teif:v1">\n`;
+  
+  listeVentes.forEach(v => {
+    const single = generateXML(v).replace('<?xml version="1.0" encoding="UTF-8"?>\n', '');
+    xmlContent += single + '\n';
+  });
+  
+  xmlContent += `</InvoiceBatch>`;
+
+  const blob = new Blob([xmlContent], { type: 'application/xml' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+  
+  BIPE.toast('📥 Fichier XML téléchargé');
+}
+
+function marquerExporte() {
+  if(!currentVenteId) return;
+  const v = ventes.find(x => x.id === currentVenteId);
+  if(v) {
+    v.exporteTTN = true;
+    v.dateExportTTN = new Date().toISOString();
+    save();
+    render();
+    BIPE.closeAllSheets();
+    BIPE.toast('✅ Vente marquée comme facturée');
+  }
+}
+
+/* ---------- Init ---------- */
+document.addEventListener('DOMContentLoaded', () => {
+  load();
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape') BIPE.closeAllSheets();
+  });
+});
+</script>
+</body>
+</html>

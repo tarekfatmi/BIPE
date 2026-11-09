@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>BIPE — Diagnostic système</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="shared.js"></script>
+<style>
+  :root{
+    --black:#000000; --black-2:#0a0a0a; --black-3:#141414;
+    --line:#2a2a2a; --line-soft:#1f1f1f;
+    --gold:#d4af37; --gold-bright:#f0d060; --gold-soft:#e8c96a;
+    --gold-dim:#8a7433; --gold-deep:#5a4a1f;
+    --txt:#f5f0e1; --txt-muted:#9a9384; --txt-dim:#5a564e;
+    --ok:#6b9a5a; --warn:#c9a040; --bad:#b84040; --info:#7cc4e8;
+    --radius:16px; --radius-sm:12px;
+    --groupe-couleur:#8a9bb5;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overscroll-behavior:none}
+  body{
+    font-family:'Baloo Bhaijaan 2', -apple-system, "Segoe UI", sans-serif;
+    background:var(--black); color:var(--txt); line-height:1.6; font-weight:500;
+    -webkit-font-smoothing:antialiased; min-height:100vh;
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(138,155,181,.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(212,175,55,.02) 0%, transparent 40%);
+    background-attachment:fixed;
+  }
+  .app{max-width:min(1100px,92vw);margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding-bottom:clamp(24px,4vw,40px)}
+
+  /* SHEET + OVERLAY — fallback */
+  .bipe-sheet{transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1)}
+  .bipe-sheet.show{transform:translateY(0) !important}
+  #bipe-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s}
+  #bipe-overlay.show{opacity:1 !important;pointer-events:auto !important}
+
+  .header{
+    position:sticky;top:0;z-index:50;background:rgba(0,0,0,.92);
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--line-soft);
+    padding:clamp(12px,2vw,16px) clamp(16px,3vw,20px);
+    display:flex;align-items:center;gap:clamp(8px,1.5vw,16px);
+  }
+  .header .back{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;text-decoration:none;transition:transform .15s;
+  }
+  .header .back:active{transform:scale(.92)}
+  .header .title-block{flex:1;min-width:0}
+  .header .logo{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2.5vw,1.5rem);
+    font-weight:700;color:#f0d060;line-height:1.2;letter-spacing:.02em;
+  }
+  .header .logo .b,.header .logo .pe{color:var(--txt)}
+  .header .logo .excl{color:var(--gold);font-size:1.3em;vertical-align:middle;text-shadow:0 0 20px rgba(212,175,55,.5)}
+  .header .subtitle{
+    font-size:clamp(.6rem,1vw,.7rem);color:var(--txt-muted);
+    font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  }
+  .header .menu{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;transition:transform .15s;
+  }
+  .header .menu:active{transform:scale(.92)}
+
+  .content{flex:1;padding:clamp(16px,3vw,24px) clamp(16px,3vw,20px)}
+
+  .hero-groupe{
+    background:linear-gradient(135deg,var(--black-2) 0%,var(--black-3) 100%);
+    border:2px solid var(--gold-deep);border-radius:var(--radius);
+    padding:clamp(18px,3vw,24px);margin-bottom:clamp(16px,3vw,20px);
+    position:relative;overflow:hidden;
+  }
+  .hero-groupe::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--groupe-couleur);opacity:.8;
+  }
+  .hero-groupe .num{
+    font-family:'Fredoka',sans-serif;font-size:clamp(.75rem,1vw,.85rem);
+    font-weight:700;color:var(--groupe-couleur);letter-spacing:.05em;margin-bottom:6px;
+  }
+  .hero-groupe .ico{font-size:clamp(1.6rem,2.5vw,2rem);line-height:1;margin-bottom:6px}
+  .hero-groupe h1{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.3rem,2.2vw,1.7rem);
+    font-weight:700;color:var(--gold-bright);line-height:1.2;margin-bottom:4px;
+  }
+  .hero-groupe p{font-size:clamp(.85rem,1.1vw,1rem);color:var(--txt-muted);font-weight:500}
+
+  /* STATUT GLOBAL */
+  .statut-global{
+    display:flex;align-items:center;gap:clamp(12px,2vw,16px);
+    padding:clamp(16px,2.5vw,20px) clamp(18px,3vw,24px);
+    border-radius:var(--radius);
+    margin-bottom:clamp(16px,3vw,20px);
+    border:2px solid;
+  }
+  .statut-global.ok{background:rgba(107,154,90,.08);border-color:var(--ok)}
+  .statut-global.warn{background:rgba(201,160,64,.08);border-color:var(--warn)}
+  .statut-global.bad{background:rgba(184,64,64,.1);border-color:var(--bad)}
+  .statut-global .ico{font-size:clamp(2rem,3.5vw,2.6rem);flex-shrink:0;line-height:1}
+  .statut-global .body{flex:1;min-width:0}
+  .statut-global .titre{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.1rem,1.8vw,1.35rem);
+    font-weight:700;line-height:1.2;margin-bottom:4px;
+  }
+  .statut-global.ok .titre{color:#8fc47a}
+  .statut-global.warn .titre{color:var(--warn)}
+  .statut-global.bad .titre{color:#e08a8a}
+  .statut-global .sous{
+    font-size:clamp(.8rem,1vw,.9rem);color:var(--txt-muted);font-weight:500;
+  }
+
+  /* SECTIONS */
+  .section{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(18px,3vw,24px);
+    margin-bottom:clamp(14px,2.5vw,18px);position:relative;overflow:hidden;
+  }
+  .section::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--groupe-couleur);opacity:.4;
+  }
+  .section-head{
+    display:flex;justify-content:space-between;align-items:center;
+    gap:12px;margin-bottom:clamp(14px,2.5vw,18px);flex-wrap:wrap;
+  }
+  .section-head h2{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.05rem,1.8vw,1.3rem);
+    font-weight:700;color:var(--gold-soft);display:flex;align-items:center;gap:10px;
+  }
+  .section-head .ico{font-size:1.2em}
+  .section-head .badge{
+    font-size:clamp(.7rem,.9vw,.78rem);font-weight:700;
+    padding:4px 12px;border-radius:999px;letter-spacing:.04em;
+    text-transform:uppercase;
+  }
+  .badge.ok{background:rgba(107,154,90,.15);color:#8fc47a;border:1px solid rgba(107,154,90,.4)}
+  .badge.warn{background:rgba(201,160,64,.15);color:var(--warn);border:1px solid rgba(201,160,64,.4)}
+  .badge.bad{background:rgba(184,64,64,.15);color:#e08a8a;border:1px solid rgba(184,64,64,.4)}
+
+  /* LIGNES DÉTAIL */
+  .detail-row{
+    display:flex;justify-content:space-between;align-items:center;
+    gap:12px;padding:clamp(10px,1.5vw,12px) 0;
+    border-bottom:1px solid var(--line-soft);flex-wrap:wrap;
+  }
+  .detail-row:last-child{border-bottom:none}
+  .detail-row .lab{
+    font-size:clamp(.85rem,1.05vw,.95rem);color:var(--txt-muted);
+    font-weight:500;display:flex;align-items:center;gap:8px;
+  }
+  .detail-row .val{
+    font-family:monospace;font-size:clamp(.82rem,1vw,.92rem);
+    font-weight:600;color:var(--txt);word-break:break-all;
+    text-align:right;flex-shrink:0;max-width:60%;
+  }
+  .detail-row .val.ok{color:#8fc47a}
+  .detail-row .val.warn{color:var(--warn)}
+  .detail-row .val.bad{color:#e08a8a}
+  .detail-row .val.gold{color:var(--gold-bright)}
+
+  /* GRILLE COMPTEURS */
+  .compteurs-grid{
+    display:grid;grid-template-columns:repeat(auto-fill, minmax(clamp(130px,18vw,160px), 1fr));
+    gap:clamp(8px,1.5vw,12px);
+  }
+  .compteur{
+    background:var(--black-3);border:1px solid var(--line);
+    border-radius:var(--radius-sm);padding:clamp(10px,1.8vw,14px) clamp(12px,2vw,16px);
+    transition:border-color .2s;
+  }
+  .compteur:hover{border-color:var(--gold-dim)}
+  .compteur .cle{
+    font-family:monospace;font-size:clamp(.68rem,.9vw,.76rem);
+    color:var(--txt-muted);font-weight:600;margin-bottom:4px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .compteur .nb{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.1rem,2vw,1.4rem);
+    font-weight:700;color:var(--gold-bright);line-height:1;
+  }
+  .compteur .nb.vide{color:var(--txt-dim)}
+  .compteur .taille{
+    font-size:clamp(.65rem,.85vw,.72rem);color:var(--txt-dim);
+    font-weight:600;margin-top:3px;
+  }
+
+  /* BOUTONS */
+  .btn{
+    padding:clamp(11px,1.5vw,13px) clamp(16px,2vw,20px);
+    border-radius:999px;border:none;cursor:pointer;
+    font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:clamp(.88rem,1.1vw,1rem);font-weight:700;
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    transition:all .2s;
+  }
+  .btn-gold{
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold));
+    color:#0a0a0a;box-shadow:0 4px 16px rgba(212,175,55,.25);
+  }
+  .btn-gold:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  .btn-gold:active{transform:scale(.97)}
+  .btn-ghost{background:var(--black-3);border:2px solid var(--line);color:var(--txt)}
+  .btn-ghost:hover{border-color:var(--gold-dim)}
+  .btn-full{width:100%;margin-top:8px}
+
+  .toolbar{
+    display:flex;gap:8px;flex-wrap:wrap;
+    margin-bottom:clamp(14px,2.5vw,18px);
+  }
+
+  /* ALERTES */
+  .alerte{
+    padding:clamp(12px,2vw,16px) clamp(14px,2.2vw,18px);
+    border-radius:var(--radius-sm);
+    font-size:clamp(.82rem,1vw,.92rem);line-height:1.6;
+    display:flex;gap:12px;align-items:flex-start;
+    margin-bottom:clamp(10px,1.8vw,14px);
+    font-weight:500;
+  }
+  .alerte .ico{font-size:1.2em;flex-shrink:0;line-height:1}
+  .alerte.warn{background:rgba(201,160,64,.08);border:2px solid rgba(201,160,64,.35);color:#e0cc88}
+  .alerte.bad{background:rgba(184,64,64,.1);border:2px solid rgba(184,64,64,.4);color:#e8a8a8}
+  .alerte.info{background:rgba(124,196,232,.08);border:2px solid rgba(124,196,232,.35);color:#b8ddf0}
+
+  .footer{
+    text-align:center;padding:clamp(20px,3vw,28px) 16px 16px;
+    font-size:clamp(.72rem,.9vw,.8rem);color:var(--txt-dim);
+    line-height:1.8;font-weight:500;border-top:1px solid var(--line-soft);margin-top:auto;
+  }
+  .footer .brand{color:var(--gold-soft);font-weight:700}
+
+  @media (max-width:600px){
+    .detail-row .val{max-width:100%;text-align:left}
+    .compteurs-grid{grid-template-columns:1fr 1fr}
+  }
+</style>
+</head>
+<body data-groupe="g6">
+
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <a href="groupe-admin.html" class="back">←</a>
+    <div class="title-block">
+      <div class="logo"><span class="b">B</span><span class="excl">!</span><span class="pe">PE</span></div>
+      <div class="subtitle">Administration · Diagnostic</div>
+    </div>
+    <button class="menu" onclick="BIPE.openMenu()">⋮</button>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- HERO -->
+    <div class="hero-groupe">
+      <div class="num">GROUPE 06</div>
+      <div class="ico">🩺</div>
+      <h1>Diagnostic système</h1>
+      <p>Vérifie l'état de BIPE : fichiers, données, session, sauvegarde.</p>
+    </div>
+
+    <!-- STATUT GLOBAL -->
+    <div class="statut-global" id="statutGlobal">
+      <div class="ico" id="statutIco">⏳</div>
+      <div class="body">
+        <div class="titre" id="statutTitre">Analyse en cours…</div>
+        <div class="sous" id="statutSous">Chargement des données</div>
+      </div>
+    </div>
+
+    <!-- BARRE D'ACTIONS -->
+    <div class="toolbar">
+      <button class="btn btn-gold" onclick="reload()">🔄 Actualiser</button>
+      <button class="btn btn-ghost" onclick="exportDiag()">📤 Exporter le rapport</button>
+      <button class="btn btn-ghost" onclick="copyDiag()">📋 Copier</button>
+    </div>
+
+    <!-- SECTION 1 : FICHIERS -->
+    <div class="section">
+      <div class="section-head">
+        <h2><span class="ico">📦</span> Fichiers &amp; environnement</h2>
+        <span class="badge" id="badgeFichiers">—</span>
+      </div>
+      <div id="detailFichiers"></div>
+    </div>
+
+    <!-- SECTION 2 : SESSION -->
+    <div class="section">
+      <div class="section-head">
+        <h2><span class="ico">👤</span> Session utilisateur</h2>
+        <span class="badge" id="badgeSession">—</span>
+      </div>
+      <div id="detailSession"></div>
+    </div>
+
+    <!-- SECTION 3 : SAUVEGARDE -->
+    <div class="section">
+      <div class="section-head">
+        <h2><span class="ico">💾</span> Sauvegarde</h2>
+        <span class="badge" id="badgeSauvegarde">—</span>
+      </div>
+      <div id="detailSauvegarde"></div>
+    </div>
+
+    <!-- SECTION 4 : CLÉS localStorage -->
+    <div class="section">
+      <div class="section-head">
+        <h2><span class="ico">🗂</span> Données locales (par module)</h2>
+        <span class="badge" id="badgeData">—</span>
+      </div>
+      <div id="alertesData"></div>
+      <div class="compteurs-grid" id="compteursGrid"></div>
+    </div>
+
+    <!-- SECTION 5 : INTÉGRITÉ -->
+    <div class="section">
+      <div class="section-head">
+        <h2><span class="ico">🔍</span> Intégrité</h2>
+        <span class="badge" id="badgeIntegrite">—</span>
+      </div>
+      <div id="detailIntegrite"></div>
+    </div>
+
+    <!-- SECTION 6 : DÉTAIL TECHNIQUE -->
+    <div class="section">
+      <div class="section-head">
+        <h2><span class="ico">⚙️</span> Détail technique</h2>
+      </div>
+      <div id="detailTechnique"></div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <span class="brand">BIPE</span> · Bureau Intelligent Pour Entrepreneur<br>
+    Administration · Diagnostic · Version 1.0
+  </div>
+
+</div>
+
+<!-- OVERLAY -->
+<div id="bipe-overlay" onclick="BIPE.closeAllSheets()"></div>
+
+<script>
+/* ============================================================
+   BIPE — f-diagnostic.html
+   Groupe 6 — Administration : diagnostic système
+   ============================================================ */
+
+BIPE.checkSession();
+
+/* ---------- Références ---------- */
+const $ = (id) => document.getElementById(id);
+
+/* ---------- Utils ---------- */
+function tailleKo(str){
+  if(!str) return 0;
+  const bytes = new Blob([str]).size;
+  return (bytes / 1024);
+}
+
+function formatKo(ko){
+  if(ko < 1) return (ko * 1024).toFixed(0) + ' o';
+  if(ko < 1024) return ko.toFixed(1) + ' Ko';
+  return (ko / 1024).toFixed(2) + ' Mo';
+}
+
+function compterValeur(raw){
+  if(!raw) return 0;
+  try {
+    const v = JSON.parse(raw);
+    if(Array.isArray(v)) return v.length;
+    if(typeof v === 'object' && v !== null) return Object.keys(v).length;
+    return 1;
+  } catch(e){ return 0; }
+}
+
+/* ---------- Rapport ---------- */
+const rapport = {
+  fichiers: {},
+  session: {},
+  sauvegarde: {},
+  data: {},
+  integrite: {},
+  technique: {},
+  alertes: [],
+  statut: 'ok'
+};
+
+function analyserFichiers(){
+  const f = rapport.fichiers;
+  f.sharedCharge = (typeof BIPE === 'object' && BIPE !== null);
+  f.version = f.sharedCharge ? BIPE.VERSION : '—';
+  f.nom = f.sharedCharge ? BIPE.NOM : '—';
+  f.storage = f.sharedCharge && typeof BIPE.storage === 'object';
+  f.toast = f.sharedCharge && typeof BIPE.toast === 'function';
+  f.openMenu = f.sharedCharge && typeof BIPE.openMenu === 'function';
+  f.exportJSON = f.sharedCharge && typeof BIPE.exportJSON === 'function';
+  f.cleSession = f.sharedCharge ? BIPE.KEYS.session : '—';
+  f.protocole = window.location.protocol;
+  f.fichier = window.location.pathname.split('/').pop();
+  f.userAgent = navigator.userAgent;
+  f.online = navigator.onLine;
+
+  if(!f.sharedCharge){
+    f.statut = 'bad';
+    rapport.alertes.push({type:'bad', ico:'🚨', msg:'<strong>shared.js n\'est pas chargé.</strong> L\'objet BIPE est introuvable. Vérifie que le fichier est bien présent et recharge avec Ctrl+F5.'});
+  } else if(!f.storage || !f.toast || !f.openMenu || !f.exportJSON){
+    f.statut = 'warn';
+    rapport.alertes.push({type:'warn', ico:'⚠️', msg:'<strong>shared.js est chargé mais incomplet.</strong> Certaines fonctions essentielles manquent.'});
+  } else {
+    f.statut = 'ok';
+  }
+
+  if(f.protocole === 'file:'){
+    rapport.alertes.push({type:'warn', ico:'📁', msg:'<strong>Ouverture en mode fichier local.</strong> Certains navigateurs restreignent localStorage en <code>file://</code>. Préfère un petit serveur local.'});
+    if(f.statut === 'ok') f.statut = 'warn';
+  }
+
+  if(!f.online){
+    rapport.alertes.push({type:'info', ico:'📡', msg:'<strong>Hors-ligne.</strong> BIPE fonctionne normalement sans Internet. Aucune action requise.'});
+  }
+}
+
+function analyserSession(){
+  const s = rapport.session;
+  const session = BIPE.getUser();
+  const users = BIPE.storage.get(BIPE.KEYS.users, []) || [];
+
+  s.connecte = !!session;
+  s.userId = session ? session.userId : null;
+  s.nom = session ? session.nom : null;
+  s.email = session ? session.email : null;
+  s.loginAt = session ? session.loginAt : null;
+  s.nbUsers = users.length;
+  s.userExiste = false;
+
+  if(session){
+    s.userExiste = users.some(u => u.id === session.userId);
+  }
+
+  if(!s.connecte){
+    s.statut = 'bad';
+    rapport.alertes.push({type:'bad', ico:'🚪', msg:'<strong>Aucune session active.</strong> Tu n\'es pas connecté. Connecte-toi via la page d\'accès.'});
+  } else if(!s.userExiste){
+    s.statut = 'warn';
+    rapport.alertes.push({type:'warn', ico:'👻', msg:'<strong>Session fantôme.</strong> La session existe mais l\'utilisateur correspondant est introuvable. Déconnecte-toi et reconnecte-toi.'});
+  } else {
+    s.statut = 'ok';
+  }
+}
+
+function analyserSauvegarde(){
+  const sv = rapport.sauvegarde;
+  const raw = localStorage.getItem(BIPE.KEYS.lastBackup);
+  sv.date = raw ? raw.replace(/^"|"$/g, '') : null;
+
+  if(!sv.date){
+    sv.jours = null;
+    sv.statut = 'bad';
+    rapport.alertes.push({type:'bad', ico:'💾', msg:'<strong>Aucune sauvegarde enregistrée.</strong> Exporte tes données depuis l\'Administration dès maintenant.'});
+    return;
+  }
+
+  const diff = Math.round((new Date() - new Date(sv.date)) / 86400000);
+  sv.jours = diff;
+
+  if(diff === 0){
+    sv.statut = 'ok';
+  } else if(diff <= 7){
+    sv.statut = 'warn';
+    rapport.alertes.push({type:'warn', ico:'⏱', msg:`<strong>Dernière sauvegarde il y a ${diff} jour(s).</strong> Pense à exporter régulièrement.`});
+  } else {
+    sv.statut = 'bad';
+    rapport.alertes.push({type:'bad', ico:'🚨', msg:`<strong>Dernière sauvegarde il y a ${diff} jours.</strong> C'est trop. Exporte immédiatement.`});
+  }
+}
+
+function analyserData(){
+  const d = rapport.data;
+  const skip = ['session', 'lastBackup'];
+  let totalKo = 0;
+  let totalItems = 0;
+  let nbVides = 0;
+  let nbActives = 0;
+
+  d.cles = [];
+  Object.entries(BIPE.KEYS).forEach(([name, key]) => {
+    if(skip.includes(name)) return;
+    const raw = localStorage.getItem(key);
+    const count = compterValeur(raw);
+    const ko = tailleKo(raw);
+    totalKo += ko;
+    totalItems += count;
+    if(count === 0) nbVides++;
+    else nbActives++;
+    d.cles.push({ name, key, count, ko, raw: !!raw });
+  });
+
+  d.totalKo = totalKo;
+  d.totalItems = totalItems;
+  d.nbVides = nbVides;
+  d.nbActives = nbActives;
+  d.nbTotal = d.cles.length;
+
+  if(totalItems === 0){
+    d.statut = 'warn';
+    rapport.alertes.push({type:'info', ico:'📭', msg:'<strong>Aucune donnée métier enregistrée.</strong> C\'est normal si tu débutes. Commence par créer un client ou un rappel.'});
+  } else {
+    d.statut = 'ok';
+  }
+}
+
+function analyserIntegrite(){
+  const i = rapport.integrite;
+  const issues = [];
+
+  i.keysOk = Object.values(BIPE.KEYS).every(k => {
+    try { localStorage.getItem(k); return true; }
+    catch(e){ return false; }
+  });
+  if(!i.keysOk) issues.push('Certaines clés localStorage sont inaccessibles');
+
+  let jsonInvalides = 0;
+  Object.values(BIPE.KEYS).forEach(k => {
+    const raw = localStorage.getItem(k);
+    if(raw){
+      try { JSON.parse(raw); }
+      catch(e){ jsonInvalides++; }
+    }
+  });
+  i.jsonInvalides = jsonInvalides;
+  if(jsonInvalides > 0){
+    issues.push(`${jsonInvalides} clé(s) contiennent du JSON invalide`);
+  }
+
+  const rh = BIPE.storage.get(BIPE.KEYS.rh, []) || [];
+  const planning = BIPE.storage.get(BIPE.KEYS.planning, []) || [];
+  const rhIds = new Set(rh.map(m => m.id));
+  const orphelins = planning.filter(e => e.membreId && !rhIds.has(e.membreId));
+  i.planningOrphelins = orphelins.length;
+  if(orphelins.length > 0){
+    issues.push(`${orphelins.length} événement(s) de planning pointent vers un membre supprimé`);
+  }
+
+  const banque = BIPE.storage.get(BIPE.KEYS.banque, []) || [];
+  const comptesIds = new Set(banque.filter(b => b.type === 'compte').map(c => c.id));
+  const mvtsOrphelins = banque.filter(b => b.type === 'mouvement' && b.compteId && !comptesIds.has(b.compteId));
+  i.mvtsOrphelins = mvtsOrphelins.length;
+  if(mvtsOrphelins.length > 0){
+    issues.push(`${mvtsOrphelins.length} mouvement(s) bancaire(s) sans compte valide`);
+  }
+
+  let totalDoublons = 0;
+  Object.entries(BIPE.KEYS).forEach(([name, key]) => {
+    if(['session','lastBackup','users','parametres'].includes(name)) return;
+    const arr = BIPE.storage.get(key, []);
+    if(!Array.isArray(arr)) return;
+    const ids = arr.map(x => x.id).filter(Boolean);
+    const uniques = new Set(ids);
+    const doublons = ids.length - uniques.size;
+    if(doublons > 0){
+      totalDoublons += doublons;
+    }
+  });
+  i.doublons = totalDoublons;
+  if(totalDoublons > 0){
+    issues.push(`${totalDoublons} identifiant(s) en double détecté(s)`);
+  }
+
+  i.issues = issues;
+  i.statut = issues.length === 0 ? 'ok' : (issues.length <= 2 ? 'warn' : 'bad');
+
+  if(issues.length > 0){
+    rapport.alertes.push({
+      type: i.statut === 'bad' ? 'bad' : 'warn',
+      ico: i.statut === 'bad' ? '🚨' : '⚠️',
+      msg: `<strong>${issues.length} anomalie(s) d'intégrité.</strong> Consulte la section Intégrité ci-dessous.`
+    });
+  }
+}
+
+function analyserTechnique(){
+  const t = rapport.technique;
+  t.date = new Date().toLocaleString('fr-FR');
+  t.url = window.location.href;
+  t.protocole = window.location.protocol;
+  t.navigateur = navigator.userAgent;
+  t.langue = navigator.language;
+  t.plateforme = navigator.platform || '—';
+  t.ecran = window.screen.width + ' × ' + window.screen.height;
+  t.online = navigator.onLine;
+
+  try {
+    let total = 0;
+    for(let i = 0; i < localStorage.length; i++){
+      const k = localStorage.key(i);
+      const v = localStorage.getItem(k);
+      total += (k.length + (v ? v.length : 0)) * 2;
+    }
+    t.storageTotal = total;
+  } catch(e){
+    t.storageTotal = 0;
+  }
+}
+
+/* ---------- Statut global ---------- */
+function calculerStatutGlobal(){
+  const bad = rapport.alertes.filter(a => a.type === 'bad').length;
+  const warn = rapport.alertes.filter(a => a.type === 'warn').length;
+
+  if(bad > 0){
+    rapport.statut = 'bad';
+    return { ico: '🚨', titre: 'Anomalies détectées', sous: `${bad} problème(s) critique(s), ${warn} avertissement(s)` };
+  }
+  if(warn > 0){
+    rapport.statut = 'warn';
+    return { ico: '⚠️', titre: 'Système fonctionnel — attention', sous: `${warn} point(s) à vérifier` };
+  }
+  return { ico: '✅', titre: 'Système opérationnel', sous: 'Aucune anomalie détectée' };
+}
+
+/* ---------- Rendu ---------- */
+function badge(statut){
+  if(statut === 'ok') return '<span class="badge ok">OK</span>';
+  if(statut === 'warn') return '<span class="badge warn">ATTENTION</span>';
+  return '<span class="badge bad">PROBLÈME</span>';
+}
+
+function detailRow(lab, val, cls = ''){
+  return `
+    <div class="detail-row">
+      <span class="lab">${lab}</span>
+      <span class="val ${cls}">${val}</span>
+    </div>
+  `;
+}
+
+function rendreFichiers(){
+  const f = rapport.fichiers;
+  $('badgeFichiers').outerHTML = badge(f.statut).replace('class="badge', 'id="badgeFichiers" class="badge');
+
+  $('detailFichiers').innerHTML = [
+    detailRow('Objet BIPE', f.sharedCharge ? '✅ Chargé' : '❌ Introuvable', f.sharedCharge ? 'ok' : 'bad'),
+    detailRow('Version', f.version, 'gold'),
+    detailRow('Nom complet', f.nom),
+    detailRow('BIPE.storage', f.storage ? '✅ Disponible' : '❌ Manquant', f.storage ? 'ok' : 'bad'),
+    detailRow('BIPE.toast', f.toast ? '✅ Disponible' : '❌ Manquant', f.toast ? 'ok' : 'bad'),
+    detailRow('BIPE.openMenu', f.openMenu ? '✅ Disponible' : '❌ Manquant', f.openMenu ? 'ok' : 'bad'),
+    detailRow('BIPE.exportJSON', f.exportJSON ? '✅ Disponible' : '❌ Manquant', f.exportJSON ? 'ok' : 'bad'),
+    detailRow('Clé session', f.cleSession),
+    detailRow('Protocole', f.protocole, f.protocole === 'file:' ? 'warn' : 'ok'),
+    detailRow('Fichier courant', f.fichier),
+    detailRow('Connexion Internet', f.online ? '🟢 En ligne' : '🔴 Hors-ligne', f.online ? 'ok' : 'warn'),
+  ].join('');
+}
+
+function rendreSession(){
+  const s = rapport.session;
+  $('badgeSession').outerHTML = badge(s.statut).replace('class="badge', 'id="badgeSession" class="badge');
+
+  $('detailSession').innerHTML = [
+    detailRow('Connecté', s.connecte ? '✅ Oui' : '❌ Non', s.connecte ? 'ok' : 'bad'),
+    detailRow('Nom', s.nom || '—'),
+    detailRow('Email', s.email || '—'),
+    detailRow('ID utilisateur', s.userId || '—'),
+    detailRow('Compte existe', s.connecte ? (s.userExiste ? '✅ Oui' : '❌ Non') : '—', s.connecte && !s.userExiste ? 'bad' : 'ok'),
+    detailRow('Connecté depuis', s.loginAt ? new Date(s.loginAt).toLocaleString('fr-FR') : '—'),
+    detailRow('Comptes enregistrés', s.nbUsers, 'gold'),
+  ].join('');
+}
+
+function rendreSauvegarde(){
+  const sv = rapport.sauvegarde;
+  $('badgeSauvegarde').outerHTML = badge(sv.statut).replace('class="badge', 'id="badgeSauvegarde" class="badge');
+
+  const dateStr = sv.date ? new Date(sv.date).toLocaleString('fr-FR') : '—';
+  const joursStr = sv.jours === null ? '—' : (sv.jours === 0 ? "aujourd'hui" : `il y a ${sv.jours} jour(s)`);
+
+  $('detailSauvegarde').innerHTML = [
+    detailRow('Dernière sauvegarde', dateStr, sv.statut === 'ok' ? 'ok' : (sv.statut === 'warn' ? 'warn' : 'bad')),
+    detailRow('Ancienneté', joursStr, sv.statut === 'ok' ? 'ok' : (sv.statut === 'warn' ? 'warn' : 'bad')),
+    detailRow('Recommandation', 'Sauvegarde quotidienne', 'gold'),
+  ].join('');
+}
+
+function rendreData(){
+  const d = rapport.data;
+  $('badgeData').outerHTML = badge(d.statut).replace('class="badge', 'id="badgeData" class="badge');
+
+  $('alertesData').innerHTML = '';
+
+  $('compteursGrid').innerHTML = d.cles.map(c => `
+    <div class="compteur">
+      <div class="cle">${c.name}</div>
+      <div class="nb ${c.count === 0 ? 'vide' : ''}">${c.count}</div>
+      <div class="taille">${formatKo(c.ko)}</div>
+    </div>
+  `).join('');
+
+  const resume = document.createElement('div');
+  resume.style.cssText = 'margin-top:14px;padding-top:14px;border-top:1px solid var(--line-soft);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;';
+  resume.innerHTML = `
+    <span style="color:var(--txt-muted);font-size:.9rem;">
+      <strong style="color:var(--gold-bright)">${d.totalItems}</strong> élément(s) au total
+      · <strong style="color:var(--txt)">${d.nbActives}</strong> module(s) actif(s)
+      · <strong style="color:var(--txt-dim)">${d.nbVides}</strong> vide(s)
+    </span>
+    <span style="color:var(--gold-bright);font-weight:700;font-size:.9rem;">
+      💾 ${formatKo(d.totalKo)}
+    </span>
+  `;
+  $('compteursGrid').after(resume);
+}
+
+function rendreIntegrite(){
+  const i = rapport.integrite;
+  $('badgeIntegrite').outerHTML = badge(i.statut).replace('class="badge', 'id="badgeIntegrite" class="badge');
+
+  let html = '';
+
+  if(i.issues.length === 0){
+    html = `
+      <div class="alerte info">
+        <span class="ico">✅</span>
+        <div>Aucune anomalie détectée. Toutes les vérifications sont passées.</div>
+      </div>
+    `;
+  } else {
+    html = i.issues.map(issue => `
+      <div class="alerte ${i.statut === 'bad' ? 'bad' : 'warn'}">
+        <span class="ico">${i.statut === 'bad' ? '🚨' : '⚠️'}</span>
+        <div>${issue}</div>
+      </div>
+    `).join('');
+  }
+
+  html += detailRow('Clés accessibles', i.keysOk ? '✅ Oui' : '❌ Non', i.keysOk ? 'ok' : 'bad');
+  html += detailRow('JSON invalides', i.jsonInvalides, i.jsonInvalides === 0 ? 'ok' : 'bad');
+  html += detailRow('Planning orphelin', i.planningOrphelins + ' événement(s)', i.planningOrphelins === 0 ? 'ok' : 'warn');
+  html += detailRow('Mouvements orphelins', i.mvtsOrphelins + ' mouvement(s)', i.mvtsOrphelins === 0 ? 'ok' : 'warn');
+  html += detailRow('Identifiants en double', i.doublons, i.doublons === 0 ? 'ok' : 'warn');
+
+  $('detailIntegrite').innerHTML = html;
+}
+
+function rendreTechnique(){
+  const t = rapport.technique;
+  $('detailTechnique').innerHTML = [
+    detailRow('Date du diagnostic', t.date, 'gold'),
+    detailRow('URL courante', t.url),
+    detailRow('Navigateur', t.navigateur),
+    detailRow('Langue', t.langue),
+    detailRow('Plateforme', t.plateforme),
+    detailRow('Résolution', t.ecran),
+    detailRow('Stockage total utilisé', formatKo(t.storageTotal / 1024), 'gold'),
+  ].join('');
+}
+
+function rendreAlertes(){
+  const conteneur = $('alertesData');
+  if(!conteneur) return;
+
+  const html = rapport.alertes.map(a => `
+    <div class="alerte ${a.type}">
+      <span class="ico">${a.ico}</span>
+      <div>${a.msg}</div>
+    </div>
+  `).join('');
+  conteneur.innerHTML = html;
+}
+
+function rendreStatutGlobal(){
+  const s = calculerStatutGlobal();
+  const box = $('statutGlobal');
+  box.className = 'statut-global ' + (rapport.statut === 'ok' ? 'ok' : rapport.statut);
+  $('statutIco').textContent = s.ico;
+  $('statutTitre').textContent = s.titre;
+  $('statutSous').textContent = s.sous;
+}
+
+/* ---------- Actions ---------- */
+function reload(){
+  window.location.reload();
+}
+
+function construireRapportTexte(){
+  const lignes = [];
+  lignes.push('=== BIPE — RAPPORT DE DIAGNOSTIC ===');
+  lignes.push('Date : ' + new Date().toLocaleString('fr-FR'));
+  lignes.push('Statut global : ' + rapport.statut.toUpperCase());
+  lignes.push('');
+  lignes.push('--- ALERTES ---');
+  if(rapport.alertes.length === 0){
+    lignes.push('Aucune');
+  } else {
+    rapport.alertes.forEach(a => lignes.push(`[${a.type.toUpperCase()}] ${a.msg.replace(/<[^>]+>/g, '')}`));
+  }
+  lignes.push('');
+  lignes.push('--- FICHIERS ---');
+  Object.entries(rapport.fichiers).forEach(([k,v]) => lignes.push(`${k} : ${v}`));
+  lignes.push('');
+  lignes.push('--- SESSION ---');
+  Object.entries(rapport.session).forEach(([k,v]) => lignes.push(`${k} : ${v}`));
+  lignes.push('');
+  lignes.push('--- SAUVEGARDE ---');
+  Object.entries(rapport.sauvegarde).forEach(([k,v]) => lignes.push(`${k} : ${v}`));
+  lignes.push('');
+  lignes.push('--- DONNÉES ---');
+  rapport.data.cles.forEach(c => lignes.push(`${c.name} (${c.key}) : ${c.count} élément(s) — ${formatKo(c.ko)}`));
+  lignes.push(`TOTAL : ${rapport.data.totalItems} éléments — ${formatKo(rapport.data.totalKo)}`);
+  lignes.push('');
+  lignes.push('--- INTÉGRITÉ ---');
+  Object.entries(rapport.integrite).forEach(([k,v]) => {
+    if(Array.isArray(v)) v.forEach(x => lignes.push(`- ${x}`));
+    else lignes.push(`${k} : ${v}`);
+  });
+  lignes.push('');
+  lignes.push('--- TECHNIQUE ---');
+  Object.entries(rapport.technique).forEach(([k,v]) => lignes.push(`${k} : ${v}`));
+  return lignes.join('\n');
+}
+
+function exportDiag(){
+  const payload = {
+    standard: 'BIPE-diagnostic-v1',
+    date: new Date().toISOString(),
+    rapport: rapport
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `bipe_diagnostic_${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  BIPE.toast('📤 Rapport exporté');
+}
+
+async function copyDiag(){
+  const texte = construireRapportTexte();
+  try {
+    await navigator.clipboard.writeText(texte);
+    BIPE.toast('📋 Rapport copié dans le presse-papier');
+  } catch(e){
+    BIPE.toast('⚠ Copie impossible — utilise l\'export', true);
+  }
+}
+
+/* ---------- Init ---------- */
+function init(){
+  try {
+    analyserFichiers();
+    analyserSession();
+    analyserSauvegarde();
+    analyserData();
+    analyserIntegrite();
+    analyserTechnique();
+  } catch(e){
+    console.error('Diagnostic error:', e);
+    rapport.alertes.push({type:'bad', ico:'🚨', msg:'<strong>Erreur pendant l\'analyse :</strong> ' + e.message});
+  }
+
+  rendreStatutGlobal();
+  rendreFichiers();
+  rendreSession();
+  rendreSauvegarde();
+  rendreData();
+  rendreIntegrite();
+  rendreTechnique();
+  rendreAlertes();
+
+  BIPE.toast('🩺 Diagnostic terminé');
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

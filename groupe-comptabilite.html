@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>BIPE — Comptabilité</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="shared.js"></script>
+<style>
+  :root{
+    --black:#000000; --black-2:#0a0a0a; --black-3:#141414;
+    --line:#2a2a2a; --line-soft:#1f1f1f;
+    --gold:#d4af37; --gold-bright:#f0d060; --gold-soft:#e8c96a;
+    --gold-dim:#8a7433; --gold-deep:#5a4a1f;
+    --txt:#f5f0e1; --txt-muted:#9a9384; --txt-dim:#5a564e;
+    --ok:#6b9a5a; --warn:#c9a040; --bad:#b84040; --info:#7cc4e8;
+    --radius:16px; --radius-sm:12px;
+    --groupe-couleur:#c9a040;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overscroll-behavior:none}
+  body{
+    font-family:'Baloo Bhaijaan 2', -apple-system, "Segoe UI", sans-serif;
+    background:var(--black); color:var(--txt); line-height:1.6; font-weight:500;
+    -webkit-font-smoothing:antialiased; min-height:100vh;
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(201,160,64,.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(212,175,55,.02) 0%, transparent 40%);
+    background-attachment:fixed;
+  }
+  .app{max-width:min(1100px,92vw);margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding-bottom:clamp(24px,4vw,40px)}
+
+  .header{
+    position:sticky;top:0;z-index:50;background:rgba(0,0,0,.92);
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--line-soft);
+    padding:clamp(12px,2vw,16px) clamp(16px,3vw,20px);
+    display:flex;align-items:center;gap:clamp(8px,1.5vw,16px);
+  }
+  .header .back{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;text-decoration:none;transition:transform .15s;
+  }
+  .header .back:active{transform:scale(.92)}
+  .header .title-block{flex:1;min-width:0}
+  .header .logo{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2.5vw,1.5rem);
+    font-weight:700;color:#f0d060;line-height:1.2;letter-spacing:.02em;
+  }
+  .header .logo .b,.header .logo .pe{color:var(--txt)}
+  .header .logo .excl{color:var(--gold);font-size:1.3em;vertical-align:middle;text-shadow:0 0 20px rgba(212,175,55,.5)}
+  .header .subtitle{
+    font-size:clamp(.6rem,1vw,.7rem);color:var(--txt-muted);
+    font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  }
+  .header .menu{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;transition:transform .15s;
+  }
+  .header .menu:active{transform:scale(.92)}
+
+  .content{flex:1;padding:clamp(16px,3vw,24px) clamp(16px,3vw,20px)}
+
+  .hero-groupe{
+    background:linear-gradient(135deg,var(--black-2) 0%,var(--black-3) 100%);
+    border:2px solid var(--gold-deep);border-radius:var(--radius);
+    padding:clamp(18px,3vw,24px);margin-bottom:clamp(16px,3vw,24px);
+    position:relative;overflow:hidden;
+  }
+  .hero-groupe::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--groupe-couleur);opacity:.8;
+  }
+  .hero-groupe .num{
+    font-family:'Fredoka',sans-serif;font-size:clamp(.75rem,1vw,.85rem);
+    font-weight:700;color:var(--groupe-couleur);letter-spacing:.05em;margin-bottom:6px;
+  }
+  .hero-groupe .ico{font-size:clamp(1.8rem,3vw,2.4rem);line-height:1;margin-bottom:8px}
+  .hero-groupe h1{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.4rem,2.5vw,1.9rem);
+    font-weight:700;color:var(--gold-bright);line-height:1.2;margin-bottom:6px;
+  }
+  .hero-groupe p{font-size:clamp(.9rem,1.2vw,1.05rem);color:var(--txt-muted);font-weight:500}
+
+  .section-title{
+    display:flex;justify-content:space-between;align-items:baseline;
+    margin-bottom:clamp(12px,2vw,16px);padding:0 4px;
+  }
+  .section-title h2{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2vw,1.5rem);
+    font-weight:700;color:var(--gold-soft);
+  }
+  .section-title .count{
+    font-size:clamp(.85rem,1.1vw,1rem);color:var(--txt-muted);font-weight:600;
+  }
+
+  .pages-grid{
+    display:grid;grid-template-columns:repeat(2,1fr);
+    gap:clamp(12px,2vw,16px);margin-bottom:clamp(24px,3vw,32px);
+  }
+  .page-card{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(18px,2.5vw,22px) clamp(16px,2.5vw,20px);
+    cursor:pointer;transition:transform .15s,border-color .15s;
+    text-decoration:none;color:var(--txt);
+    display:flex;flex-direction:column;gap:8px;
+    min-height:clamp(140px,20vw,170px);position:relative;overflow:hidden;
+  }
+  .page-card::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--groupe-couleur);opacity:.5;transition:opacity .2s;
+  }
+  .page-card:hover::before{opacity:1}
+  .page-card:hover{border-color:var(--gold-dim)}
+  .page-card:active{transform:scale(.97)}
+  .page-card .ico{font-size:clamp(1.8rem,3vw,2.2rem);line-height:1;margin-bottom:4px}
+  .page-card .name{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1rem,1.5vw,1.15rem);
+    font-weight:700;color:var(--txt);line-height:1.3;
+  }
+  .page-card .desc{
+    font-size:clamp(.78rem,1vw,.88rem);color:var(--txt-muted);
+    font-weight:500;line-height:1.5;margin-top:auto;
+  }
+
+  .stats{
+    display:grid;grid-template-columns:repeat(2,1fr);
+    gap:clamp(10px,2vw,14px);margin-bottom:clamp(24px,3vw,32px);
+  }
+  .stat{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(14px,2.5vw,18px) clamp(12px,2vw,16px);
+  }
+  .stat .num{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.6rem,3vw,2rem);
+    font-weight:700;line-height:1;margin-bottom:6px;color:var(--gold-bright);
+  }
+  .stat .lab{font-size:clamp(.75rem,1vw,.85rem);color:var(--txt-muted);font-weight:600;line-height:1.4}
+
+  .footer{
+    text-align:center;padding:clamp(20px,3vw,28px) 16px 16px;
+    font-size:clamp(.72rem,.9vw,.8rem);color:var(--txt-dim);
+    line-height:1.8;font-weight:500;border-top:1px solid var(--line-soft);margin-top:auto;
+  }
+  .footer .brand{color:var(--gold-soft);font-weight:700}
+
+  @media (max-width:600px){
+    .pages-grid{grid-template-columns:1fr}
+    .stats{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body data-groupe="g4">
+
+<div class="app">
+
+  <div class="header">
+    <a href="index.html" class="back">←</a>
+    <div class="title-block">
+      <div class="logo"><span class="b">B</span><span class="excl">!</span><span class="pe">PE</span></div>
+      <div class="subtitle">Groupe 04 · Comptabilité</div>
+    </div>
+    <button class="menu" onclick="BIPE.openMenu()">⋮</button>
+  </div>
+
+  <div class="content">
+
+    <div class="hero-groupe">
+      <div class="num">GROUPE 04</div>
+      <div class="ico">📒</div>
+      <h1>Comptabilité</h1>
+      <p>Tiens tes comptes sans prise de tête. Écritures, banque, rapprochement.</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="num" id="statEcritures">0</div><div class="lab">Écritures<br>enregistrées</div></div>
+      <div class="stat"><div class="num" id="statComptes">0</div><div class="lab">Comptes<br>bancaires</div></div>
+      <div class="stat"><div class="num" id="statMouvements">0</div><div class="lab">Mouvements<br>bancaires</div></div>
+      <div class="stat"><div class="num" id="statSolde">0</div><div class="lab">Solde<br>total (DT)</div></div>
+    </div>
+
+    <div class="section-title">
+      <h2>Pages du groupe</h2>
+      <div class="count">2</div>
+    </div>
+
+    <div class="pages-grid">
+      <a href="f-compta.html" class="page-card">
+        <div class="ico">📝</div>
+        <div class="name">Écritures comptables</div>
+        <div class="desc">Journal des débits et crédits. Saisie rapide, filtres, export.</div>
+      </a>
+      <a href="f-banque.html" class="page-card">
+        <div class="ico">🏦</div>
+        <div class="name">Banque & Rapprochement</div>
+        <div class="desc">Comptes bancaires, mouvements, soldes et rapprochement.</div>
+      </a>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <span class="brand">BIPE</span> · Bureau Intelligent Pour Entrepreneur<br>
+    Groupe 04 · Comptabilité · Version 1.0
+  </div>
+
+</div>
+
+<script>
+BIPE.checkSession();
+
+function compter(key){
+  const d = BIPE.storage.get(key, []);
+  if(Array.isArray(d)) return d.length;
+  if(typeof d === 'object' && d !== null) return Object.keys(d).length;
+  return 0;
+}
+
+function render(){
+  const compta = BIPE.storage.get(BIPE.KEYS.compta, []) || [];
+  const banque = BIPE.storage.get(BIPE.KEYS.banque, []) || [];
+  const comptes = banque.filter(b => b.type === 'compte');
+  const mouvements = banque.filter(b => b.type === 'mouvement');
+  const solde = comptes.reduce((s, c) => s + (Number(c.soldeInitial) || 0), 0)
+              + mouvements.reduce((s, m) => s + (m.sens === 'credit' ? (Number(m.montant)||0) : -(Number(m.montant)||0)), 0);
+
+  document.getElementById('statEcritures').textContent = compta.length;
+  document.getElementById('statComptes').textContent = comptes.length;
+  document.getElementById('statMouvements').textContent = mouvements.length;
+  document.getElementById('statSolde').textContent = BIPE.fmt(solde);
+}
+
+document.addEventListener('DOMContentLoaded', render);
+</script>
+</body>
+</html>

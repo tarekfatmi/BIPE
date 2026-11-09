@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>BIPE — Manuel de procédure</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="shared.js"></script>
+<style>
+  :root{
+    --black:#000000; --black-2:#0a0a0a; --black-3:#141414;
+    --line:#2a2a2a; --line-soft:#1f1f1f;
+    --gold:#d4af37; --gold-bright:#f0d060; --gold-soft:#e8c96a;
+    --gold-dim:#8a7433; --gold-deep:#5a4a1f;
+    --txt:#f5f0e1; --txt-muted:#9a9384; --txt-dim:#5a564e;
+    --ok:#6b9a5a; --warn:#c9a040; --bad:#b84040; --info:#7cc4e8;
+    --radius:16px; --radius-sm:12px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overscroll-behavior:none}
+  body{
+    font-family:'Baloo Bhaijaan 2', -apple-system, "Segoe UI", sans-serif;
+    background:var(--black); color:var(--txt); line-height:1.7; font-weight:500;
+    -webkit-font-smoothing:antialiased; min-height:100vh;
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(212,175,55,.05) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(212,175,55,.02) 0%, transparent 40%);
+    background-attachment:fixed;
+  }
+  .app{max-width:min(1100px,94vw);margin:0 auto;min-height:100vh;padding-bottom:clamp(40px,6vw,60px)}
+
+  /* ============ HEADER ============ */
+  .header{
+    position:sticky;top:0;z-index:50;background:rgba(0,0,0,.94);
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--line-soft);
+    padding:clamp(12px,2vw,16px) clamp(16px,3vw,24px);
+    display:flex;align-items:center;gap:clamp(8px,1.5vw,16px);
+  }
+  .header .back{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;text-decoration:none;transition:transform .15s;
+  }
+  .header .back:active{transform:scale(.92)}
+  .header .title-block{flex:1;min-width:0}
+  .header .logo{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2.5vw,1.5rem);
+    font-weight:700;color:#f0d060;line-height:1.2;letter-spacing:.02em;
+  }
+  .header .logo .b,.header .logo .pe{color:var(--txt)}
+  .header .logo .excl{color:var(--gold);font-size:1.3em;vertical-align:middle;text-shadow:0 0 20px rgba(212,175,55,.5)}
+  .header .subtitle{
+    font-size:clamp(.6rem,1vw,.7rem);color:var(--txt-muted);
+    font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  }
+  .header .menu{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;transition:transform .15s;
+  }
+  .header .menu:active{transform:scale(.92)}
+
+  /* ============ HERO ============ */
+  .hero{
+    text-align:center;
+    padding:clamp(32px,6vw,60px) clamp(16px,3vw,24px) clamp(24px,4vw,40px);
+    border-bottom:1px solid var(--line-soft);
+  }
+  .hero .logo-big{
+    font-family:'Fredoka',sans-serif;font-size:clamp(3.5rem,9vw,5.5rem);
+    font-weight:700;line-height:1;margin-bottom:clamp(12px,2vw,18px);letter-spacing:.02em;
+  }
+  .hero .logo-big .b,.hero .logo-big .pe{color:var(--txt)}
+  .hero .logo-big .excl{color:var(--gold);font-size:1.3em;vertical-align:middle;text-shadow:0 0 40px rgba(212,175,55,.6)}
+  .hero .nom{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2.5vw,1.7rem);
+    color:var(--gold-soft);font-weight:700;margin-bottom:8px;
+  }
+  .hero .tagline{
+    color:var(--txt-muted);font-size:clamp(.9rem,1.3vw,1.05rem);
+    font-style:italic;max-width:600px;margin:0 auto 16px;
+  }
+  .hero .badge{
+    display:inline-block;padding:8px 18px;border-radius:999px;
+    background:rgba(212,175,55,.1);border:2px solid var(--gold-dim);
+    color:var(--gold-soft);font-size:clamp(.78rem,1vw,.9rem);
+    font-weight:700;text-transform:uppercase;letter-spacing:.1em;
+  }
+
+  /* ============ SOMMAIRE ============ */
+  .toc{
+    padding:clamp(24px,4vw,32px) clamp(16px,3vw,24px);
+    border-bottom:1px solid var(--line-soft);
+  }
+  .toc h2{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2vw,1.5rem);
+    color:var(--gold-soft);font-weight:700;margin-bottom:clamp(14px,2.5vw,20px);
+    display:flex;align-items:center;gap:10px;
+  }
+  .toc-grid{
+    display:grid;grid-template-columns:repeat(auto-fill, minmax(clamp(220px,28vw,280px), 1fr));
+    gap:clamp(8px,1.5vw,12px);
+  }
+  .toc-link{
+    display:flex;align-items:center;gap:10px;
+    padding:clamp(12px,2vw,14px) clamp(14px,2.2vw,18px);
+    background:var(--black-2);border:2px solid var(--line);border-radius:var(--radius-sm);
+    color:var(--txt);text-decoration:none;font-weight:600;
+    font-size:clamp(.88rem,1.05vw,.98rem);
+    transition:border-color .2s,transform .15s;
+  }
+  .toc-link:hover{border-color:var(--gold-dim);transform:translateX(4px)}
+  .toc-link .ico{font-size:1.2em;flex-shrink:0}
+  .toc-link.part2{border-color:var(--gold-deep);background:rgba(212,175,55,.04)}
+
+  /* ============ CONTENU ============ */
+  .content{padding:clamp(24px,4vw,40px) clamp(16px,3vw,24px)}
+
+  .part-title{
+    text-align:center;
+    margin:clamp(32px,5vw,48px) 0 clamp(24px,4vw,36px);
+    padding-bottom:clamp(14px,2.5vw,20px);
+    border-bottom:2px solid var(--gold-deep);
+  }
+  .part-title:first-child{margin-top:0}
+  .part-title .part-num{
+    display:inline-block;padding:4px 14px;border-radius:999px;
+    background:var(--gold);color:#0a0a0a;font-size:clamp(.7rem,.9vw,.8rem);
+    font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;
+  }
+  .part-title h1{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.6rem,3.5vw,2.4rem);
+    color:var(--gold-bright);font-weight:700;line-height:1.2;
+  }
+  .part-title p{
+    color:var(--txt-muted);font-size:clamp(.9rem,1.2vw,1.05rem);
+    margin-top:8px;font-weight:500;
+  }
+
+  .section{
+    background:var(--black-2);border:2px solid var(--line);border-radius:var(--radius);
+    padding:clamp(18px,3vw,28px);margin-bottom:clamp(16px,3vw,24px);
+    scroll-margin-top:80px;
+  }
+  .section h2{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2.2vw,1.55rem);
+    color:var(--gold-soft);font-weight:700;margin-bottom:clamp(12px,2vw,18px);
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  }
+  .section h2 .num{
+    display:inline-flex;align-items:center;justify-content:center;
+    min-width:36px;height:36px;padding:0 10px;border-radius:10px;
+    background:rgba(212,175,55,.12);border:1px solid var(--gold-dim);
+    color:var(--gold-bright);font-size:.85em;font-weight:800;
+    font-family:'Fredoka',sans-serif;flex-shrink:0;
+  }
+  .section h2 .ico{font-size:1.1em}
+  .section h3{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1rem,1.6vw,1.2rem);
+    color:var(--gold-soft);font-weight:700;margin:clamp(16px,2.5vw,22px) 0 clamp(8px,1.5vw,12px);
+    display:flex;align-items:center;gap:8px;
+  }
+  .section h3:first-child{margin-top:0}
+  .section p{
+    font-size:clamp(.9rem,1.1vw,1.02rem);line-height:1.75;
+    color:var(--txt-muted);margin-bottom:12px;
+  }
+  .section p strong{color:var(--txt)}
+  .section ul,.section ol{
+    margin:0 0 14px 0;padding-left:0;list-style:none;
+  }
+  .section ul li,.section ol li{
+    position:relative;padding-left:28px;margin-bottom:8px;
+    font-size:clamp(.88rem,1.05vw,.98rem);line-height:1.7;color:var(--txt-muted);
+  }
+  .section ul li::before{
+    content:'▸';position:absolute;left:8px;top:0;
+    color:var(--gold);font-weight:700;
+  }
+  .section ol{counter-reset:step}
+  .section ol li{counter-increment:step;padding-left:36px}
+  .section ol li::before{
+    content:counter(step);position:absolute;left:0;top:2px;
+    width:24px;height:24px;border-radius:50%;
+    background:var(--gold);color:#0a0a0a;
+    font-size:.75rem;font-weight:800;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Fredoka',sans-serif;
+  }
+  .section ul li strong,.section ol li strong{color:var(--txt)}
+
+  /* Encadrés */
+  .callout{
+    padding:clamp(12px,2vw,16px) clamp(14px,2.2vw,20px);
+    border-radius:var(--radius-sm);margin:clamp(12px,2vw,18px) 0;
+    font-size:clamp(.85rem,1.05vw,.95rem);line-height:1.7;font-weight:500;
+    display:flex;gap:12px;align-items:flex-start;
+  }
+  .callout .ico{font-size:1.3em;flex-shrink:0;line-height:1}
+  .callout .body{flex:1}
+  .callout.info{background:rgba(124,196,232,.08);border:2px solid rgba(124,196,232,.35);color:#b8ddf0}
+  .callout.tip{background:rgba(107,154,90,.08);border:2px solid rgba(107,154,90,.35);color:#a8d098}
+  .callout.warn{background:rgba(201,160,64,.08);border:2px solid rgba(201,160,64,.35);color:#e0cc88}
+  .callout.danger{background:rgba(184,64,64,.1);border:2px solid rgba(184,64,64,.4);color:#e8a8a8}
+  .callout.gold{background:rgba(212,175,55,.08);border:2px solid var(--gold-dim);color:var(--gold-soft)}
+  .callout strong{color:inherit;font-weight:800}
+
+  /* Tables */
+  .table-wrap{overflow-x:auto;margin:clamp(12px,2vw,18px) 0}
+  table{
+    width:100%;border-collapse:collapse;
+    font-size:clamp(.82rem,1vw,.92rem);
+    background:var(--black-3);border-radius:var(--radius-sm);overflow:hidden;
+  }
+  th,td{
+    padding:clamp(10px,1.5vw,14px) clamp(12px,2vw,16px);
+    text-align:left;border-bottom:1px solid var(--line);
+    vertical-align:top;line-height:1.6;
+  }
+  th{
+    background:rgba(212,175,55,.1);color:var(--gold-bright);
+    font-weight:700;font-size:.88em;text-transform:uppercase;letter-spacing:.05em;
+    font-family:'Fredoka',sans-serif;
+  }
+  td{color:var(--txt-muted)}
+  td strong{color:var(--txt)}
+  tr:last-child td{border-bottom:none}
+
+  /* Cards de fonctions */
+  .fct-card{
+    background:var(--black-3);border:1px solid var(--line);border-radius:var(--radius-sm);
+    padding:clamp(14px,2.2vw,20px);margin-bottom:clamp(12px,2vw,16px);
+    position:relative;overflow:hidden;
+  }
+  .fct-card::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--couleur-fct, var(--gold));opacity:.8;
+  }
+  .fct-card h4{
+    font-family:'Fredoka',sans-serif;font-size:clamp(.98rem,1.4vw,1.1rem);
+    color:var(--gold-soft);font-weight:700;margin-bottom:10px;
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  }
+  .fct-card h4 .ico{font-size:1.2em}
+  .fct-card .fct-file{
+    font-family:monospace;font-size:.78em;color:var(--txt-dim);
+    background:rgba(255,255,255,.04);padding:2px 8px;border-radius:6px;
+    font-weight:600;
+  }
+  .fct-card .fct-key{
+    font-family:monospace;font-size:.78em;color:var(--gold-dim);
+    background:rgba(212,175,55,.08);padding:2px 8px;border-radius:6px;
+    font-weight:600;
+  }
+  .fct-grid{
+    display:grid;grid-template-columns:repeat(auto-fit, minmax(clamp(240px,30vw,320px), 1fr));
+    gap:12px;margin-top:12px;
+  }
+  .fct-block{
+    background:rgba(255,255,255,.02);border-radius:10px;
+    padding:12px 14px;border:1px solid rgba(255,255,255,.05);
+  }
+  .fct-block .lab{
+    font-size:.72rem;font-weight:800;text-transform:uppercase;
+    letter-spacing:.08em;margin-bottom:6px;
+    display:flex;align-items:center;gap:6px;
+  }
+  .fct-block.use .lab{color:var(--info)}
+  .fct-block.data .lab{color:var(--gold-bright)}
+  .fct-block.link .lab{color:var(--ok)}
+  .fct-block p,.fct-block ul{
+    font-size:clamp(.82rem,1vw,.9rem);line-height:1.6;color:var(--txt-muted);margin:0;
+  }
+  .fct-block ul{margin:0;padding-left:0}
+  .fct-block ul li{padding-left:18px;margin-bottom:4px;font-size:inherit}
+  .fct-block ul li::before{content:'·';left:6px;color:var(--gold-dim);font-size:1.4em;line-height:.6}
+
+  /* Footer */
+  .footer{
+    text-align:center;
+    padding:clamp(32px,5vw,48px) clamp(16px,3vw,24px);
+    border-top:1px solid var(--line-soft);
+    margin-top:clamp(32px,5vw,48px);
+  }
+  .footer .brand{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2vw,1.5rem);
+    font-weight:700;color:var(--gold);margin-bottom:10px;letter-spacing:.05em;
+  }
+  .footer p{
+    font-size:clamp(.78rem,1vw,.9rem);color:var(--txt-dim);
+    line-height:1.8;font-weight:500;
+  }
+  .footer .quote{
+    color:var(--gold-soft);font-size:clamp(.9rem,1.2vw,1.05rem);
+    font-weight:700;font-style:italic;margin-top:14px;
+  }
+
+  /* Back to top */
+  .back-top{
+    position:fixed;bottom:24px;right:24px;z-index:100;
+    width:52px;height:52px;border-radius:50%;
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold));
+    color:#0a0a0a;border:none;cursor:pointer;
+    font-size:1.4rem;font-weight:800;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 6px 24px rgba(212,175,55,.4);
+    transition:transform .2s,opacity .2s;opacity:0;pointer-events:none;
+  }
+  .back-top.show{opacity:1;pointer-events:auto}
+  .back-top:active{transform:scale(.92)}
+
+  @media (max-width:600px){
+    .toc-grid{grid-template-columns:1fr}
+    .fct-grid{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body data-groupe="structure">
+
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <a href="index.html" class="back">←</a>
+    <div class="title-block">
+      <div class="logo"><span class="b">B</span><span class="excl">!</span><span class="pe">PE</span></div>
+      <div class="subtitle">Manuel de procédure</div>
+    </div>
+    <button class="menu" onclick="BIPE.openMenu()">⋮</button>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="logo-big"><span class="b">B</span><span class="excl">!</span><span class="pe">PE</span></div>
+    <div class="nom">Manuel de procédure</div>
+    <div class="tagline">Tout ce qu'il faut savoir pour utiliser BIPE — et ne pas se tromper.</div>
+    <div class="badge">Version 1.0 · 2026</div>
+  </div>
+
+  <!-- SOMMAIRE -->
+  <div class="toc">
+    <h2><span>📖</span> Sommaire</h2>
+
+    <p style="font-size:.82rem;color:var(--gold-soft);font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;">Partie 1 — BIPE en général</p>
+    <div class="toc-grid">
+      <a href="#p1-connexion" class="toc-link"><span class="ico">🔓</span> Se connecter</a>
+      <a href="#p1-utilisation" class="toc-link"><span class="ico">🧭</span> Utiliser BIPE</a>
+      <a href="#p1-atouts" class="toc-link"><span class="ico">⭐</span> Les atouts</a>
+      <a href="#p1-data" class="toc-link"><span class="ico">🔄</span> Data dynamique</a>
+      <a href="#p1-capacites" class="toc-link"><span class="ico">🎯</span> Ce qu'il peut faire</a>
+      <a href="#p1-generer" class="toc-link"><span class="ico">📤</span> Ce qu'il peut générer</a>
+      <a href="#p1-pieges" class="toc-link"><span class="ico">🚫</span> À ne pas faire</a>
+      <a href="#p1-recos" class="toc-link"><span class="ico">💡</span> Recommandations</a>
+    </div>
+
+    <p style="font-size:.82rem;color:var(--gold-soft);font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin:24px 0 12px;">Partie 2 — Les 7 groupes & leurs fonctions</p>
+    <div class="toc-grid">
+      <a href="#p2-g1" class="toc-link part2"><span class="ico">🛒</span> G1 — Commercial</a>
+      <a href="#p2-g2" class="toc-link part2"><span class="ico">💧</span> G2 — Flux</a>
+      <a href="#p2-g3" class="toc-link part2"><span class="ico">🎯</span> G3 — Pilotage</a>
+      <a href="#p2-g4" class="toc-link part2"><span class="ico">📒</span> G4 — Comptabilité</a>
+      <a href="#p2-g5" class="toc-link part2"><span class="ico">👥</span> G5 — RH & Culture</a>
+      <a href="#p2-g6" class="toc-link part2"><span class="ico">🛡</span> G6 — Administration</a>
+      <a href="#p2-g7" class="toc-link part2"><span class="ico">📣</span> G7 — Marketing</a>
+    </div>
+  </div>
+
+  <!-- CONTENU -->
+  <div class="content">
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- PARTIE 1 — BIPE EN GÉNÉRAL                    -->
+    <!-- ══════════════════════════════════════════════ -->
+
+    <div class="part-title">
+      <span class="part-num">Partie 1</span>
+      <h1>BIPE en général</h1>
+      <p>Comprendre l'outil, son fonctionnement, ses règles.</p>
+    </div>
+
+    <!-- 1.1 CONNEXION -->
+    <div class="section" id="p1-connexion">
+      <h2><span class="num">1.1</span><span class="ico">🔓</span> Comment se connecter</h2>
+
+      <p>BIPE s'ouvre sur la page <strong>d'accès</strong> (<code>f-acces.html</code>). Deux chemins possibles : <strong>connexion</strong> ou <strong>création de compte</strong>.</p>
+
+      <h3>Créer un compte (première fois)</h3>
+      <ol>
+        <li>Sur la page d'accès, choisis l'onglet <strong>« Nouveau compte »</strong>.</li>
+        <li>Renseigne : <strong>nom complet</strong>, <strong>email</strong>, <strong>code d'accès</strong> (fourni après l'achat), <strong>mot de passe</strong> (6 caractères minimum) et sa confirmation.</li>
+        <li>Clique sur <strong>« Créer le compte »</strong>.</li>
+        <li>BIPE vérifie que le code est valide et <strong>n'a jamais servi</strong>, puis crée le compte et te connecte automatiquement.</li>
+      </ol>
+
+      <div class="callout info">
+        <span class="ico">🔑</span>
+        <div class="body"><strong>Le code d'accès est unique.</strong> Une fois utilisé, il est définitivement lié à ton email. Personne d'autre ne pourra l'utiliser.</div>
+      </div>
+
+      <h3>Se connecter (déjà un compte)</h3>
+      <ol>
+        <li>Onglet <strong>« Connexion »</strong>.</li>
+        <li>Saisis ton <strong>email</strong> (ou ton <strong>nom</strong>) et ton <strong>mot de passe</strong>.</li>
+        <li>Clique sur <strong>« Connexion »</strong>. Tu es redirigé vers le menu général.</li>
+      </ol>
+
+      <div class="callout warn">
+        <span class="ico">⚠️</span>
+        <div class="body"><strong>Pas de récupération de mot de passe.</strong> BIPE stocke tout en local. Si tu oublies ton mot de passe, tu ne peux pas le récupérer — il faudra recréer un compte (et perdre les données associées à l'ancien). Note-le en lieu sûr.</div>
+      </div>
+
+      <h3>Se déconnecter</h3>
+      <p>Depuis n'importe quelle page, ouvre le menu <strong>⋮</strong> en haut à droite → <strong>« Déconnexion »</strong>. Tu es renvoyé à la page d'accès.</p>
+
+      <div class="callout tip">
+        <span class="ico">💡</span>
+        <div class="body">La déconnexion ne supprime <strong>aucune donnée</strong>. Elle ferme seulement la session. Tes informations restent dans le navigateur.</div>
+      </div>
+    </div>
+
+    <!-- 1.2 UTILISATION -->
+    <div class="section" id="p1-utilisation">
+      <h2><span class="num">1.2</span><span class="ico">🧭</span> Comment utiliser BIPE</h2>
+
+      <p>BIPE s'organise en <strong>7 groupes fonctionnels</strong>, accessibles depuis le <strong>menu général</strong> (<code>index.html</code>). Chaque groupe contient plusieurs <strong>fonctions</strong> (pages dédiées).</p>
+
+      <h3>Navigation</h3>
+      <ul>
+        <li><strong>Menu général</strong> → vue d'ensemble des 7 groupes + 4 outils transverses.</li>
+        <li><strong>Carte de groupe</strong> → ouvre le hub du groupe (ex. Comptabilité).</li>
+        <li><strong>Carte de fonction</strong> → ouvre la page métier (ex. Écritures, Banque).</li>
+        <li><strong>Flèche ←</strong> en haut à gauche → revient à la page précédente logique.</li>
+        <li><strong>Menu ⋮</strong> → accès rapide à tous les groupes, outils, déconnexion.</li>
+      </ul>
+
+      <h3>Ajouter / modifier / supprimer une donnée</h3>
+      <ol>
+        <li>Sur une page de fonction, clique sur le bouton <strong>doré</strong> (ex. « ＋ Nouvelle écriture »).</li>
+        <li>Un <strong>panneau glisse depuis le bas</strong> (bottom sheet). Remplis les champs.</li>
+        <li>Clique sur <strong>« 💾 Enregistrer »</strong> → la donnée est sauvegardée <strong>immédiatement</strong>.</li>
+        <li>Pour modifier : icône <strong>✏️</strong> à droite de la ligne.</li>
+        <li>Pour supprimer : icône <strong>🗑</strong> → confirmation demandée.</li>
+        <li>Pour fermer sans sauver : <strong>✕</strong>, overlay, ou touche <strong>Échap</strong>.</li>
+      </ol>
+
+      <h3>Filtrer et exporter</h3>
+      <ul>
+        <li><strong>Filtres</strong> (chips) en haut de liste : Tous, Actifs, En retard, etc.</li>
+        <li><strong>Stats</strong> en haut de page : compteurs temps réel.</li>
+        <li><strong>📤 Exporter</strong> : génère un fichier JSON téléchargeable.</li>
+      </ul>
+
+      <div class="callout tip">
+        <span class="ico">💡</span>
+        <div class="body">Chaque page est <strong>autonome</strong>. Tu peux ouvrir directement <code>f-compta.html</code> sans passer par le hub — l'essentiel est d'être connecté.</div>
+      </div>
+    </div>
+
+    <!-- 1.3 ATOUTS -->
+    <div class="section" id="p1-atouts">
+      <h2><span class="num">1.3</span><span class="ico">⭐</span> Les atouts de BIPE</h2>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Atout</th><th>Ce que ça change concrètement</th></tr></thead>
+          <tbody>
+            <tr><td><strong>100 % local</strong></td><td>Aucune donnée n'est envoyée sur Internet. Tout vit dans ton navigateur.</td></tr>
+            <tr><td><strong>Zéro collecte</strong></td><td>Pas de tracking, pas de cookies publicitaires, pas de cloud.</td></tr>
+            <tr><td><strong>31 pages autonomes</strong></td><td>Chaque page fonctionne seule — pas de dépendance à un serveur.</td></tr>
+            <tr><td><strong>Design tactile</strong></td><td>Pensé pour le doigt : gros boutons, bottom sheets, gestes simples.</td></tr>
+            <tr><td><strong>Charte noir & or</strong></td><td>Identité visuelle stable et lisible, du menu aux formulaires.</td></tr>
+            <tr><td><strong>Fonctionne hors-ligne</strong></td><td>Une fois chargé, BIPE fonctionne sans connexion Internet.</td></tr>
+            <tr><td><strong>Rapide</strong></td><td>Pas de requête réseau → les actions sont instantanées.</td></tr>
+            <tr><td><strong>Exportable</strong></td><td>Chaque module peut être exporté en JSON, le tout en une sauvegarde.</td></tr>
+            <tr><td><strong>Souverain</strong></td><td>Tu es le seul propriétaire et responsable de tes données.</td></tr>
+            <tr><td><strong>Évolutif</strong></td><td>Ajouter une page = ajouter un fichier HTML. Rien d'autre.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 1.4 DATA DYNAMIQUE -->
+    <div class="section" id="p1-data">
+      <h2><span class="num">1.4</span><span class="ico">🔄</span> Son approche data dynamique</h2>
+
+      <p>BIPE n'est pas un simple formulaire. C'est un <strong>système de données interconnecté</strong> où chaque action se répercute là où c'est utile.</p>
+
+      <h3>Le principe</h3>
+      <ul>
+        <li>Chaque module écrit dans une <strong>clé localStorage</strong> dédiée (ex. <code>bipe_compta</code>, <code>bipe_rh</code>).</li>
+        <li>Les autres pages <strong>lisent en direct</strong> ces clés pour afficher les compteurs, les listes, les statistiques.</li>
+        <li>Il n'y a <strong>pas de synchronisation à faire</strong> : dès qu'une donnée est enregistrée, elle est immédiatement visible partout où elle est utilisée.</li>
+      </ul>
+
+      <h3>Exemples de répercussions automatiques</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tu ajoutes…</th><th>…et automatiquement</th></tr></thead>
+          <tbody>
+            <tr><td>Un membre d'équipe (RH)</td><td>Il apparaît dans le <strong>sélecteur du Planning</strong>, dans les stats du hub RH, et dans la masse salariale.</td></tr>
+            <tr><td>Une écriture comptable (Débit/Crédit)</td><td>Les <strong>totaux débit/crédit/solde</strong> se recalculent, le hub Comptabilité se met à jour.</td></tr>
+            <tr><td>Un compte bancaire</td><td>Son solde initial est intégré au <strong>solde total</strong> du hub Comptabilité.</td></tr>
+            <tr><td>Un mouvement bancaire</td><td>Le solde du compte concerné et le solde total sont <strong>recalculés en temps réel</strong>.</td></tr>
+            <tr><td>Un prospect converti</td><td>Les compteurs Nouveau / En cours / Converti / Perdu du hub Marketing sont <strong>réajustés</strong>.</td></tr>
+            <tr><td>Une relance marquée faite</td><td>Les compteurs À faire / En retard / Aujourd'hui / Faites se <strong>rééquilibrent</strong>.</td></tr>
+            <tr><td>Une sauvegarde</td><td>La <strong>date de dernière sauvegarde</strong> remonte sur le menu général (statut « il y a X jours »).</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout gold">
+        <span class="ico">🔄</span>
+        <div class="body"><strong>Data dynamique = pas de « rafraîchir » à faire.</strong> Tout est calculé à l'affichage. Si une donnée paraît obsolète, c'est qu'elle n'a pas été enregistrée.</div>
+      </div>
+    </div>
+
+    <!-- 1.5 CAPACITÉS -->
+    <div class="section" id="p1-capacites">
+      <h2><span class="num">1.5</span><span class="ico">🎯</span> Ce que BIPE peut faire</h2>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Domaine</th><th>Capacités</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Gestion commerciale</strong></td><td>Suivre ventes, achats, clients, fournisseurs, catalogue produits.</td></tr>
+            <tr><td><strong>Flux financiers</strong></td><td>Gérer stock, trésorerie, caisse, charges.</td></tr>
+            <tr><td><strong>Pilotage</strong></td><td>Créer des rappels, suivre des objectifs, ne rien oublier.</td></tr>
+            <tr><td><strong>Comptabilité</strong></td><td>Saisir des écritures (débit/crédit), tenir des comptes bancaires, rapprocher.</td></tr>
+            <tr><td><strong>RH</strong></td><td>Fiches salariés, contrats, salaires, planning congés/absences.</td></tr>
+            <tr><td><strong>Culture</strong></td><td>Documenter valeurs, rituels, manifeste, notes internes.</td></tr>
+            <tr><td><strong>Administration</strong></td><td>Paramétrer l'entreprise, gérer le compte, sauvegarder.</td></tr>
+            <tr><td><strong>Marketing</strong></td><td>Campagnes, prospects (pipeline), relances.</td></tr>
+            <tr><td><strong>Statistiques</strong></td><td>Compteurs temps réel sur chaque page et chaque hub.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 1.6 GÉNÉRER -->
+    <div class="section" id="p1-generer">
+      <h2><span class="num">1.6</span><span class="ico">📤</span> Ce que BIPE peut générer</h2>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Élément généré</th><th>Depuis où</th><th>Format</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Export module</strong> (écritures, prospects…)</td><td>Bouton « 📤 Exporter » de chaque fonction</td><td>JSON</td></tr>
+            <tr><td><strong>Sauvegarde complète</strong></td><td>Administration → Exporter</td><td>JSON</td></tr>
+            <tr><td><strong>Impression / PDF</strong></td><td>Appel <code>BIPE.exportPDF()</code> (utilisé par certains modules)</td><td>PDF (via impression navigateur)</td></tr>
+            <tr><td><strong>Statistiques</strong></td><td>Chaque hub / chaque page</td><td>Affichage temps réel</td></tr>
+            <tr><td><strong>Toasts</strong> (confirmations)</td><td>Chaque action (créer, modifier, supprimer)</td><td>Notifications visuelles</td></tr>
+            <tr><td><strong>Rapports imprimables</strong></td><td>Depuis <code>exportPDF()</code> avec un contenu HTML</td><td>Page imprimable stylée BIPE</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout info">
+        <span class="ico">📄</span>
+        <div class="body">Pour obtenir un <strong>PDF</strong> : utilise l'export JSON ou l'impression navigateur. BIPE ne génère pas de fichier PDF direct — il ouvre une fenêtre d'impression mise en page.</div>
+      </div>
+    </div>
+
+    <!-- 1.7 PIÈGES -->
+    <div class="section" id="p1-pieges">
+      <h2><span class="num">1.7</span><span class="ico">🚫</span> Les manipulations à ne pas faire</h2>
+
+      <div class="callout danger">
+        <span class="ico">🚨</span>
+        <div class="body"><strong>Règle d'or : sauvegarde avant toute manipulation sensible.</strong> Une donnée localStorage supprimée est <strong>définitivement perdue</strong>.</div>
+      </div>
+
+      <h3>À ne jamais faire</h3>
+      <ul>
+        <li><strong>Vider les données du navigateur</strong> (cache, cookies, « site data ») sans avoir exporté une sauvegarde.</li>
+        <li><strong>Changer de navigateur</strong> en pensant retrouver ses données — elles sont liées au navigateur d'origine.</li>
+        <li><strong>Utiliser le mode navigation privée</strong> en production : les données disparaissent à la fermeture.</li>
+        <li><strong>Ouvrir BIPE depuis un autre appareil</strong> et s'attendre à voir les mêmes données — il n'y a pas de synchronisation.</li>
+        <li><strong>Supprimer un compte bancaire</strong> sans vérifier les mouvements liés : ils sont supprimés en cascade.</li>
+        <li><strong>Réinitialiser toutes les données</strong> (Administration) sans avoir exporté au préalable.</li>
+        <li><strong>Éditer directement le localStorage</strong> via la console développeur sans savoir ce qu'on fait.</li>
+        <li><strong>Modifier les fichiers HTML/JS</strong> sans sauvegarder l'original : une erreur de syntaxe bloque la page.</li>
+        <li><strong>Renvoyer un même code d'accès</strong> à deux personnes : il est unique et lié à un seul email.</li>
+        <li><strong>Fermer le navigateur en plein enregistrement</strong> (rare, mais préfère attendre le toast de confirmation).</li>
+      </ul>
+
+      <h3>Signaux d'alerte à surveiller</h3>
+      <ul>
+        <li>Compteurs qui n'évoluent pas après un ajout → la donnée n'a pas été enregistrée (vérifie le toast).</li>
+        <li>Page blanche après une modification → erreur JS (reviens à la version précédente).</li>
+        <li>« Non connecté » alors que tu étais connecté → session effacée (reconnecte-toi).</li>
+      </ul>
+    </div>
+
+    <!-- 1.8 RECOS -->
+    <div class="section" id="p1-recos">
+      <h2><span class="num">1.8</span><span class="ico">💡</span> Recommandations</h2>
+
+      <h3>Rythme de sauvegarde</h3>
+      <ul>
+        <li><strong>Quotidien</strong> si tu saisis des données tous les jours.</li>
+        <li><strong>Hebdomadaire</strong> minimum, même en période creuse.</li>
+        <li><strong>Avant toute manipulation sensible</strong> (import, reset, suppression en cascade).</li>
+        <li><strong>Après une grosse session de saisie</strong> (ex. clôture comptable).</li>
+      </ul>
+
+      <h3>Bonnes pratiques</h3>
+      <ul>
+        <li>Nomme tes fichiers de sauvegarde avec la date : <code>bipe_sauvegarde_2026-10-28.json</code> (le nom par défaut le fait déjà).</li>
+        <li>Garde <strong>plusieurs versions</strong> (au moins 3 récentes) — au cas où l'une serait corrompue.</li>
+        <li>Stocke les sauvegardes <strong>hors du navigateur</strong> : clé USB, disque externe, dossier chiffré.</li>
+        <li>Utilise <strong>toujours le même navigateur</strong> pour un même espace de travail.</li>
+        <li>Évite les extensions navigateur qui modifient le stockage local.</li>
+        <li>Note ton <strong>mot de passe</strong> dans un gestionnaire de mots de passe — pas de récupération possible.</li>
+      </ul>
+
+      <h3>Hygiène de données</h3>
+      <ul>
+        <li>Un seul compte par personne — ne partage pas ton login.</li>
+        <li>Supprime les données obsolètes (prospects perdus, vieilles campagnes) plutôt que de les laisser s'accumuler.</li>
+        <li>Vérifie les compteurs des hubs : un écart signale une donnée mal saisie.</li>
+        <li>Fais un <strong>export avant un import</strong> — l'import écrase les clés existantes.</li>
+      </ul>
+
+      <div class="callout tip">
+        <span class="ico">✅</span>
+        <div class="body"><strong>Le réflexe BIPE :</strong> exporter → vérifier → agir. Une minute d'export évite des heures de saisie perdues.</div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- PARTIE 2 — LES 7 GROUPES                      -->
+    <!-- ══════════════════════════════════════════════ -->
+
+    <div class="part-title">
+      <span class="part-num">Partie 2</span>
+      <h1>Les 7 groupes & leurs fonctions</h1>
+      <p>Pour chaque fonction : comment l'utiliser, impact data, répercussions.</p>
+    </div>
+
+    <!-- G1 COMMERCIAL -->
+    <div class="section" id="p2-g1">
+      <h2><span class="num">G1</span><span class="ico">🛒</span> Commercial</h2>
+      <p>Le cœur de l'activité : ventes, achats, clients, fournisseurs, produits. <strong>Hub :</strong> <code>groupe-commercial.html</code> · <strong>Couleur :</strong> parme <code>#b19cd9</code></p>
+
+      <div class="fct-card" style="--couleur-fct:#b19cd9">
+        <h4><span class="ico">💰</span> Ventes <span class="fct-file">f-ventes.html</span> <span class="fct-key">bipe_ventes</span></h4>
+        <div class="fct-grid">
+          <div class="fct-block use"><div class="lab">Comment utiliser</div><p>Bouton « ＋ Nouvelle vente » → client, date, montant, statut. Modifier ✏️ · Supprimer 🗑 · Filtrer par statut · Exporter.</p></div>
+          <div class="fct-block data"><div class="lab">Impact data</div><ul><li>Ajout d'une ligne dans <code>bipe_ventes</code></li><li>Recalcul du total ventes</li><li>Compteur du hub G1 mis à jour</li></ul></div>
+          <div class="fct-block link"><div class="lab">Répercussions</div><ul><li>Visible dans le <strong>tableau de bord</strong></li><li>Base pour le suivi de trésorerie (G2)</li><li>Référence pour les relances clients (G7)</li></ul></div>
+        </div>
+      </div>
+
+      <div class="fct-card" style="--couleur-fct:#b19cd9">
+        <h4><span class="ico">🧾</span> Achats <span class="fct-file">f-achats.html</span> <span class="fct-key">bipe_achats</span></h4>
+        <div class="fct-grid">
+          <div class="fct-block use"><div class="lab">Comment utiliser</div><p>Même logique : fournisseur, date, montant, statut. Sert au suivi des dépenses et du stock entrant.</p></div>
+          <div class="fct-block data"><div class="lab">Impact data</div><ul><li>Écrit dans <code>bipe_achats</code></li><li>Alimente les totaux d'achats</li></ul></div>
+          <div class="fct-block link"><div class="lab">Répercussions</div><ul><li>Visible dans le dashboard</li><li>Base pour le stock (G2)</li><li>Complément des charges (G2)</li></ul></div>
+        </div>
+      </div>
+
+      <div class="fct-card" style="--couleur-fct:#b19cd9">
+        <h4><span class="ico">👤</span> Clients <span class="fct-file">f-clients.html</span> <span class="fct-key">bipe_clients</span></h4>
+        <div class="fct-grid">
+          <div class="fct-block use"><div class="lab">Comment utiliser</div><p>Fiche client : nom, contact, email, téléphone, notes. Recherche + filtre + export.</p></div>
+          <div class="fct-block data"><div class="lab">Impact data</div><ul><li>Écrit dans <code>bipe_clients</code></li><li>Alimente les listes déroulantes des ventes</li></ul></div>
+          <div class="fct-block link"><div class="lab">Répercussions</div><ul><li>Réutilisable dans les <strong>relances (G7)</strong></li><li>Compteur du hub G1</li></ul></div>
+        </div>
+      </div>
+
+      <div class="fct-card" style="--couleur-fct:#b19cd9">
+        <h4><span class="ico">🏭</span> Fournisseurs <span class="fct-file">f-fournisseurs.html</span> <span class="fct-key">bipe_fournisseurs</span></h4>
+        <div class="fct-grid">
+          <div class="fct-block use"><div class="lab">Comment utiliser</div><p>Fiche fournisseur : coordonnées, conditions, notes. Même structure que Clients.</p></div>
+          <div class="fct-block data"><div class="lab">Impact data</div><ul><li>Écrit dans <code>bipe_fournisseurs</code></li></ul></div>
+          <div class="fct-block link"><div class="lab">Répercussions</div><ul><li>Alimente les achats (G1)</li><li>Compteur hub G1</li></ul></div>
+        </div>
+      </div>
+
+      <div class="fct-card" style="--couleur-fct:#b19cd9">
+        <h4><span class="ico">📦</span> Catalogue produits <span class="fct-file">f-produits.html</span> <span class="fct-key">bipe_produits</span></h4>
+        <div class="fct-grid">
+          <div class="fct-block use"><div class="lab">Comment utiliser</div><p>Ajouter un produit : nom, prix, catégorie, description.</p></div>
+          <div class="fct-block data"><div class="lab">Impact data</div><ul><li>Écrit dans <code>bipe_produits</code></li></ul></div>
+          <div class="fct-block link"><div class="lab">Répercussions</div><ul><li>Réutilisé par les ventes et le stock (G2)</li></ul></div>
+        </div>
+      </div>
+
+      <div class="fct-card" style="--couleur-fct:#b19cd9">
+        <h4><span class="ico">📋</span> Devis & factures <span class="fct-file">f-devis.html</span> <span class="fct-key">bipe_devis</span></h4>
+        <div class="fct-grid">
+          <div class="fct-block use"><div class="lab">Comment utiliser</div><p>Créer un devis ou une facture : client, lignes, totaux, statut (brouillon/envoyé/accepté/refusé).</p></div>
+          <div class="fct-block data"><div class="lab">Impact data</div><ul><li>Écrit dans <code>bipe_devis</code></li></ul></div>
+          <div class="fct-block link"><div class="lab">Répercussions</div><ul><li>Un devis accepté peut devenir une vente</li><li>Une facture impayée déclenche une relance (G7)</li></ul></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- G2 FLUX -->
+    <div class="section" id="p2-g2">
+      <h2><span class="num">G2</span><span class="ico">💧</span> Flux</h2>
+      <p>Tout ce qui circule : stock, trésorerie, caisse, charges. <strong>Hub :</strong> <code>groupe-flux.html</code> · <strong>Couleur :</strong> bleu ciel <code>#7cc4e8</code></p>
+
+      <div class="fct-card" style="--couleur-fct:#7cc4e8">
+        <h4><span class="ico">📦</span> Stock <span class="fct-file">f-stock.html</span> <span class="fct-key">bipe_stock</span></h4>
+        <div class="fct-grid">
+          <div class="fct-block use"><div class="lab">Comment utiliser</div><p>Enregistrer les entrées/sorties de stock, avec produit, quantité, date.</p></div>
+          <div class="fct-block data"><div class="lab">Impact data</div><ul><li>Écrit dans <code>bipe_stock</code></li></ul></div>
+          <div class="fct-block link"><div class="lab">Répercussions</div><ul><li>Lié au catalogue produits (G1)</li><li>Compteur hub G2</li></ul></div>
+        </div>
+      </div>
+
+      <div class="fct-card" style="--couleur-fct:#7cc4e8">
+        <h4><span class="ico">💵</span> Trésorerie <span class="fct-file">f-tresorerie.html</span> <span class="fct-key">bipe_tresorerie</span></h4>
+        <div class="fct-grid">
+          <div class="fct-block use"><div class="lab">Comment utiliser</div><p>Saisir les encaissements/décaissements, avec date et motif.</p></div>
+          <div class="fct-block data"><div class="lab">Impact data</div><ul><li>Écrit dans <code>bipe_tresorerie</code></li><li>Solde calculé en temps réel</li></ul></div>
+          <div class="fct-block link"><div class="lab">Répercussions</div><ul><li>Visible dans le tableau de bord</li><li>Cohérence avec la banque (G4)</li></ul></div>
+        </div>
+      </div>
+
+      <div class="fct-card" style="--couleur-fct:#7cc4e8">
+        <h4><span class="ico">💶</span> Caisse <span class="fct-file">f-caisse.html</span> <span class="fct-key">bipe_caisse</span></h4>
+        <div class="fct-grid">
+          <div class="fct-block use"><div class="lab">Comment utiliser</div><p>Mouvements d'espèces : entrées, sorties, fond de caisse.</p></div>
+          <div class="fct-block data"><div class="lab">Impact data</div><ul><li>Écrit dans <code>bipe_caisse</code></li></ul></div>
+          <div class="fct-block link"><div class="lab">Répercussions</div><ul><li>Complète la trésorerie</li><li>Compteur hub G2</li></ul></div>
+        </div>
+      </div>
+
+      <div class="fct-card" style="--couleur-fct:#7cc4e8">
+        <h4><span class="ico">🧾</span> Charges <span class="fct-file">f-charges.html</span> <span class="fct-key">bipe_charges</span></h4>
+        <div class="fct-grid">
+          <div class="fct-block use"><div class="lab">Comment utiliser</div><p>Lister les charges fixes et variables (loyer, salaires, abonnements…).</p></div>
+          <div class="fct-block data"><div class="lab">Impact data</div><ul><li>Écrit dans <code>bipe_charges</code></li></ul></div>
+          <div class="fct-block link"><div class="lab">Répercussions</div><ul><li>Base pour la rentabilité</li><li>Complément des achats (G1)</li></ul></div>
+        </div>
+      </div>
+
+      <div class="fct-card" style="--couleur-fct:#7cc4e8">
+        <h4><span class="ico">📊</span> Flux global <span class="fct-file">f-flux.html</span> <span class="fct-key">—</span></h4>
+        <div class="fct-grid">
+          <div class="fct-block use"><div class="lab">Comment utiliser</div><p>Vue synthétique des mouvements du groupe (stock, trésorerie, caisse, charges).</p></div>
+          <div class="fct-block data"><div class="lab">Impact data</div><ul><li>Lecture seule (agrégation)</li><li>Ne modifie aucune clé</li></ul></div>
+          <div class="fct-block link"><div class="lab">Répercussions</div><ul><li>Rafraîchit en direct les 4 sources</li></ul></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- G3 PILOTAGE -->
+    <div class="section" id="p2-g3">
+      <h2><span class="num">G3</span><span class="ico">🎯</span> Pilotage</h2>
+      <p>Ne rien oublier, tout suivre. <strong>Hub :</strong> <code>groupe-pilotage.html</code> · <strong>Couleur :</strong> vert doux <code>#6b9a5a</code></p>
+
+      <div class="fct-card" style="--couleur-fct:#6b9a5a">
+        <h4><span class="ico">🔔</span> Rappels <span class="fct-file">f-rappels.html</span> <span class="fct-key">bipe_rappels</span></h4>
+        <div class="fct-grid">
+          <div class="fct-block use"><div class="lab">Comment utiliser</div><p>Bouton « ＋ Nouveau rappel » → titre, description, date d'échéance, priorité (basse/moyenne/haute). Coche ✓ pour marquer fait. Filtres : Actifs, En retard, Aujourd'hui, Cette semaine, Terminés, Tous.</p></div>
+          <div class="fct-block data"><div class="lab">Impact data</div><ul><li>Écrit dans <code>bipe_rappels</code></li><li>Champs : <code>fait</code>, <code>dateFait</code>, <code>priorite</code></li><li>4 compteurs : Actifs / En retard / Aujourd'hui / Terminés</li></ul></div>
+          <div class="fct-block link"><div class="lab">Répercussions</div><ul><li>Compteur du hub G3</li><li>Statut dans le tableau de bord</li><li>Indépendant des autres groupes (pas de cascade)</li></ul></div>
+        </div>
+      </div>
+
+      <div class="fct-card" style="--couleur-fct:#6b9a5a">
+        <h4><span class="ico">📈</span> Objectifs / Pilotage global <span class="fct-file">f-objectifs.html</span> <span class="fct-key">bipe_objectifs</span></h4>
+        <div class="fct-grid">
+          <div class="fct-block use"><div class="lab">Comment utiliser</div><p>Définir des objectifs (CA, nombre de clients, etc.), suivre l'avancement.</p></div>
+          <div class="fct-block data"><div class="lab">Impact data</div><ul><li>Écrit dans <code>bipe_objectifs</code></li></ul></div>
+          <div class="fct-block link"><div class="lab">Répercussions</div><ul><li>Peut lire les ventes (G1) pour calculer l'avancement</li><li>Compteur hub G3</li></ul></div>
+        </div>
+      </div>
+
+      <div class="callout tip">
+        <span class="ico">💡</span>
+        <div class="body">Les <strong>rappels</strong> sont la seule fonction de G3 qui a un impact inter-groupes direct (statut dans le dashboard). Les objectifs sont plus autonomes.</div>
+      </div>
+    </div>
+
+    <!-- G4 COMPTABILITÉ -->
+    <div class="section" id="p2-g4">
+      <h2><span class="num">G4</span><span class="ico">📒</span> Comptabilité</h2>
+      <p>Tenir les comptes sans prise de tête. <strong>Hub :</strong> <code>groupe-comptabilite.html</code> · <strong>Couleur :</strong> ambre <code>#c9a040</code></p>
+
+      <div class="fct-card" style="--couleur-fct:#c9a040">
+        <h4><span class="ico">📝</span> Écritures comptables <span class="fct-file">f-compta.html</span> <span class="fct-key">bipe_compta</span></h4>
+        <div class="fct-grid">
+          <div class="fct-block use"><div class="lab">Comment utiliser</div><p>« ＋ Nouvelle écriture » → libellé, date, compte, sens (Débit/Crédit), montant, note. Filtres : Toutes, Débits, Crédits, Ce mois.</p></div>
+          <div class="fct-block data"><div class="lab">Impact data</div><ul><li>Écrit dans <code>bipe_compta</code></li><li>Totaux Débit / Crédit / Solde recalculés</li><li>Compteur du hub G4</li></ul></div>
+          <div class="fct-block link"><div class="lab">Répercussions</div><ul><li>Visible dans le dashboard</li><li>Doit rester cohérent avec la banque (G4)</li><li>Peut être rapproché des mouvements bancaires</li></ul></div>
+        </div>
+      </div>
+
+      <div class="fct-card" style="--couleur-fct:#c9a040">
+        <h4><span class="ico">🏦</span> Banque & rapprochement <span class="fct-file">f-banque.html</span> <span class="fct-key">bipe_banque</span></h4>
+        <div class="fct-grid">
+          <div class="fct-block use"><div class="lab">Comment utiliser</div><p>Onglet <strong>Comptes</strong> : ajouter un compte (nom, banque, solde initial, date). Onglet <strong>Mouvements</strong> : ajouter un mouvement (compte, libellé, sens, montant, date).</p></div>
+          <div class="fct-block data"><div class="lab">Impact data</div><ul><li>Écrit dans <code>bipe_banque</code> (2 types : <code>compte</code> / <code>mouvement</code>)</li><li>Solde de chaque compte recalculé</li><li>Solde total recalculé</li></ul></div>
+          <div class="fct-block link"><div class="lab">Répercussions</div><ul><li>Solde total visible dans le hub G4</li><li>⚠️ Supprimer un compte supprime ses mouvements en cascade</li><li>Doit être cohérent avec les écritures (G4) et la trésorerie (G2)</li></ul></div>
+        </div>
+      </div>
+
+      <div class="fct-card" style="--couleur-fct:#c9a040">
+        <h4><span class="ico">📊</span> Journal / Grand livre <span class="fct-file">f-journal.html</span> <span class="fct-key">—</span></h4>
+        <div class="fct-grid">
+          <div class="fct-block use"><div class="lab">Comment utiliser</div><p>Vue consolidée des écritures et mouvements, avec tri par date et par compte.</p></div>
+          <div class="fct-block data"><div class="lab">Impact data</div><ul><li>Lecture seule</li><li>Agrège <code>bipe_compta</code> + <code>bipe_banque</code></li></ul></div>
+          <div class="fct-block link"><div class="lab">Répercussions</div><ul><li>Rafraîchit automatiquement les 2 sources</li></ul></div>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <span class="ico">⚠️</span>
+        <div class="body"><strong>Attention aux doublons.</strong> Si tu saisis une opération à la fois comme <em>écriture</em> et comme <em>mouvement bancaire</em>, elle apparaîtra deux fois dans le journal. Choisis <strong>un seul</strong> chemin de saisie par opération.</div>
+      </div>
+    </div>
+
+    <!-- G5 RH & CULTURE -->
+    <div class="section" id="p2-g5">
+      <h2><span class="num">G5</span><span class="ico">👥</span> RH & Culture</h2>
+      <p>Ton équipe, ses rythmes, ses valeurs. <strong>Hub :</strong> <code>groupe-rh-culture.html</code> · <strong>Couleur :</strong> rose doux <code>#d98ca8</code></p>
+
+      <div class="fct-card" style="--couleur-fct:#d98ca8">
+        <h4><span class="ico">🧑‍💼</span> Équipe & salariés <span class="fct-file">f-rh.html</span> <span class="fct-key">bipe_rh</span></h4>
+        <div class="fct-grid">
+          <div class="fct-block use"><div class="lab">Comment utiliser</div><p>« ＋ Nouveau membre » → nom, poste, contrat (CDI/CDD/Stage/Freelance), salaire, statut, email, téléphone, date d'embauche, notes. Filtres : Tous, Actifs, Inactifs, CDI, CDD.</p></div>
+          <div class="fct-block data"><div class="lab">Impact data</div><ul><li>Écrit dans <code>bipe_rh</code></li><li>Masse salariale calculée (actifs uniquement)</li><li>Statuts actif/inactif</li></ul></div>
+          <div class="fct-block link"><div class="lab">Répercussions</div><ul><li><strong>Alimente le sélecteur du Planning</strong> (G5)</li><li>Masse salariale visible sur le hub G5</li><li>Compteur d'équipe dans le dashboard</li></ul></div>
+        </div>
+      </div>
+
+      <div class="fct-card" style="--couleur-fct:#d98ca8">
+        <h4><span class="ico">📅</span> Planning <span class="fct-file">f-planning.html</span> <span class="fct-key">bipe_planning</span></h4>
+        <div class="fct-grid">
+          <div class="fct-block use"><div class="lab">Comment utiliser</div><p>« ＋ Nouvel événement » → type (Congé/Absence/Présence/Autre), membre (liste issue de RH), motif, dates début/fin, notes.</p></div>
+          <div class="fct-block data"><div class="lab">Impact data</div><ul><li>Écrit dans <code>bipe_planning</code></li><li>Référence <code>membreId</code> (clé étrangère vers <code>bipe_rh</code>)</li><li>4 compteurs par type</li></ul></div>
+          <div class="fct-block link"><div class="lab">Répercussions</div><ul><li><strong>Dépend de RH</strong> : si tu supprimes un membre, ses événements restent mais affichent « — »</li><li>Compteur hub G5</li></ul></div>
+        </div>
+      </div>
+
+      <div class="fct-card" style="--couleur-fct:#d98ca8">
+        <h4><span class="ico">✨</span> Culture d'entreprise <span class="fct-file">f-culture.html</span> <span class="fct-key">bipe_culture</span></h4>
+        <div class="fct-grid">
+          <div class="fct-block use"><div class="lab">Comment utiliser</div><p>« ＋ Nouvelle entrée » → catégorie (Valeur/Rituel/Manifeste/Note), titre, contenu. Filtres par catégorie.</p></div>
+          <div class="fct-block data"><div class="lab">Impact data</div><ul><li>Écrit dans <code>bipe_culture</code></li><li>4 compteurs par catégorie</li></ul></div>
+          <div class="fct-block link"><div class="lab">Répercussions</div><ul><li>Compteur hub G5</li><li>Fonction autonome (pas de cascade)</li></ul></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- G6 ADMINISTRATION -->
+    <div class="section" id="p2-g6">
+      <h2><span class="num">G6</span><span class="ico">🛡</span> Administration</h2>
+      <p>Le centre de contrôle. <strong>Page unique :</strong> <code>groupe-admin.html</code> · <strong>Couleur :</strong> gris-bleu <code>#8a9bb5</code></p>
+
+      <div class="fct-card" style="--couleur-fct:#8a9bb5">
+        <h4><span class="ico">🏢</span> Identité entreprise <span class="fct-file">groupe-admin.html</span> <span class="fct-key">bipe_parametres</span></h4>
+        <div class="fct-grid">
+          <div class="fct-block use"><div class="lab">Comment utiliser</div><p>Renseigner nom, forme juridique, matricule fiscal, adresse, téléphone, email, devise. Cliquer « Enregistrer l'identité ».</p></div>
+          <div class="fct-block data"><div class="lab">Impact data</div><ul><li>Écrit dans <code>bipe_parametres</code></li></ul></div>
+          <div class="fct-block link"><div class="lab">Répercussions</div><ul><li>Utilisé par <code>BIPE.exportPDF()</code> (en-tête des documents)</li><li>Compteur hub G6</li></ul></div>
+        </div>
+      </div>
+
+      <div class="fct-card" style="--couleur-fct:#8a9bb5">
+        <h4><span class="ico">👤</span> Compte utilisateur <span class="fct-file">groupe-admin.html</span> <span class="fct-key">bipe_users</span></h4>
+        <div class="fct-grid">
+          <div class="fct-block use"><div class="lab">Comment utiliser</div><p>Modifier nom, email, changer le mot de passe (laisser vide si inchangé).</p></div>
+          <div class="fct-block data"><div class="lab">Impact data</div><ul><li>Écrit dans <code>bipe_users</code> + <code>bipe_session</code></li><li>Mot de passe hashé SHA-256</li></ul></div>
+          <div class="fct-block link"><div class="lab">Répercussions</div><ul><li>Session mise à jour immédiatement</li><li>Aucune répercussion sur les autres données</li></ul></div>
+        </div>
+      </div>
+
+      <div class="fct-card" style="--couleur-fct:#8a9bb5">
+        <h4><span class="ico">💾</span> Sauvegarde / Restauration <span class="fct-file">groupe-admin.html</span> <span class="fct-key">toutes les clés</span></h4>
+        <div class="fct-grid">
+          <div class="fct-block use"><div class="lab">Comment utiliser</div><p><strong>Exporter</strong> : bouton doré → fichier <code>bipe_sauvegarde_YYYY-MM-DD.json</code>. <strong>Importer</strong> : sélectionner un fichier → confirmation → écrasement des clés concernées.</p></div>
+          <div class="fct-block data"><div class="lab">Impact data</div><ul><li>Export : lecture seule (sauf mise à jour de <code>bipe_lastBackup</code>)</li><li>Import : écrase les clés existantes</li></ul></div>
+          <div class="fct-block link"><div class="lab">Répercussions</div><ul><li>Le statut « dernière sauvegarde » remonte sur le menu général</li><li>Après import, toutes les pages voient les nouvelles données</li></ul></div>
+        </div>
+      </div>
+
+      <div class="fct-card" style="--couleur-fct:#b84040">
+        <h4><span class="ico">🗑</span> Réinitialisation <span class="fct-file">groupe-admin.html</span> <span class="fct-key">toutes les clés</span></h4>
+        <div class="fct-grid">
+          <div class="fct-block use"><div class="lab">Comment utiliser</div><p>Bouton « Réinitialiser toutes les données » → <strong>double confirmation</strong> → tout est supprimé + déconnexion.</p></div>
+          <div class="fct-block data"><div class="lab">Impact data</div><ul><li><code>BIPE.storage.clear()</code> sur toutes les clés</li><li>Session effacée</li></ul></div>
+          <div class="fct-block link"><div class="lab">Répercussions</div><ul><li>⚠️ <strong>Irréversible</strong> sans sauvegarde</li><li>Redirection vers la page d'accès</li></ul></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- G7 MARKETING -->
+    <div class="section" id="p2-g7">
+      <h2><span class="num">G7</span><span class="ico">📣</span> Marketing</h2>
+      <p>Attire, convertis, fidélise. <strong>Hub :</strong> <code>groupe-marketing.html</code> · <strong>Couleur :</strong> violet <code>#a78bfa</code></p>
+
+      <div class="fct-card" style="--couleur-fct:#a78bfa">
+        <h4><span class="ico">📢</span> Campagnes <span class="fct-file">f-campagnes.html</span> <span class="fct-key">bipe_campagnes</span></h4>
+        <div class="fct-grid">
+          <div class="fct-block use"><div class="lab">Comment utiliser</div><p>« ＋ Nouvelle campagne » → nom, description, canal (email/réseaux/ads/terrain/événement/autre), statut (planifiée/active/pause/terminée), dates début/fin, budget.</p></div>
+          <div class="fct-block data"><div class="lab">Impact data</div><ul><li>Écrit dans <code>bipe_campagnes</code></li><li>Compteurs : actives / planifiées / terminées</li></ul></div>
+          <div class="fct-block link"><div class="lab">Répercussions</div><ul><li>Compteur « campagnes actives » du hub G7</li><li>Peut servir de source pour les prospects</li></ul></div>
+        </div>
+      </div>
+
+      <div class="fct-card" style="--couleur-fct:#a78bfa">
+        <h4><span class="ico">🎯</span> Prospects <span class="fct-file">f-prospects.html</span> <span class="fct-key">bipe_prospects</span></h4>
+        <div class="fct-grid">
+          <div class="fct-block use"><div class="lab">Comment utiliser</div><p>« ＋ Nouveau prospect » → nom, société, statut (nouveau/en cours/converti/perdu), email, téléphone, valeur estimée, source, notes. Filtres par statut.</p></div>
+          <div class="fct-block data"><div class="lab">Impact data</div><ul><li>Écrit dans <code>bipe_prospects</code></li><li>4 compteurs : Nouveau / En cours / Converti / Perdu</li></ul></div>
+          <div class="fct-block link"><div class="lab">Répercussions</div><ul><li>Compteurs du hub G7 (en cours + convertis)</li><li>Un prospect converti peut être repris comme client (G1)</li><li>Peut générer une relance (G7)</li></ul></div>
+        </div>
+      </div>
+
+      <div class="fct-card" style="--couleur-fct:#a78bfa">
+        <h4><span class="ico">🔔</span> Relances <span class="fct-file">f-relances.html</span> <span class="fct-key">bipe_relances</span></h4>
+        <div class="fct-grid">
+          <div class="fct-block use"><div class="lab">Comment utiliser</div><p>« ＋ Nouvelle relance » → titre, description, date de relance, canal (email/tél/SMS/WhatsApp/autre). Coche ✓ pour marquer fait. Filtres : À faire, En retard, Aujourd'hui, Faites, Toutes.</p></div>
+          <div class="fct-block data"><div class="lab">Impact data</div><ul><li>Écrit dans <code>bipe_relances</code></li><li>Champs : <code>fait</code>, <code>dateFait</code>, <code>canal</code></li><li>4 compteurs : À faire / En retard / Aujourd'hui / Faites</li></ul></div>
+          <div class="fct-block link"><div class="lab">Répercussions</div><ul><li>Compteur « relances à faire » du hub G7</li><li>Peut être liée à un prospect ou un client (référence libre dans le titre)</li></ul></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- TABLEAU FINAL — RÉCAP DES CLÉS                -->
+    <!-- ══════════════════════════════════════════════ -->
+
+    <div class="section">
+      <h2><span class="num">📋</span><span class="ico">🗂</span> Récapitulatif des clés localStorage</h2>
+      <p>Chaque fonction écrit dans une clé dédiée. Ce tableau te permet de savoir quoi exporter, quoi surveiller, quoi sauvegarder.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Clé</th><th>Utilisée par</th><th>Type</th></tr></thead>
+          <tbody>
+            <tr><td><code>bipe_session</code></td><td>Session utilisateur</td><td>Objet</td></tr>
+            <tr><td><code>bipe_users</code></td><td>Comptes (accès + admin)</td><td>Tableau</td></tr>
+            <tr><td><code>bipe_parametres</code></td><td>Identité entreprise (G6)</td><td>Objet</td></tr>
+            <tr><td><code>bipe_ventes</code></td><td>Ventes (G1)</td><td>Tableau</td></tr>
+            <tr><td><code>bipe_achats</code></td><td>Achats (G1)</td><td>Tableau</td></tr>
+            <tr><td><code>bipe_clients</code></td><td>Clients (G1)</td><td>Tableau</td></tr>
+            <tr><td><code>bipe_fournisseurs</code></td><td>Fournisseurs (G1)</td><td>Tableau</td></tr>
+            <tr><td><code>bipe_produits</code></td><td>Catalogue produits (G1)</td><td>Tableau</td></tr>
+            <tr><td><code>bipe_devis</code></td><td>Devis & factures (G1)</td><td>Tableau</td></tr>
+            <tr><td><code>bipe_stock</code></td><td>Stock (G2)</td><td>Tableau</td></tr>
+            <tr><td><code>bipe_tresorerie</code></td><td>Trésorerie (G2)</td><td>Tableau</td></tr>
+            <tr><td><code>bipe_caisse</code></td><td>Caisse (G2)</td><td>Tableau</td></tr>
+            <tr><td><code>bipe_charges</code></td><td>Charges (G2)</td><td>Tableau</td></tr>
+            <tr><td><code>bipe_rappels</code></td><td>Rappels (G3)</td><td>Tableau</td></tr>
+            <tr><td><code>bipe_objectifs</code></td><td>Objectifs (G3)</td><td>Tableau</td></tr>
+            <tr><td><code>bipe_compta</code></td><td>Écritures comptables (G4)</td><td>Tableau</td></tr>
+            <tr><td><code>bipe_banque</code></td><td>Comptes + mouvements (G4)</td><td>Tableau</td></tr>
+            <tr><td><code>bipe_rh</code></td><td>Équipe (G5)</td><td>Tableau</td></tr>
+            <tr><td><code>bipe_planning</code></td><td>Planning (G5)</td><td>Tableau</td></tr>
+            <tr><td><code>bipe_culture</code></td><td>Culture (G5)</td><td>Tableau</td></tr>
+            <tr><td><code>bipe_campagnes</code></td><td>Campagnes (G7)</td><td>Tableau</td></tr>
+            <tr><td><code>bipe_prospects</code></td><td>Prospects (G7)</td><td>Tableau</td></tr>
+            <tr><td><code>bipe_relances</code></td><td>Relances (G7)</td><td>Tableau</td></tr>
+            <tr><td><code>bipe_last_backup</code></td><td>Date de dernière sauvegarde</td><td>ISO string</td></tr>
+            <tr><td><code>bipe_licences</code></td><td>Codes d'accès utilisés</td><td>Tableau</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout danger">
+        <span class="ico">🚨</span>
+        <div class="body"><strong>À retenir :</strong> la clé <code>bipe_licences</code> et la clé <code>bipe_session</code> sont <strong>exclues</strong> de la sauvegarde standard. Si tu changes de navigateur, tu devras recréer un compte avec ton code d'accès.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="brand">B!PE</div>
+    <p>
+      Manuel de procédure · Version 1.0 · 2026<br>
+      Bureau Intelligent Pour Entrepreneur<br>
+      BIPE by MCE · 31 pages · 7 groupes
+    </p>
+    <div class="quote">« On y rentre participant… on en sort entrepreneur »</div>
+  </div>
+
+</div>
+
+<!-- BACK TO TOP -->
+<button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Retour en haut">↑</button>
+
+<script>
+/* ============================================================
+   BIPE — manuel.html
+   Manuel de procédure : généralités + 7 groupes
+   ============================================================ */
+
+BIPE.checkSession();
+
+/* Back to top : apparaît après 400px de scroll */
+window.addEventListener('scroll', () => {
+  const btn = document.getElementById('backTop');
+  if(window.scrollY > 400) btn.classList.add('show');
+  else btn.classList.remove('show');
+});
+
+/* Smooth scroll sur les liens du sommaire (déjà natif via CSS scroll-behavior) */
+document.documentElement.style.scrollBehavior = 'smooth';
+
+/* Petit confort : afficher un toast à l'arrivée */
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => BIPE.toast('📖 Manuel chargé — bonne lecture'), 400);
+});
+</script>
+</body>
+</html>

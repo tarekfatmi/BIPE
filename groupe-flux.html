@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>B!PE by MCE — Flux</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="shared.js"></script>
+<style>
+  :root{
+    --black:#000000;
+    --black-2:#0a0a0a;
+    --black-3:#141414;
+    --line:#2a2a2a;
+    --line-soft:#1f1f1f;
+    --gold:#d4af37;
+    --gold-bright:#f0d060;
+    --gold-soft:#e8c96a;
+    --gold-dim:#8a7433;
+    --gold-deep:#5a4a1f;
+    --txt:#f5f0e1;
+    --txt-muted:#9a9384;
+    --txt-dim:#5a564e;
+    --ok:#6b9a5a;
+    --warn:#c9a040;
+    --bad:#b84040;
+    --info:#7cc4e8;
+    --radius:16px;
+    --radius-sm:12px;
+    /* Groupe 2 - Bleu ciel */
+    --g2:#7cc4e8;
+    --g2-deep:#1b4d6b;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+
+  html,body{height:100%;overscroll-behavior:none}
+
+  body{
+    font-family:'Baloo Bhaijaan 2', -apple-system, "Segoe UI", sans-serif;
+    background:var(--black);
+    color:var(--txt);
+    line-height:1.6;
+    font-weight:500;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(124,196,232,.05) 0%, transparent 60%);
+    background-attachment:fixed;
+  }
+
+  .app{
+    max-width:min(1100px, 92vw);
+    margin:0 auto;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    padding-bottom:clamp(24px, 4vw, 40px);
+  }
+
+  /* ===== HEADER ===== */
+  .header{
+    position:sticky;
+    top:0;
+    z-index:50;
+    background:rgba(0,0,0,.92);
+    backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--line-soft);
+    padding:clamp(12px, 2vw, 16px) clamp(16px, 3vw, 20px);
+    display:flex;
+    align-items:center;
+    gap:clamp(8px, 1.5vw, 16px);
+  }
+  .header .back{
+    width:clamp(40px, 6vw, 48px);
+    height:clamp(40px, 6vw, 48px);
+    border-radius:14px;
+    background:var(--black-3);
+    border:1px solid var(--line);
+    color:var(--g2);
+    font-size:clamp(1.2rem, 2vw, 1.6rem);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    flex-shrink:0;
+    text-decoration:none;
+    transition:transform .15s;
+  }
+  .header .back:active{transform:scale(.92)}
+  .header .title-block{flex:1; min-width:0;}
+  .header .logo{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(1.4rem, 3vw, 1.8rem);
+    font-weight:700;
+    color:#f0d060;
+    line-height:1.2;
+    letter-spacing:.02em;
+  }
+  .header .logo .b,
+  .header .logo .pe{color:var(--txt);}
+  .header .logo .excl{
+    color:var(--gold);
+    font-size:1.3em;
+    vertical-align:middle;
+    text-shadow:0 0 20px rgba(212,175,55,.5);
+  }
+  .header .subtitle{
+    font-size:clamp(.6rem, 1vw, .7rem);
+    color:var(--g2);
+    font-weight:600;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+  }
+  .header .menu{
+    width:clamp(40px, 6vw, 48px);
+    height:clamp(40px, 6vw, 48px);
+    border-radius:14px;
+    background:var(--black-3);
+    border:1px solid var(--line);
+    color:var(--g2);
+    font-size:clamp(1.1rem, 2vw, 1.4rem);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    flex-shrink:0;
+    transition:transform .15s;
+  }
+  .header .menu:active{transform:scale(.92)}
+
+  /* ===== CONTENT ===== */
+  .content{
+    flex:1;
+    padding:clamp(16px, 3vw, 24px) clamp(16px, 3vw, 20px);
+  }
+
+  /* ===== KPI PRINCIPAL ===== */
+  .kpi-main{
+    background:linear-gradient(135deg, var(--black-2) 0%, var(--black-3) 100%);
+    border:2px solid var(--g2-deep);
+    border-radius:var(--radius);
+    padding:clamp(24px, 4vw, 32px) clamp(20px, 3vw, 28px);
+    margin-bottom:clamp(18px, 3vw, 24px);
+    position:relative;
+    overflow:hidden;
+  }
+  .kpi-main::before{
+    content:'';
+    position:absolute;
+    top:0;left:0;right:0;
+    height:2px;
+    background:linear-gradient(90deg, transparent, var(--g2), transparent);
+  }
+  .kpi-main .lab{
+    font-size:clamp(.85rem, 1.1vw, 1.05rem);
+    color:var(--txt-muted);
+    font-weight:600;
+    margin-bottom:8px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .kpi-main .val{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(2.4rem, 5vw, 3.6rem);
+    font-weight:700;
+    color:var(--g2);
+    line-height:1;
+    text-shadow:0 0 30px rgba(124,196,232,.4);
+  }
+  .kpi-main .val small{
+    font-size:clamp(.9rem, 1.2vw, 1.2rem);
+    color:var(--txt-muted);
+    font-weight:500;
+    margin-left:8px;
+    text-shadow:none;
+  }
+  .kpi-main .sub{
+    font-size:clamp(.8rem, 1vw, 1rem);
+    color:var(--txt-muted);
+    margin-top:12px;
+    display:flex;
+    gap:clamp(12px, 2vw, 20px);
+    flex-wrap:wrap;
+  }
+  .kpi-main .sub span{
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .kpi-main .sub .dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:var(--g2);
+  }
+
+  /* ===== SECTION TITRE ===== */
+  .section-title{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:clamp(12px, 2vw, 16px);
+    padding:0 4px;
+  }
+  .section-title h2{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(1.2rem, 2vw, 1.5rem);
+    font-weight:700;
+    color:var(--g2);
+  }
+  .section-title .count{
+    font-size:clamp(.85rem, 1.1vw, 1rem);
+    color:var(--txt-muted);
+    font-weight:600;
+  }
+
+  /* ===== FONCTIONS GRID ===== */
+  .fonctions-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
+    gap:16px;
+    margin-bottom:clamp(24px, 4vw, 32px);
+  }
+
+  .fonction-card{
+    display:block;
+    background:var(--black-2);
+    border:2px solid var(--line);
+    border-radius:var(--radius);
+    padding:22px;
+    text-decoration:none;
+    color:var(--txt);
+    cursor:pointer;
+    transition:all .2s;
+    position:relative;
+    overflow:hidden;
+    min-height:180px;
+  }
+
+  .fonction-card::before{
+    content:'';
+    position:absolute;
+    top:0;left:0;
+    width:5px;height:100%;
+    background:var(--g2);
+    opacity:.7;
+    transition:opacity .2s;
+  }
+
+  .fonction-card:hover,
+  .fonction-card:active{
+    transform:translateY(-3px);
+    border-color:var(--g2);
+    box-shadow:0 8px 24px rgba(124,196,232,.15);
+  }
+
+  .fonction-card:hover::before{
+    opacity:1;
+    box-shadow:0 0 20px rgba(124,196,232,.5);
+  }
+
+  /* Variante POS : mise en avant */
+  .fonction-card.pos::before{
+    background:var(--gold);
+    opacity:1;
+    width:6px;
+  }
+  .fonction-card.pos{
+    border-color:var(--gold-dim);
+    background:linear-gradient(135deg, rgba(212,175,55,.06), var(--black-2) 60%);
+  }
+  .fonction-card.pos:hover{
+    border-color:var(--gold);
+    box-shadow:0 8px 24px rgba(212,175,55,.2);
+  }
+  .fonction-card.pos .stats .count{color:var(--gold-soft);}
+  .fonction-card.pos .stats .arrow{color:var(--gold-soft);}
+  .fonction-card.pos .pos-badge{
+    display:inline-block;
+    font-size:.62rem;
+    font-weight:800;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    background:var(--gold);
+    color:#0a0a0a;
+    padding:2px 8px;
+    border-radius:999px;
+    margin-bottom:8px;
+  }
+
+  .fonction-card .ico{
+    font-size:2.4rem;
+    line-height:1;
+    margin-bottom:12px;
+    display:block;
+  }
+
+  .fonction-card .name{
+    font-family:'Fredoka', sans-serif;
+    font-size:1.2rem;
+    font-weight:700;
+    color:var(--txt);
+    line-height:1.3;
+    margin-bottom:8px;
+  }
+
+  .fonction-card .desc{
+    font-size:.88rem;
+    color:var(--txt-muted);
+    line-height:1.55;
+    margin-bottom:16px;
+  }
+
+  .fonction-card .stats{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding-top:12px;
+    border-top:1px solid var(--line-soft);
+    font-size:.85rem;
+  }
+
+  .fonction-card .stats .count{
+    color:var(--g2);
+    font-weight:700;
+  }
+
+  .fonction-card .stats .arrow{
+    color:var(--g2);
+    font-size:1.2rem;
+    transition:transform .2s;
+  }
+
+  .fonction-card:hover .stats .arrow{
+    transform:translateX(4px);
+  }
+
+  /* ===== ALERTES ===== */
+  .alertes-box{
+    background:var(--black-2);
+    border:2px solid var(--line);
+    border-radius:var(--radius);
+    padding:clamp(14px, 2vw, 18px);
+    margin-bottom:clamp(18px, 3vw, 24px);
+  }
+  .alertes-box .head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:clamp(10px, 2vw, 14px);
+  }
+  .alertes-box .head h3{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(1rem, 1.5vw, 1.15rem);
+    color:var(--g2);
+    font-weight:700;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .alertes-box .head .count{
+    font-size:clamp(.7rem, .9vw, .8rem);
+    background:var(--bad);
+    color:#fff;
+    padding:2px 10px;
+    border-radius:999px;
+    font-weight:700;
+  }
+  .alerte-item{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    padding:clamp(8px, 1.5vw, 10px) clamp(10px, 1.5vw, 12px);
+    background:rgba(201,160,64,.06);
+    border-left:3px solid var(--warn);
+    border-radius:6px;
+    margin-bottom:8px;
+    font-size:clamp(.78rem, 1vw, .85rem);
+  }
+  .alerte-item:last-child{margin-bottom:0}
+  .alerte-item.bad{
+    background:rgba(184,64,64,.06);
+    border-left-color:var(--bad);
+  }
+  .alerte-item .ico{font-size:1rem; line-height:1.2;}
+  .alerte-item .txt{flex:1; color:var(--txt);}
+  .alerte-item .txt b{color:var(--g2);}
+  .alertes-empty{
+    text-align:center;
+    padding:clamp(16px, 3vw, 24px);
+    color:var(--txt-muted);
+    font-size:clamp(.8rem, 1vw, .9rem);
+    font-style:italic;
+  }
+
+  /* ===== DERNIÈRES OPÉRATIONS ===== */
+  .dernieres-box{
+    background:var(--black-2);
+    border:2px solid var(--line);
+    border-radius:var(--radius);
+    padding:clamp(14px, 2vw, 18px);
+  }
+  .dernieres-box .head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:clamp(10px, 2vw, 14px);
+  }
+  .dernieres-box .head h3{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(1rem, 1.5vw, 1.15rem);
+    color:var(--g2);
+    font-weight:700;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .derniere-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:clamp(10px, 1.5vw, 12px) 0;
+    border-bottom:1px solid var(--line-soft);
+    gap:12px;
+  }
+  .derniere-item:last-child{border-bottom:none}
+  .derniere-item .info{
+    flex:1;
+    min-width:0;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .derniere-item .info .ico{font-size:1.2rem; flex-shrink:0;}
+  .derniere-item .info .txt{
+    font-size:clamp(.8rem, 1vw, .9rem);
+    line-height:1.4;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .derniere-item .info .txt b{color:var(--g2);}
+  .derniere-item .montant{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(.85rem, 1.1vw, 1rem);
+    font-weight:700;
+    color:var(--g2);
+    white-space:nowrap;
+  }
+  .dernieres-empty{
+    text-align:center;
+    padding:clamp(16px, 3vw, 24px);
+    color:var(--txt-muted);
+    font-size:clamp(.8rem, 1vw, .9rem);
+    font-style:italic;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width:600px){
+    .fonctions-grid{grid-template-columns:1fr}
+    .fonction-card{min-height:auto}
+  }
+</style>
+</head>
+<body data-groupe="g2">
+
+<div class="app">
+
+  <!-- ===== HEADER ===== -->
+  <div class="header">
+    <a href="index.html" class="back">←</a>
+    <div class="title-block">
+      <div class="logo">
+        <span class="b">B</span><span class="excl">!</span><span class="pe">PE</span>
+      </div>
+      <div class="subtitle">Flux</div>
+    </div>
+    <button class="menu" onclick="BIPE.openMenu()">⋮</button>
+  </div>
+
+  <!-- ===== CONTENT ===== -->
+  <div class="content">
+
+    <!-- KPI PRINCIPAL -->
+    <div class="kpi-main">
+      <div class="lab">💧 Trésorerie nette</div>
+      <div class="val" id="kpiTresorerie">0<small>DT</small></div>
+      <div class="sub" id="kpiSous">
+        <span><span class="dot"></span>Stock : <b>0 DT</b></span>
+        <span><span class="dot"></span>Caisse : <b>0 DT</b></span>
+        <span><span class="dot"></span>Charges : <b>0 DT</b></span>
+      </div>
+    </div>
+
+    <!-- FONCTIONS DU GROUPE -->
+    <div class="section-title">
+      <h2>Fonctions du groupe</h2>
+      <div class="count" id="countFonctions">5</div>
+    </div>
+
+    <div class="fonctions-grid" id="fonctionsGrid"></div>
+
+    <!-- ALERTES -->
+    <div class="alertes-box">
+      <div class="head">
+        <h3>🔔 Alertes de flux</h3>
+        <span class="count" id="alertesCount">0</span>
+      </div>
+      <div id="alertesListe"></div>
+    </div>
+
+    <!-- DERNIÈRES OPÉRATIONS -->
+    <div class="dernieres-box">
+      <div class="head">
+        <h3>🕒 Derniers mouvements</h3>
+      </div>
+      <div id="dernieresListe"></div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   B!PE — groupe-flux.html (v2)
+   Hub du Groupe 2 (Bleu ciel)
+   + Caisse tactile (POS) ajoutée
+   ============================================================ */
+
+BIPE.checkSession();
+
+/* ---------- Compter les éléments ---------- */
+function compter(key){
+  const data = BIPE.storage.get(key, []);
+  if(Array.isArray(data)) return data.length;
+  if(typeof data === 'object' && data !== null) return Object.keys(data).length;
+  return 0;
+}
+
+/* ---------- Format ---------- */
+function fmt(n){ return BIPE.fmt(n); }
+function fmtDate(d){ return BIPE.fmtDate(d); }
+
+/* ---------- KPI principal ---------- */
+function renderKPI(){
+  const tresorerie = BIPE.storage.get(BIPE.KEYS.tresorerie, []);
+  const stock = BIPE.storage.get(BIPE.KEYS.stock, []);
+  const charges = BIPE.storage.get(BIPE.KEYS.charges, []);
+
+  // Calcul trésorerie (support ancien format et nouveau)
+  let entrees = 0, sorties = 0;
+  (Array.isArray(tresorerie) ? tresorerie : []).forEach(m => {
+    const sens = (m.sens || '').toLowerCase();
+    const type = (m.type || '').toLowerCase();
+    const montant = Number(m.montant) || 0;
+    if(sens === 'entree' || sens === 'entrée' || type === 'encaissement') entrees += montant;
+    else if(sens === 'sortie' || type === 'décaissement' || type === 'decaissement') sorties += montant;
+  });
+  const soldeTresorerie = entrees - sorties;
+
+  // Calcul valeur stock (support ancien format p.quantite et nouveau mouvement)
+  let valeurStock = 0;
+  if(Array.isArray(stock)){
+    stock.forEach(m => {
+      const qte = Number(m.quantite) || Number(m.qte) || 0;
+      const prix = Number(m.prix) || Number(m.prixAchat) || 0;
+      const type = (m.type || m.sens || '').toLowerCase();
+      const signe = (type === 'sortie' || type === 'out' || type === 'vente') ? -1 : 1;
+      valeurStock += signe * qte * prix;
+    });
+  }
+
+  // Caisse — via trésorerie espèces du jour (nouveau format)
+  const today = new Date().toISOString().slice(0,10);
+  let caisseVal = 0;
+  if(Array.isArray(tresorerie)){
+    tresorerie.forEach(m => {
+      if(m.date !== today) return;
+      if((m.mode || '').toLowerCase() !== 'especes') return;
+      const sens = (m.sens || '').toLowerCase();
+      const montant = Number(m.montant) || 0;
+      if(sens === 'entree' || sens === 'entrée') caisseVal += montant;
+      else if(sens === 'sortie') caisseVal -= montant;
+    });
+  }
+
+  // Charges
+  const totalCharges = (Array.isArray(charges) ? charges : [])
+    .reduce((s, c) => s + (Number(c.montant) || 0), 0);
+
+  document.getElementById('kpiTresorerie').innerHTML = fmt(soldeTresorerie) + '<small>DT</small>';
+  document.getElementById('kpiSous').innerHTML = `
+    <span><span class="dot"></span>Stock : <b>${fmt(valeurStock)} DT</b></span>
+    <span><span class="dot"></span>Caisse : <b>${fmt(caisseVal)} DT</b></span>
+    <span><span class="dot"></span>Charges : <b>${fmt(totalCharges)} DT</b></span>
+  `;
+}
+
+/* ---------- Fonctions du groupe ---------- */
+function renderFonctions(){
+  const grid = document.getElementById('fonctionsGrid');
+  if(!grid) return;
+
+  const FONCTIONS = [
+    {
+      ico: '📦',
+      nom: 'Stock',
+      desc: 'Entrées, sorties, seuils d\'alerte, valorisation du stock.',
+      url: 'f-stock.html',
+      compter: () => compter(BIPE.KEYS.stock)
+    },
+    {
+      ico: '💳',
+      nom: 'Trésorerie',
+      desc: 'Encaissements, décaissements, solde, rapprochement.',
+      url: 'f-tresorerie.html',
+      compter: () => compter(BIPE.KEYS.tresorerie)
+    },
+    {
+      ico: '💵',
+      nom: 'Caisse',
+      desc: 'Mouvements espèces, clôture quotidienne, écart de caisse.',
+      url: 'f-caisse.html',
+      compter: () => compter(BIPE.KEYS.caisse)
+    },
+    {
+      ico: '🛒',
+      nom: 'Caisse tactile',
+      desc: 'Point de vente tactile : encaisse en 3 clics, panier, crédits, KPI du jour.',
+      url: 'f-caisse-tactile.html',
+      compter: () => {
+        // Compte les ventes POS du jour
+        const ventes = BIPE.storage.get(BIPE.KEYS.ventes, []) || [];
+        const today = new Date().toISOString().slice(0,10);
+        return ventes.filter(v => v.source === 'pos' && v.date === today).length;
+      },
+      pos: true
+    },
+    {
+      ico: '🏠',
+      nom: 'Charges',
+      desc: 'Loyer, crédit, STEG, SONEDE, téléphone, masse salariale.',
+      url: 'f-charges.html',
+      compter: () => compter(BIPE.KEYS.charges)
+    }
+  ];
+
+  grid.innerHTML = FONCTIONS.map(f => {
+    let n = 0;
+    try { n = f.compter(); } catch(e) { n = 0; }
+    return `
+      <a href="${f.url}" class="fonction-card ${f.pos ? 'pos' : ''}">
+        <div class="ico">${f.ico}</div>
+        ${f.pos ? '<div class="pos-badge">★ Point de vente</div>' : ''}
+        <div class="name">${f.nom}</div>
+        <div class="desc">${f.desc}</div>
+        <div class="stats">
+          <span class="count">${n} élément${n > 1 ? 's' : ''}</span>
+          <span class="arrow">→</span>
+        </div>
+      </a>
+    `;
+  }).join('');
+
+  document.getElementById('countFonctions').textContent = FONCTIONS.length;
+}
+
+/* ---------- Alertes ---------- */
+function renderAlertes(){
+  const list = document.getElementById('alertesListe');
+  const count = document.getElementById('alertesCount');
+  const alerts = [];
+
+  // Stock bas (support nouveau format mouvements)
+  const stock = BIPE.storage.get(BIPE.KEYS.stock, []) || [];
+  const parProduit = {};
+  stock.forEach(m => {
+    const pid = m.produitId || m.produit || m.produit_id || ('nom:' + (m.nom || ''));
+    if(!parProduit[pid]){
+      parProduit[pid] = {
+        nom: m.nom || m.produit || 'Produit',
+        stock: 0,
+        seuil: Number(m.seuil) || 0
+      };
+    }
+    const qte = Number(m.quantite) || Number(m.qte) || 0;
+    const type = (m.type || m.sens || '').toLowerCase();
+    if(type === 'entree' || type === 'entrée' || type === 'in' || type === 'achat') {
+      parProduit[pid].stock += qte;
+    } else if(type === 'sortie' || type === 'out' || type === 'vente') {
+      parProduit[pid].stock -= qte;
+    }
+    if(m.seuil) parProduit[pid].seuil = Math.max(parProduit[pid].seuil, Number(m.seuil));
+  });
+
+  Object.values(parProduit).forEach(p => {
+    if(p.seuil > 0 && p.stock <= p.seuil){
+      alerts.push({
+        type: 'warn',
+        ico: '📦',
+        txt: `<b>${BIPE.esc(p.nom)}</b>`,
+        small: `Stock bas : ${p.stock} (seuil ${p.seuil})`
+      });
+    }
+  });
+
+  // Trésorerie négative
+  const tresorerie = BIPE.storage.get(BIPE.KEYS.tresorerie, []) || [];
+  let entrees = 0, sorties = 0;
+  tresorerie.forEach(m => {
+    const sens = (m.sens || '').toLowerCase();
+    const type = (m.type || '').toLowerCase();
+    const montant = Number(m.montant) || 0;
+    if(sens === 'entree' || sens === 'entrée' || type === 'encaissement') entrees += montant;
+    else if(sens === 'sortie' || type === 'décaissement' || type === 'decaissement') sorties += montant;
+  });
+  if(entrees - sorties < 0){
+    alerts.push({
+      type: 'bad',
+      ico: '💳',
+      txt: `<b>Trésorerie négative</b>`,
+      small: `Solde : ${fmt(entrees - sorties)} DT`
+    });
+  }
+
+  // Charges non payées
+  const charges = BIPE.storage.get(BIPE.KEYS.charges, []) || [];
+  charges.forEach(c => {
+    if(c.statut !== 'Payée' && c.statut !== 'payee' && c.statut !== 'payé'){
+      alerts.push({
+        type: 'warn',
+        ico: '🏠',
+        txt: `<b>${BIPE.esc(c.libelle || c.type || 'Charge')}</b>`,
+        small: `Charge impayée · ${fmt(c.montant)} DT`
+      });
+    }
+  });
+
+  // Crédits clients en retard (nouveau)
+  const credits = BIPE.storage.get(BIPE.KEYS.credits, []) || [];
+  const creditsOuverts = {};
+  credits.forEach(c => {
+    const key = c.clientId || c.clientNom || 'inconnu';
+    if(!creditsOuverts[key]){
+      creditsOuverts[key] = { nom: c.clientNom || 'Client', total: 0 };
+    }
+    creditsOuverts[key].total += (Number(c.montant) || 0) - (Number(c.montantPaye) || 0);
+  });
+  let nbCredits = 0;
+  Object.values(creditsOuverts).forEach(c => {
+    if(c.total > 0){
+      nbCredits++;
+      if(nbCredits <= 3){
+        alerts.push({
+          type: 'warn',
+          ico: '📝',
+          txt: `<b>${BIPE.esc(c.nom)}</b>`,
+          small: `Crédit ouvert : ${fmt(c.total)} DT`
+        });
+      }
+    }
+  });
+  if(nbCredits > 3){
+    alerts.push({
+      type: 'warn',
+      ico: '📝',
+      txt: `<b>+ ${nbCredits - 3} autres clients</b>`,
+      small: `Crédits clients en cours`
+    });
+  }
+
+  count.textContent = alerts.length;
+
+  if(!alerts.length){
+    list.innerHTML = '<div class="alertes-empty">Aucune alerte de flux. Tout est à jour. 👍</div>';
+    return;
+  }
+
+  list.innerHTML = alerts.slice(0, 8).map(a => `
+    <div class="alerte-item ${a.type === 'bad' ? 'bad' : ''}">
+      <span class="ico">${a.ico}</span>
+      <div class="txt">${a.txt}<br><small style="color:var(--txt-muted)">${a.small}</small></div>
+    </div>
+  `).join('') + (alerts.length > 8
+    ? `<div style="text-align:center;color:var(--txt-muted);font-size:.78rem;margin-top:8px">+ ${alerts.length - 8} autres alertes</div>`
+    : '');
+}
+
+/* ---------- Derniers mouvements ---------- */
+function renderDernieres(){
+  const list = document.getElementById('dernieresListe');
+  const ops = [];
+
+  // Trésorerie
+  const tresorerie = BIPE.storage.get(BIPE.KEYS.tresorerie, []) || [];
+  tresorerie.forEach(m => {
+    const sens = (m.sens || '').toLowerCase();
+    const type = (m.type || '').toLowerCase();
+    const isEntree = sens === 'entree' || sens === 'entrée' || type === 'encaissement';
+    ops.push({
+      date: m.date || m.createdAt,
+      type: isEntree ? 'Encaissement' : 'Décaissement',
+      ico: isEntree ? '💰' : '💸',
+      txt: m.libelle || m.categorie || 'Mouvement',
+      montant: m.montant
+    });
+  });
+
+  // Ventes POS
+  const ventes = BIPE.storage.get(BIPE.KEYS.ventes, []) || [];
+  ventes.filter(v => v.source === 'pos').forEach(v => {
+    ops.push({
+      date: v.date || v.createdAt,
+      type: 'Vente POS',
+      ico: '🛒',
+      txt: `${v.produitNom || 'Produit'} × ${v.quantite}`,
+      montant: v.montant
+    });
+  });
+
+  ops.sort((a,b) => (b.date || '').localeCompare(a.date || ''));
+  const recent = ops.slice(0, 6);
+
+  if(!recent.length){
+    list.innerHTML = '<div class="dernieres-empty">Aucun mouvement enregistré.</div>';
+    return;
+  }
+
+  list.innerHTML = recent.map(o => `
+    <div class="derniere-item">
+      <div class="info">
+        <span class="ico">${o.ico}</span>
+        <span class="txt">
+          <b>${BIPE.esc(o.type)}</b> — ${BIPE.esc(o.txt)}<br>
+          <small style="color:var(--txt-muted)">${fmtDate(o.date)}</small>
+        </span>
+      </div>
+      <div class="montant">${fmt(o.montant)} DT</div>
+    </div>
+  `).join('');
+}
+
+/* ---------- Init ---------- */
+document.addEventListener('DOMContentLoaded', () => {
+  renderKPI();
+  renderFonctions();
+  renderAlertes();
+  renderDernieres();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>B!PE by MCE — Votre ERP Personnel Simplifié</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="shared.js"></script>
+<style>
+  :root{
+    --black:#000000;
+    --black-2:#0a0a0a;
+    --black-3:#141414;
+    --line:#2a2a2a;
+    --line-soft:#1f1f1f;
+    --gold:#d4af37;
+    --gold-bright:#f0d060;
+    --gold-soft:#e8c96a;
+    --gold-dim:#8a7433;
+    --gold-deep:#5a4a1f;
+    --txt:#f5f0e1;
+    --txt-muted:#9a9384;
+    --txt-dim:#5a564e;
+    --ok:#6b9a5a;
+    --warn:#c9a040;
+    --bad:#b84040;
+    --info:#7cc4e8;
+    --radius:16px;
+    --radius-sm:12px;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+
+  html,body{height:100%;overscroll-behavior:none}
+
+  body{
+    font-family:'Baloo Bhaijaan 2', -apple-system, "Segoe UI", sans-serif;
+    background:var(--black);
+    color:var(--txt);
+    line-height:1.6;
+    font-weight:500;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(212,175,55,.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(212,175,55,.03) 0%, transparent 40%);
+    background-attachment:fixed;
+  }
+
+  .app{
+    max-width:min(1100px, 92vw);
+    margin:0 auto;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    padding-bottom:clamp(24px, 4vw, 40px);
+  }
+
+  /* ===== HERO ===== */
+  .hero{
+    text-align:center;
+    padding:clamp(40px, 8vw, 80px) clamp(16px, 3vw, 24px) clamp(32px, 5vw, 48px);
+    position:relative;
+  }
+  .hero .logo{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(4.5rem, 12vw, 8rem);
+    font-weight:700;
+    line-height:1;
+    margin-bottom:clamp(16px, 3vw, 24px);
+    letter-spacing:.02em;
+  }
+  .hero .logo .b,
+  .hero .logo .pe{
+    color:var(--txt);
+  }
+  .hero .logo .excl{
+    color:var(--gold);
+    font-size:1.3em;
+    vertical-align:middle;
+    text-shadow:0 0 60px rgba(212,175,55,.7);
+  }
+  .hero .nom{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(1.4rem, 3vw, 2.2rem);
+    color:var(--gold-soft);
+    font-weight:700;
+    letter-spacing:.01em;
+    margin-bottom:12px;
+    line-height:1.2;
+    text-shadow:0 0 30px rgba(212,175,55,.3);
+  }
+  .hero .tagline{
+    color:var(--txt-muted);
+    font-size:clamp(.95rem, 1.5vw, 1.15rem);
+    font-weight:500;
+    font-style:italic;
+    max-width:600px;
+    margin:0 auto;
+  }
+  .hero .rule{
+    width:clamp(60px, 10vw, 100px);
+    height:2px;
+    background:var(--gold);
+    margin:clamp(20px, 3vw, 32px) auto;
+    border-radius:2px;
+    opacity:.5;
+  }
+
+  /* ===== CTA ===== */
+  .cta-wrap{
+    padding:0 clamp(16px, 3vw, 24px) clamp(32px, 5vw, 48px);
+    display:flex;
+    flex-direction:column;
+    gap:clamp(10px, 2vw, 14px);
+    max-width:500px;
+    margin:0 auto;
+  }
+  .btn-primary{
+    width:100%;
+    height:clamp(60px, 9vw, 72px);
+    border-radius:var(--radius);
+    background:linear-gradient(180deg, var(--gold-soft), var(--gold));
+    color:#0a0a0a;
+    border:none;
+    font-family:'Baloo Bhaijaan 2', sans-serif;
+    font-size:clamp(1.15rem, 1.8vw, 1.4rem);
+    font-weight:700;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    transition:transform .15s, filter .15s;
+    box-shadow:0 8px 32px rgba(212,175,55,.25);
+    text-decoration:none;
+  }
+  .btn-primary:active{transform:scale(.97); filter:brightness(1.1)}
+  .btn-primary:hover{filter:brightness(1.05)}
+
+  .btn-secondary{
+    width:100%;
+    height:clamp(52px, 7vw, 56px);
+    border-radius:var(--radius-sm);
+    background:var(--black-2);
+    border:2px solid var(--line);
+    color:var(--txt);
+    font-family:'Baloo Bhaijaan 2', sans-serif;
+    font-size:clamp(.95rem, 1.3vw, 1.1rem);
+    font-weight:600;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    transition:transform .15s, border-color .15s;
+    text-decoration:none;
+  }
+  .btn-secondary:active{transform:scale(.97); border-color:var(--gold)}
+  .btn-secondary:hover{border-color:var(--gold-dim)}
+
+  /* ===== BANNIÈRES (v1.5) ===== */
+  .banniere-zone{
+    padding:0 clamp(16px, 3vw, 24px) clamp(16px, 3vw, 24px);
+    max-width:700px;
+    margin:0 auto;
+    display:flex;
+    flex-direction:column;
+    gap:clamp(10px, 2vw, 14px);
+  }
+  .banniere{
+    border-radius:var(--radius);
+    padding:clamp(16px, 2.5vw, 20px);
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  .banniere.mensuelle{
+    background:linear-gradient(135deg, rgba(212,175,55,.14), rgba(212,175,55,.04));
+    border:2px solid var(--gold);
+    box-shadow:0 0 32px rgba(212,175,55,.15);
+  }
+  .banniere.alerte{
+    background:rgba(184,64,64,.08);
+    border:2px solid var(--bad);
+  }
+  .banniere .b-titre{
+    font-family:'Fredoka', sans-serif;
+    font-weight:700;
+    font-size:clamp(1rem, 1.6vw, 1.2rem);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    line-height:1.3;
+  }
+  .banniere.mensuelle .b-titre{ color:var(--gold-bright); }
+  .banniere.alerte .b-titre{ color:var(--bad); }
+  .banniere .b-desc{
+    font-size:clamp(.82rem, 1.1vw, .92rem);
+    color:var(--txt-muted);
+    line-height:1.5;
+  }
+  .banniere .b-actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .banniere .b-actions button{
+    flex:1 1 140px;
+    min-height:48px;
+    border-radius:999px;
+    border:none;
+    font-family:'Baloo Bhaijaan 2', sans-serif;
+    font-size:clamp(.9rem, 1.1vw, 1rem);
+    font-weight:700;
+    cursor:pointer;
+    transition:all .15s;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+  }
+  .banniere .b-actions button:active{transform:scale(.97)}
+  .banniere .b-actions .b-or{
+    background:linear-gradient(180deg, var(--gold-soft), var(--gold));
+    color:#0a0a0a;
+    box-shadow:0 4px 16px rgba(212,175,55,.25);
+  }
+  .banniere .b-actions .b-or:hover{filter:brightness(1.08)}
+  .banniere .b-actions .b-sec{
+    background:var(--black-3);
+    color:var(--txt);
+    border:2px solid var(--line);
+  }
+  .banniere .b-actions .b-sec:hover{border-color:var(--gold)}
+  .banniere .b-actions .b-rouge{
+    background:var(--bad);
+    color:#fff;
+  }
+  .banniere .b-actions .b-rouge:hover{filter:brightness(1.1)}
+
+  /* ===== SECTIONS ===== */
+  .section-title{
+    text-align:center;
+    padding:clamp(24px, 4vw, 40px) clamp(16px, 3vw, 24px) clamp(16px, 3vw, 24px);
+  }
+  .section-title h2{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(1.5rem, 2.8vw, 2rem);
+    font-weight:700;
+    color:var(--gold-bright);
+    line-height:1.3;
+    margin-bottom:8px;
+  }
+  .section-title p{
+    font-size:clamp(.9rem, 1.3vw, 1.1rem);
+    color:var(--txt-muted);
+    font-weight:500;
+  }
+
+  /* ===== FEATURES ===== */
+  .features{
+    padding:0 clamp(16px, 3vw, 24px);
+    display:flex;
+    flex-direction:column;
+    gap:clamp(12px, 2vw, 16px);
+    max-width:700px;
+    margin:0 auto;
+  }
+  .feature{
+    background:var(--black-2);
+    border:2px solid var(--line);
+    border-radius:var(--radius);
+    padding:clamp(18px, 3vw, 24px);
+    display:flex;
+    gap:clamp(12px, 2vw, 16px);
+    align-items:flex-start;
+  }
+  .feature .ico{
+    font-size:clamp(1.8rem, 3vw, 2.2rem);
+    flex-shrink:0;
+    line-height:1;
+  }
+  .feature .body{
+    flex:1;
+  }
+  .feature .body h3{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(1rem, 1.6vw, 1.25rem);
+    font-weight:700;
+    color:var(--gold-soft);
+    margin-bottom:6px;
+    line-height:1.3;
+  }
+  .feature .body p{
+    font-size:clamp(.85rem, 1.1vw, 1rem);
+    color:var(--txt-muted);
+    font-weight:500;
+    line-height:1.6;
+  }
+
+  /* ===== STATS ===== */
+  .stats{
+    padding:clamp(16px, 3vw, 24px) clamp(16px, 3vw, 24px) clamp(24px, 4vw, 32px);
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:clamp(12px, 2vw, 16px);
+    max-width:700px;
+    margin:0 auto;
+  }
+  .stat{
+    background:var(--black-2);
+    border:2px solid var(--line);
+    border-radius:var(--radius);
+    padding:clamp(18px, 3vw, 24px) clamp(14px, 2vw, 20px);
+    text-align:center;
+  }
+  .stat .num{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(2rem, 4vw, 2.6rem);
+    font-weight:700;
+    color:var(--gold-bright);
+    line-height:1;
+    margin-bottom:8px;
+    text-shadow:0 0 20px rgba(212,175,55,.3);
+  }
+  .stat .lab{
+    font-size:clamp(.8rem, 1.1vw, .95rem);
+    color:var(--txt-muted);
+    font-weight:600;
+    line-height:1.4;
+  }
+
+  /* ===== GROUPES APERÇU ===== */
+  .apercu-groupes{
+    padding:0 clamp(16px, 3vw, 24px) clamp(24px, 4vw, 32px);
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(clamp(140px, 20vw, 180px), 1fr));
+    gap:clamp(10px, 2vw, 12px);
+    max-width:900px;
+    margin:0 auto;
+  }
+  .apercu{
+    background:var(--black-2);
+    border:2px solid var(--line);
+    border-radius:var(--radius-sm);
+    padding:clamp(12px, 2vw, 16px);
+    display:flex;
+    align-items:center;
+    gap:clamp(8px, 1.5vw, 10px);
+  }
+  .apercu .ico{font-size:clamp(1.3rem, 2vw, 1.6rem); line-height:1;}
+  .apercu .name{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(.8rem, 1.1vw, .9rem);
+    font-weight:700;
+    color:var(--gold-soft);
+    line-height:1.3;
+  }
+
+  /* ===== FOOTER ===== */
+  .footer{
+    text-align:center;
+    padding:clamp(32px, 5vw, 48px) clamp(16px, 3vw, 24px) clamp(24px, 4vw, 32px);
+    border-top:1px solid var(--line-soft);
+    margin-top:auto;
+  }
+  .footer .brand{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(1.2rem, 2vw, 1.5rem);
+    font-weight:700;
+    color:var(--gold);
+    margin-bottom:12px;
+    letter-spacing:.05em;
+  }
+  .footer p{
+    font-size:clamp(.78rem, 1vw, .95rem);
+    color:var(--txt-dim);
+    font-weight:500;
+    line-height:1.8;
+  }
+  .footer .quote{
+    color:var(--gold-soft);
+    font-size:clamp(.9rem, 1.2vw, 1.15rem);
+    font-weight:700;
+    margin-top:clamp(16px, 3vw, 20px);
+    line-height:1.5;
+    font-style:italic;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width:600px){
+    .hero .logo{font-size:4rem;}
+    .hero .nom{font-size:1.3rem;}
+    .hero .tagline{font-size:.9rem;}
+    .apercu-groupes{grid-template-columns:1fr}
+    .stats{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ===== HERO ===== -->
+  <div class="hero">
+    <div class="logo">
+      <span class="b">B</span><span class="excl">!</span><span class="pe">PE</span>
+    </div>
+    <div class="nom">Bureau Intelligent pour Entrepreneur</div>
+    <div class="tagline">Votre ERP Personnel Simplifié</div>
+    <div class="rule"></div>
+  </div>
+
+  <!-- ===== CTA ===== -->
+  <div class="cta-wrap">
+    <a href="f-acces.html" class="btn-primary" id="btnPrincipal">
+      <span>🔓</span> Se connecter
+    </a>
+    <a href="index.html" class="btn-secondary">
+      <span>👀</span> Découvrir le menu
+    </a>
+  </div>
+
+  <!-- ===== BANNIÈRES v1.5 (mensuelle + alerte 30j) ===== -->
+  <div class="banniere-zone" id="banniere-zone"></div>
+
+  <!-- ===== FEATURES ===== -->
+  <div class="section-title">
+    <h2>Pourquoi B!PE ?</h2>
+    <p>Trois promesses, rien d'autre.</p>
+  </div>
+
+  <div class="features">
+
+    <div class="feature">
+      <div class="ico">🏠</div>
+      <div class="body">
+        <h3>100 % local</h3>
+        <p>Tes données vivent dans ton navigateur. Pas de serveur, pas de cloud, pas de collecte. Tes données t'appartiennent.</p>
+      </div>
+    </div>
+
+    <div class="feature">
+      <div class="ico">📱</div>
+      <div class="body">
+        <h3>Tactile et simple</h3>
+        <p>Conçu pour le doigt, pas pour la souris. 5 champs suffisent pour une facture. Chaque écran a une intention claire.</p>
+      </div>
+    </div>
+
+    <div class="feature">
+      <div class="ico">🎁</div>
+      <div class="body">
+        <h3>Personnel et personnel</h3>
+        <p>Un ERP qui s'adapte à toi, pas l'inverse. Ton code d'accès est unique et personnel. Ton espace t'appartient.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== STATS ===== -->
+  <div class="section-title">
+    <h2>En chiffres</h2>
+    <p>Ce que B!PE apporte concrètement.</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="num">7</div>
+      <div class="lab">groupes<br>fonctionnels</div>
+    </div>
+    <div class="stat">
+      <div class="num">31</div>
+      <div class="lab">pages<br>autonomes</div>
+    </div>
+    <div class="stat">
+      <div class="num">0</div>
+      <div class="lab">donnée<br>collectée</div>
+    </div>
+    <div class="stat">
+      <div class="num">∞</div>
+      <div class="lab">sauvegardes<br>possibles</div>
+    </div>
+  </div>
+
+  <!-- ===== APERÇU GROUPES ===== -->
+  <div class="section-title">
+    <h2>Les 7 groupes</h2>
+    <p>Tout ce qu'un entrepreneur doit gérer.</p>
+  </div>
+
+  <div class="apercu-groupes">
+    <div class="apercu">
+      <span class="ico">🛒</span>
+      <span class="name">Commercial</span>
+    </div>
+    <div class="apercu">
+      <span class="ico">💧</span>
+      <span class="name">Flux</span>
+    </div>
+    <div class="apercu">
+      <span class="ico">🎯</span>
+      <span class="name">Pilotage</span>
+    </div>
+    <div class="apercu">
+      <span class="ico">📒</span>
+      <span class="name">Comptabilité</span>
+    </div>
+    <div class="apercu">
+      <span class="ico">👥</span>
+      <span class="name">RH & Culture</span>
+    </div>
+    <div class="apercu">
+      <span class="ico">🛡</span>
+      <span class="name">Administration</span>
+    </div>
+    <div class="apercu">
+      <span class="ico">📣</span>
+      <span class="name">Marketing</span>
+    </div>
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <div class="footer">
+    <div class="brand">B!PE by MCE</div>
+    <p>
+      Édition Noir &amp; Or · 2026<br>
+      One Doc · 100 % local · zéro data collectée<br>
+      Bureau Intelligent pour Entrepreneur
+    </p>
+    <div class="quote">Votre ERP Personnel Simplifié</div>
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   B!PE — landing.html v1.5
+   Vitrine + bannières mensuelles (uniquement ici)
+   ============================================================ */
+
+(function init(){
+  // Si déjà connecté → adapter le bouton principal
+  if(BIPE.isConnected()){
+    const user = BIPE.getUser();
+    const btn = document.getElementById('btnPrincipal');
+    if(btn && user){
+      btn.innerHTML = `<span>👋</span> Continuer en tant que ${user.nom}`;
+      btn.href = 'index.html';
+    }
+  }
+
+  // Rendu des bannières
+  renderBannieres();
+})();
+
+/* ---------- Helpers snooze (report d'un jour) ---------- */
+const SNOOZE_KEY = 'bipe_monthly_snooze';
+
+function isSnoozed(){
+  const val = BIPE.storage.get(SNOOZE_KEY);
+  if(!val) return false;
+  const now = new Date();
+  const snoozeUntil = new Date(val);
+  if(isNaN(snoozeUntil)) return false;
+  if(now < snoozeUntil) return true;
+  // Expiré → on nettoie
+  BIPE.storage.remove(SNOOZE_KEY);
+  return false;
+}
+
+function snoozeMonthly(){
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  BIPE.storage.set(SNOOZE_KEY, tomorrow.toISOString());
+  renderBannieres();
+  BIPE.toast('Rappel reporté à demain', false);
+}
+
+/* ---------- Rendu des bannières ---------- */
+function renderBannieres(){
+  const zone = document.getElementById('banniere-zone');
+  if(!zone) return;
+  zone.innerHTML = '';
+
+  // 1. Alerte > 30 jours (prioritaire, en rouge)
+  const age = BIPE.checkBackupAge();
+  if(age !== null && age > 30){
+    zone.insertAdjacentHTML('beforeend', `
+      <div class="banniere alerte">
+        <div class="b-titre">⚠️ Sauvegarde &gt; 30 jours</div>
+        <div class="b-desc">
+          Ta dernière sauvegarde date de ${age} jours. Exporte maintenant pour ne rien perdre.
+        </div>
+        <div class="b-actions">
+          <button class="b-rouge" onclick="exporterMaintenant()">
+            📤 Exporter
+          </button>
+        </div>
+      </div>
+    `);
+  }
+
+  // 2. Bannière mensuelle (dorée) — si due ET pas snoozée
+  if(BIPE.checkMonthlyEmail() && !isSnoozed()){
+    zone.insertAdjacentHTML('beforeend', `
+      <div class="banniere mensuelle">
+        <div class="b-titre">📧 Envoie ta sauvegarde du mois par mail</div>
+        <div class="b-desc">
+          Un fichier JSON sera téléchargé, puis ton client mail s'ouvrira pré-rempli.
+          Tu n'as plus qu'à joindre le fichier et à t'envoyer le mail.
+        </div>
+        <div class="b-actions">
+          <button class="b-or" onclick="envoyerMensuel()">
+            📧 Envoyer maintenant
+          </button>
+          <button class="b-sec" onclick="snoozeMonthly()">
+            ⏰ Plus tard
+          </button>
+        </div>
+      </div>
+    `);
+  }
+}
+
+/* ---------- Action : export simple (alerte 30j) ---------- */
+function exporterMaintenant(){
+  const res = BIPE.exportFullBackup();
+  if(res && res.ok){
+    renderBannieres();
+  } else {
+    BIPE.toast('Export échoué', true);
+  }
+}
+
+/* ---------- Action : envoi mensuel ---------- */
+function envoyerMensuel(){
+  // 1. Télécharger
+  const res = BIPE.exportFullBackup();
+  if(!res || !res.ok){
+    BIPE.toast('Export impossible', true);
+    return;
+  }
+
+  // 2. Construire le mailto
+  const mailInfo = BIPE.buildMonthlyMailto();
+
+  if(!mailInfo.email){
+    BIPE.toast('📤 Fichier téléchargé — ouvre ton mail et joins-le', false);
+  } else {
+    window.location.href = mailInfo.mailto;
+    BIPE.toast('📧 Mail pré-rempli — joins le fichier téléchargé', false);
+  }
+
+  // 3. Marquer envoyé
+  BIPE.markMonthlyEmailSent();
+  renderBannieres();
+}
+
+// Re-check au focus (retour après mailto)
+window.addEventListener('focus', () => {
+  if(document.getElementById('banniere-zone')) renderBannieres();
+});
+</script>
+</body>
+</html>

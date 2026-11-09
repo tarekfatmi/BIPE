@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>BIPE — Commercial</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="shared.js"></script>
+<style>
+  :root{
+    --black:#000000; --black-2:#0a0a0a; --black-3:#141414;
+    --line:#2a2a2a; --line-soft:#1f1f1f;
+    --gold:#d4af37; --gold-bright:#f0d060; --gold-soft:#e8c96a;
+    --gold-dim:#8a7433; --gold-deep:#5a4a1f;
+    --txt:#f5f0e1; --txt-muted:#9a9384; --txt-dim:#5a564e;
+    --ok:#6b9a5a; --warn:#c9a040; --bad:#b84040; --info:#7cc4e8;
+    --radius:16px; --radius-sm:12px;
+    --groupe-couleur:#b19cd9;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overscroll-behavior:none}
+  body{
+    font-family:'Baloo Bhaijaan 2', -apple-system, "Segoe UI", sans-serif;
+    background:var(--black); color:var(--txt); line-height:1.6; font-weight:500;
+    -webkit-font-smoothing:antialiased; min-height:100vh;
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(177,156,217,.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(212,175,55,.02) 0%, transparent 40%);
+    background-attachment:fixed;
+  }
+  .app{max-width:min(1100px,92vw);margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding-bottom:clamp(24px,4vw,40px)}
+
+  /* HEADER */
+  .header{
+    position:sticky;top:0;z-index:50;background:rgba(0,0,0,.92);
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--line-soft);
+    padding:clamp(12px,2vw,16px) clamp(16px,3vw,20px);
+    display:flex;align-items:center;gap:clamp(8px,1.5vw,16px);
+  }
+  .header .back{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;text-decoration:none;transition:transform .15s;
+  }
+  .header .back:active{transform:scale(.92)}
+  .header .title-block{flex:1;min-width:0}
+  .header .logo{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2.5vw,1.5rem);
+    font-weight:700;color:#f0d060;line-height:1.2;letter-spacing:.02em;
+  }
+  .header .logo .b,.header .logo .pe{color:var(--txt)}
+  .header .logo .excl{color:var(--gold);font-size:1.3em;vertical-align:middle;text-shadow:0 0 20px rgba(212,175,55,.5)}
+  .header .subtitle{
+    font-size:clamp(.6rem,1vw,.7rem);color:var(--txt-muted);
+    font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  }
+  .header .menu{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;transition:transform .15s;
+  }
+  .header .menu:active{transform:scale(.92)}
+
+  .content{flex:1;padding:clamp(16px,3vw,24px) clamp(16px,3vw,20px)}
+
+  /* HERO */
+  .hero-groupe{
+    background:linear-gradient(135deg,var(--black-2) 0%,var(--black-3) 100%);
+    border:2px solid var(--gold-deep);border-radius:var(--radius);
+    padding:clamp(18px,3vw,24px);margin-bottom:clamp(16px,3vw,24px);
+    position:relative;overflow:hidden;
+  }
+  .hero-groupe::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--groupe-couleur);opacity:.8;
+  }
+  .hero-groupe .num{
+    font-family:'Fredoka',sans-serif;font-size:clamp(.75rem,1vw,.85rem);
+    font-weight:700;color:var(--groupe-couleur);letter-spacing:.05em;margin-bottom:6px;
+  }
+  .hero-groupe .ico{font-size:clamp(1.8rem,3vw,2.4rem);line-height:1;margin-bottom:8px}
+  .hero-groupe h1{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.4rem,2.5vw,1.9rem);
+    font-weight:700;color:var(--gold-bright);line-height:1.2;margin-bottom:6px;
+  }
+  .hero-groupe p{font-size:clamp(.9rem,1.2vw,1.05rem);color:var(--txt-muted);font-weight:500}
+
+  /* STATS */
+  .stats{
+    display:grid;grid-template-columns:repeat(5,1fr);
+    gap:clamp(8px,1.5vw,12px);margin-bottom:clamp(16px,3vw,20px);
+  }
+  .stat{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(12px,2vw,16px) clamp(10px,1.5vw,14px);
+  }
+  .stat .num{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.3rem,2.5vw,1.7rem);
+    font-weight:700;line-height:1;margin-bottom:4px;color:var(--gold-bright);
+  }
+  .stat .lab{font-size:clamp(.7rem,.95vw,.8rem);color:var(--txt-muted);font-weight:600;line-height:1.3}
+  .stat.warn .num{color:var(--warn)}
+
+  /* SECTION TITRE */
+  .section-title{
+    display:flex;justify-content:space-between;align-items:baseline;
+    margin-bottom:clamp(12px,2vw,16px);padding:0 4px;
+  }
+  .section-title h2{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2vw,1.5rem);
+    font-weight:700;color:var(--gold-soft);
+  }
+  .section-title .count{
+    font-size:clamp(.85rem,1.1vw,1rem);color:var(--txt-muted);font-weight:600;
+  }
+
+  /* GRILLE PAGES */
+  .pages-grid{
+    display:grid;grid-template-columns:repeat(2,1fr);
+    gap:clamp(12px,2vw,16px);margin-bottom:clamp(24px,3vw,32px);
+  }
+  .page-card{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(18px,2.5vw,22px) clamp(16px,2.5vw,20px);
+    cursor:pointer;transition:transform .15s,border-color .15s;
+    text-decoration:none;color:var(--txt);
+    display:flex;flex-direction:column;gap:8px;
+    min-height:clamp(140px,20vw,170px);position:relative;overflow:hidden;
+  }
+  .page-card::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--groupe-couleur);opacity:.5;transition:opacity .2s;
+  }
+  .page-card:hover::before{opacity:1}
+  .page-card:hover{border-color:var(--gold-dim)}
+  .page-card:active{transform:scale(.97)}
+  .page-card .ico{font-size:clamp(1.8rem,3vw,2.2rem);line-height:1;margin-bottom:4px}
+  .page-card .name{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1rem,1.5vw,1.15rem);
+    font-weight:700;color:var(--txt);line-height:1.3;
+  }
+  .page-card .desc{
+    font-size:clamp(.78rem,1vw,.88rem);color:var(--txt-muted);
+    font-weight:500;line-height:1.5;margin-top:auto;
+  }
+  .page-card .count{
+    position:absolute;top:clamp(14px,2.5vw,18px);right:clamp(14px,2.5vw,18px);
+    font-size:clamp(.72rem,.9vw,.8rem);font-weight:700;
+    padding:2px 8px;border-radius:999px;
+    background:rgba(255,255,255,.04);color:var(--txt-muted);
+  }
+  .page-card .count.warn{
+    background:rgba(201,160,64,.15);color:var(--warn);
+  }
+
+  /* FOOTER */
+  .footer{
+    text-align:center;padding:clamp(20px,3vw,28px) 16px 16px;
+    font-size:clamp(.72rem,.9vw,.8rem);color:var(--txt-dim);
+    line-height:1.8;font-weight:500;border-top:1px solid var(--line-soft);margin-top:auto;
+  }
+  .footer .brand{color:var(--gold-soft);font-weight:700}
+
+  /* RESPONSIVE */
+  @media (max-width:900px){
+    .stats{grid-template-columns:repeat(3,1fr)}
+  }
+  @media (max-width:700px){
+    .stats{grid-template-columns:repeat(2,1fr)}
+  }
+  @media (max-width:600px){
+    .pages-grid{grid-template-columns:1fr}
+    .stats{grid-template-columns:repeat(2,1fr)}
+  }
+</style>
+</head>
+<body data-groupe="g1">
+
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <a href="index.html" class="back">←</a>
+    <div class="title-block">
+      <div class="logo"><span class="b">B</span><span class="excl">!</span><span class="pe">PE</span></div>
+      <div class="subtitle">Groupe 01 · Commercial</div>
+    </div>
+    <button class="menu" onclick="BIPE.openMenu()">⋮</button>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- HERO -->
+    <div class="hero-groupe">
+      <div class="num">GROUPE 01</div>
+      <div class="ico">🛒</div>
+      <h1>Commercial</h1>
+      <p>Ventes, achats, clients, fournisseurs, produits, devis et facturation électronique. Tout ton activité commerciale, sans tableur.</p>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats">
+      <div class="stat"><div class="num" id="statVentes">0</div><div class="lab">Ventes<br>enregistrées</div></div>
+      <div class="stat"><div class="num" id="statAchats">0</div><div class="lab">Achats<br>enregistrés</div></div>
+      <div class="stat"><div class="num" id="statClients">0</div><div class="lab">Clients<br>actifs</div></div>
+      <div class="stat"><div class="num" id="statDevis">0</div><div class="lab">Devis<br>en cours</div></div>
+      <div class="stat warn"><div class="num" id="statFactElec">0</div><div class="lab">Factures<br>à exporter</div></div>
+    </div>
+
+    <!-- SECTION PAGES -->
+    <div class="section-title">
+      <h2>Pages du groupe</h2>
+      <div class="count" id="countPages">7</div>
+    </div>
+
+    <div class="pages-grid">
+
+      <a href="f-ventes.html" class="page-card">
+        <div class="ico">💰</div>
+        <div class="name">Ventes</div>
+        <div class="desc">Enregistre tes ventes. Stock et clients synchronisés.</div>
+        <span class="count" id="cardVentes">0</span>
+      </a>
+
+      <a href="f-achats.html" class="page-card">
+        <div class="ico">🧾</div>
+        <div class="name">Achats</div>
+        <div class="desc">Enregistre tes achats. Stock et fournisseurs synchronisés.</div>
+        <span class="count" id="cardAchats">0</span>
+      </a>
+
+      <a href="f-clients.html" class="page-card">
+        <div class="ico">👤</div>
+        <div class="name">Clients</div>
+        <div class="desc">Fiches, contacts, historique. Le CA par client, en temps réel.</div>
+        <span class="count" id="cardClients">0</span>
+      </a>
+
+      <a href="f-fournisseurs.html" class="page-card">
+        <div class="ico">🏭</div>
+        <div class="name">Fournisseurs</div>
+        <div class="desc">Fiches, contacts, historique. Les dépenses par fournisseur.</div>
+        <span class="count" id="cardFournisseurs">0</span>
+      </a>
+
+      <a href="f-produits.html" class="page-card">
+        <div class="ico">📦</div>
+        <div class="name">Catalogue produits</div>
+        <div class="desc">Tous tes produits, avec prix, catégories et références.</div>
+        <span class="count" id="cardProduits">0</span>
+      </a>
+
+      <a href="f-devis.html" class="page-card">
+        <div class="ico">📋</div>
+        <div class="name">Devis & factures</div>
+        <div class="desc">Crée un devis, fais-le accepter, convertis-le en vente.</div>
+        <span class="count" id="cardDevis">0</span>
+      </a>
+
+      <a href="f-facturation-electronique.html" class="page-card" style="grid-column: 1 / -1;">
+        <div class="ico">🇹🇳</div>
+        <div class="name">Facturation Électronique</div>
+        <div class="desc">Génère tes fichiers XML conformes (TTN / El Fatoora). Prêt pour la loi 2024.</div>
+        <span class="count warn" id="cardFactElec">0 à exporter</span>
+      </a>
+
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <span class="brand">BIPE</span> · Bureau Intelligent Pour Entrepreneur<br>
+    Groupe 01 · Commercial · Version 1.1
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   BIPE — groupe-commercial.html v1.1
+   Groupe 1 — Commercial : hub des 7 fonctions (avec Fact. Élec.)
+   ============================================================ */
+
+BIPE.checkSession();
+
+function compter(key){
+  const data = BIPE.storage.get(key, []);
+  if(Array.isArray(data)) return data.length;
+  if(typeof data === 'object' && data !== null) return Object.keys(data).length;
+  return 0;
+}
+
+function render(){
+  // 1. Stats globales
+  const ventes = compter(BIPE.KEYS.ventes);
+  const achats = compter(BIPE.KEYS.achats);
+  const clients = compter(BIPE.KEYS.clients);
+  const fournisseurs = compter(BIPE.KEYS.fournisseurs);
+  const produits = compter(BIPE.KEYS.stock);
+  const devis = compter(BIPE.KEYS.devis);
+
+  // 2. Devis en cours
+  const tousDevis = BIPE.storage.get(BIPE.KEYS.devis, []) || [];
+  const devisEnCours = tousDevis.filter(d =>
+    d.statut !== 'converti' && d.statut !== 'refuse'
+  ).length;
+
+  // 3. Factures à exporter (TTN)
+  const toutesVentes = BIPE.storage.get(BIPE.KEYS.ventes, []) || [];
+  const facturesAExporter = toutesVentes.filter(v => !v.exporteTTN).length;
+
+  // Affichage stats
+  document.getElementById('statVentes').textContent = ventes;
+  document.getElementById('statAchats').textContent = achats;
+  document.getElementById('statClients').textContent = clients;
+  document.getElementById('statDevis').textContent = devisEnCours;
+  document.getElementById('statFactElec').textContent = facturesAExporter;
+
+  // Affichage cartes
+  document.getElementById('cardVentes').textContent = ventes;
+  document.getElementById('cardAchats').textContent = achats;
+  document.getElementById('cardClients').textContent = clients;
+  document.getElementById('cardFournisseurs').textContent = fournisseurs;
+  document.getElementById('cardProduits').textContent = produits;
+  document.getElementById('cardDevis').textContent = devis;
+  
+  const cardFactElec = document.getElementById('cardFactElec');
+  if(facturesAExporter > 0) {
+    cardFactElec.textContent = facturesAExporter + ' à exporter';
+    cardFactElec.classList.add('warn');
+  } else {
+    cardFactElec.textContent = 'À jour';
+    cardFactElec.classList.remove('warn');
+    cardFactElec.style.background = 'rgba(107,154,90,.15)';
+    cardFactElec.style.color = 'var(--ok)';
+  }
+
+  // Compteur
+  document.getElementById('countPages').textContent = '7';
+}
+
+document.addEventListener('DOMContentLoaded', render);
+</script>
+</body>
+</html>

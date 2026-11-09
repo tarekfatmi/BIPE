@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>BIPE — Achats</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="shared.js"></script>
+<style>
+  :root{
+    --black:#000000; --black-2:#0a0a0a; --black-3:#141414;
+    --line:#2a2a2a; --line-soft:#1f1f1f;
+    --gold:#d4af37; --gold-bright:#f0d060; --gold-soft:#e8c96a;
+    --gold-dim:#8a7433; --gold-deep:#5a4a1f;
+    --txt:#f5f0e1; --txt-muted:#9a9384; --txt-dim:#5a564e;
+    --ok:#6b9a5a; --warn:#c9a040; --bad:#b84040; --info:#7cc4e8;
+    --radius:16px; --radius-sm:12px;
+    --groupe-couleur:#b19cd9;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overscroll-behavior:none}
+  body{
+    font-family:'Baloo Bhaijaan 2', -apple-system, "Segoe UI", sans-serif;
+    background:var(--black); color:var(--txt); line-height:1.6; font-weight:500;
+    -webkit-font-smoothing:antialiased; min-height:100vh;
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(177,156,217,.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(212,175,55,.02) 0%, transparent 40%);
+    background-attachment:fixed;
+  }
+  .app{max-width:min(1100px,92vw);margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding-bottom:clamp(24px,4vw,40px)}
+
+  .bipe-sheet{transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1)}
+  .bipe-sheet.show{transform:translateY(0) !important}
+  #bipe-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s}
+  #bipe-overlay.show{opacity:1 !important;pointer-events:auto !important}
+
+  .header{
+    position:sticky;top:0;z-index:50;background:rgba(0,0,0,.92);
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--line-soft);
+    padding:clamp(12px,2vw,16px) clamp(16px,3vw,20px);
+    display:flex;align-items:center;gap:clamp(8px,1.5vw,16px);
+  }
+  .header .back{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;text-decoration:none;transition:transform .15s;
+  }
+  .header .back:active{transform:scale(.92)}
+  .header .title-block{flex:1;min-width:0}
+  .header .logo{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2.5vw,1.5rem);
+    font-weight:700;color:#f0d060;line-height:1.2;letter-spacing:.02em;
+  }
+  .header .logo .b,.header .logo .pe{color:var(--txt)}
+  .header .logo .excl{color:var(--gold);font-size:1.3em;vertical-align:middle;text-shadow:0 0 20px rgba(212,175,55,.5)}
+  .header .subtitle{
+    font-size:clamp(.6rem,1vw,.7rem);color:var(--txt-muted);
+    font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  }
+  
+  /* LANG SWITCHER */
+  .lang-switch {
+    display: flex; background: var(--black-3); border-radius: 8px; padding: 2px; border: 1px solid var(--line);
+  }
+  .lang-btn {
+    padding: 4px 8px; border-radius: 6px; border: none; background: transparent;
+    color: var(--txt-muted); font-size: .75rem; font-weight: 700; cursor: pointer; transition: all .2s;
+    font-family: 'Baloo Bhaijaan 2', sans-serif;
+  }
+  .lang-btn.active { background: var(--gold); color: #000; }
+
+  .header .menu{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;transition:transform .15s;
+  }
+  .header .menu:active{transform:scale(.92)}
+
+  .content{flex:1;padding:clamp(16px,3vw,24px) clamp(16px,3vw,20px)}
+
+  .filtre-banner{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:clamp(12px,2vw,16px) clamp(16px,2.5vw,20px);
+    background:rgba(177,156,217,.08);
+    border:2px solid var(--groupe-couleur);
+    border-radius:var(--radius);
+    margin-bottom:clamp(14px,2.5vw,18px);
+    flex-wrap:wrap;
+  }
+  .filtre-banner .info{
+    flex:1;min-width:0;
+    font-size:clamp(.85rem,1vw,.95rem);
+    font-weight:600;
+    color:var(--groupe-couleur);
+  }
+  .filtre-banner .info strong{color:var(--txt);font-weight:700}
+  .filtre-banner .btn-clear{
+    padding:8px 14px;border-radius:999px;
+    background:var(--black-3);border:1px solid var(--line);
+    color:var(--txt);font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:.82rem;font-weight:700;cursor:pointer;
+    transition:.2s;white-space:nowrap;
+  }
+  .filtre-banner .btn-clear:hover{border-color:var(--gold-dim)}
+
+  .hero-groupe{
+    background:linear-gradient(135deg,var(--black-2) 0%,var(--black-3) 100%);
+    border:2px solid var(--gold-deep);border-radius:var(--radius);
+    padding:clamp(18px,3vw,24px);margin-bottom:clamp(16px,3vw,20px);
+    position:relative;overflow:hidden;
+  }
+  .hero-groupe::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--groupe-couleur);opacity:.8;
+  }
+  .hero-groupe .num{
+    font-family:'Fredoka',sans-serif;font-size:clamp(.75rem,1vw,.85rem);
+    font-weight:700;color:var(--groupe-couleur);letter-spacing:.05em;margin-bottom:6px;
+  }
+  .hero-groupe .ico{font-size:clamp(1.6rem,2.5vw,2rem);line-height:1;margin-bottom:6px}
+  .hero-groupe h1{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.3rem,2.2vw,1.7rem);
+    font-weight:700;color:var(--gold-bright);line-height:1.2;margin-bottom:4px;
+  }
+  .hero-groupe p{font-size:clamp(.85rem,1.1vw,1rem);color:var(--txt-muted);font-weight:500}
+
+  .stats{
+    display:grid;grid-template-columns:repeat(4,1fr);
+    gap:clamp(8px,1.5vw,12px);margin-bottom:clamp(16px,3vw,20px);
+  }
+  .stat{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(12px,2vw,16px) clamp(10px,1.5vw,14px);
+  }
+  .stat .num{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2.2vw,1.5rem);
+    font-weight:700;line-height:1;margin-bottom:4px;color:var(--gold-bright);
+  }
+  .stat .lab{font-size:clamp(.68rem,.9vw,.76rem);color:var(--txt-muted);font-weight:600;line-height:1.3}
+  .stat.compta .num{color:var(--ok)}
+
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:clamp(14px,2.5vw,18px)}
+  .btn{
+    padding:clamp(11px,1.5vw,13px) clamp(16px,2vw,20px);
+    border-radius:999px;border:none;cursor:pointer;
+    font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:clamp(.88rem,1.1vw,1rem);font-weight:700;
+    display:inline-flex;align-items:center;gap:8px;transition:all .2s;
+  }
+  .btn-gold{
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold));
+    color:#0a0a0a;box-shadow:0 4px 16px rgba(212,175,55,.25);
+  }
+  .btn-gold:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  .btn-gold:active{transform:scale(.97)}
+  .btn-ghost{background:var(--black-2);border:2px solid var(--line);color:var(--txt)}
+  .btn-ghost:hover{border-color:var(--gold-dim)}
+  .btn-compta{
+    background:linear-gradient(180deg,#8fc47a,#6b9a5a);
+    color:#0a0a0a;box-shadow:0 4px 16px rgba(107,154,90,.25);
+    padding:8px 14px;font-size:.82rem;
+    width:100%;justify-content:center;
+  }
+  .btn-compta:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  .btn-compta:active{transform:scale(.97)}
+
+  .filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:clamp(14px,2.5vw,18px)}
+  .filter-chip{
+    padding:8px 14px;border-radius:999px;border:2px solid var(--line);
+    background:var(--black-2);color:var(--txt-muted);
+    font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:clamp(.8rem,1vw,.9rem);font-weight:600;cursor:pointer;transition:.2s;
+  }
+  .filter-chip.active{border-color:var(--groupe-couleur);color:var(--groupe-couleur);background:rgba(177,156,217,.08)}
+  .filter-chip:hover:not(.active){color:var(--txt)}
+
+  /* Filtres dates v1.5 */
+  .date-filters-wrap{
+    margin-bottom:clamp(14px,2.5vw,18px);
+    padding:clamp(12px,2vw,16px);
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);
+  }
+  .date-filters-wrap .df-label{
+    font-size:.75rem;color:var(--txt-muted);font-weight:600;
+    text-transform:uppercase;letter-spacing:.05em;
+    margin-bottom:8px;display:block;
+  }
+  .date-filters-wrap button[data-mode]{
+    padding:8px 14px;border-radius:999px;
+    border:2px solid var(--line);
+    font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:.82rem;font-weight:700;cursor:pointer;transition:.2s;
+  }
+  .date-filters-wrap button[data-mode]:hover{border-color:var(--gold-dim)}
+  .date-filters-wrap input[type="date"]{
+    padding:8px 12px;border-radius:10px;
+    background:var(--black-3);border:2px solid var(--line);
+    color:var(--txt);font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:.85rem;font-weight:500;
+  }
+  .date-filters-wrap input[type="date"]:focus{outline:none;border-color:var(--gold)}
+
+  .list{display:flex;flex-direction:column;gap:clamp(8px,1.5vw,10px)}
+  .achat-card{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(14px,2.5vw,18px) clamp(16px,2.5vw,20px);
+    display:flex;gap:clamp(10px,2vw,14px);align-items:flex-start;
+    transition:transform .15s,border-color .15s;position:relative;overflow:hidden;
+  }
+  .achat-card::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--groupe-couleur);opacity:.7;
+  }
+  .achat-card.comptabilise::before{background:var(--ok)}
+  .achat-card:hover{border-color:var(--gold-dim)}
+  .achat-body{flex:1;min-width:0}
+  .achat-head{
+    display:flex;justify-content:space-between;align-items:baseline;
+    gap:8px;margin-bottom:6px;flex-wrap:wrap;
+  }
+  .achat-titre{
+    font-family:'Fredoka',sans-serif;font-size:clamp(.95rem,1.4vw,1.1rem);
+    font-weight:700;color:var(--txt);line-height:1.3;flex:1;min-width:0;
+  }
+  .achat-date{
+    font-size:clamp(.72rem,.95vw,.82rem);color:var(--txt-dim);
+    font-weight:600;white-space:nowrap;
+  }
+  .achat-meta{
+    display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+    font-size:clamp(.78rem,1vw,.88rem);font-weight:600;
+  }
+  .achat-meta .fournisseur{
+    padding:2px 8px;border-radius:6px;background:rgba(255,255,255,.04);
+    color:var(--txt-muted);
+  }
+  .achat-meta .fournisseur.supprime{color:#e08a8a;background:rgba(184,64,64,.1);font-style:italic}
+  .achat-meta .montant{color:var(--ok);font-weight:700}
+  .achat-meta .qte{color:var(--info);font-weight:700}
+  .achat-meta .badge-compta{
+    padding:2px 8px;border-radius:6px;font-size:.75em;font-weight:700;
+    text-transform:uppercase;letter-spacing:.04em;
+    background:rgba(107,154,90,.15);color:#8fc47a;
+  }
+  .achat-actions{display:flex;gap:4px;flex-shrink:0;flex-direction:column}
+  .icon-btn{
+    width:clamp(32px,4.5vw,36px);height:clamp(32px,4.5vw,36px);
+    border-radius:10px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--txt-muted);font-size:clamp(.85rem,1.2vw,.95rem);
+    cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;
+  }
+  .icon-btn:hover{border-color:var(--gold-dim);color:var(--gold-soft)}
+  .icon-btn.danger:hover{border-color:var(--bad);color:#e08a8a}
+
+  .empty{
+    text-align:center;padding:clamp(40px,8vw,60px) clamp(20px,3vw,24px);
+    background:var(--black-2);border:2px dashed var(--line);border-radius:var(--radius);
+  }
+  .empty .ico{font-size:clamp(2.5rem,6vw,3.5rem);margin-bottom:12px;opacity:.6}
+  .empty h3{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.1rem,1.8vw,1.3rem);
+    color:var(--gold-soft);margin-bottom:8px;
+  }
+  .empty p{font-size:clamp(.85rem,1.1vw,1rem);color:var(--txt-muted);margin-bottom:16px}
+
+  .footer{
+    text-align:center;padding:clamp(20px,3vw,28px) 16px 16px;
+    font-size:clamp(.72rem,.9vw,.8rem);color:var(--txt-dim);
+    line-height:1.8;font-weight:500;border-top:1px solid var(--line-soft);margin-top:auto;
+  }
+  .footer .brand{color:var(--gold-soft);font-weight:700}
+
+  .form-group{margin-bottom:clamp(14px,2vw,18px)}
+  label{
+    display:block;font-size:clamp(.85rem,1vw,.95rem);
+    color:var(--txt-muted);margin-bottom:6px;font-weight:600;
+  }
+  label .required{color:var(--bad);margin-left:2px}
+  input,textarea,select{
+    width:100%;padding:clamp(12px,1.5vw,14px) clamp(14px,2vw,16px);
+    border-radius:var(--radius-sm);border:2px solid var(--line);
+    background:var(--black-3);color:var(--txt);
+    font-size:clamp(.95rem,1.1vw,1rem);
+    font-family:'Baloo Bhaijaan 2',sans-serif;font-weight:500;transition:all .2s;
+  }
+  input:focus,textarea:focus,select:focus{
+    outline:none;border-color:var(--gold);box-shadow:0 0 0 4px rgba(212,175,55,.12);
+  }
+  input::placeholder,textarea::placeholder{color:var(--txt-dim)}
+  textarea{resize:vertical;min-height:80px}
+  select{cursor:pointer}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  .stock-info{
+    padding:8px 12px;border-radius:8px;
+    font-size:clamp(.8rem,.95vw,.88rem);font-weight:600;
+    display:flex;align-items:center;gap:8px;
+    margin-top:8px;
+  }
+  .stock-info.ok{background:rgba(107,154,90,.1);color:#8fc47a;border:1px solid rgba(107,154,90,.3)}
+  .stock-info.warn{background:rgba(201,160,64,.1);color:var(--warn);border:1px solid rgba(201,160,64,.3)}
+
+  .new-fournisseur-box{
+    margin-top:12px;padding:14px;
+    background:rgba(212,175,55,.05);
+    border:2px solid var(--gold-dim);
+    border-radius:var(--radius-sm);
+  }
+  .new-fournisseur-box h4{
+    font-family:'Fredoka',sans-serif;font-size:.95rem;
+    color:var(--gold-soft);font-weight:700;margin-bottom:10px;
+    display:flex;align-items:center;gap:8px;
+  }
+
+  @media (max-width:700px){
+    .stats{grid-template-columns:repeat(2,1fr)}
+  }
+  @media (max-width:600px){
+    .row{grid-template-columns:1fr}
+    .achat-actions{flex-direction:row}
+  }
+</style>
+</head>
+<body data-groupe="g1">
+
+<div class="app">
+
+  <div class="header">
+    <a href="groupe-commercial.html" class="back">←</a>
+    <div class="title-block">
+      <div class="logo"><span class="b">B</span><span class="excl">!</span><span class="pe">PE</span></div>
+      <div class="subtitle" data-i18n="subtitle">Commercial · Achats</div>
+    </div>
+    
+    <!-- LANG SWITCHER -->
+    <div class="lang-switch">
+      <button class="lang-btn active" id="btn-lang-fr" onclick="setLang('fr')">FR</button>
+      <button class="lang-btn" id="btn-lang-tn" onclick="setLang('tn')">TN</button>
+    </div>
+
+    <button class="menu" onclick="BIPE.openMenu()">⋮</button>
+  </div>
+
+  <div class="content">
+
+    <div id="filtreBanner" class="filtre-banner" style="display:none;">
+      <div class="info">
+        <span data-i18n="filtre_actif">🏭 Achats filtrés sur :</span> <strong id="filtreNom">—</strong>
+      </div>
+      <button class="btn-clear" onclick="clearFiltre()" data-i18n="btn_retirer_filtre">✕ Retirer le filtre</button>
+    </div>
+
+    <div class="hero-groupe">
+      <div class="num">GROUPE 01</div>
+      <div class="ico">🧾</div>
+      <h1 data-i18n="titre_page">Achats</h1>
+      <p data-i18n="sous_titre">Stock et fournisseurs synchronisés. Comptabilisation en un clic.</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="num" id="statAchats">0</div><div class="lab" data-i18n="stat_achats">Achats<br>enregistrés</div></div>
+      <div class="stat"><div class="num" id="statDepenses">0</div><div class="lab" data-i18n="stat_depenses">Dépenses<br>totales (DT)</div></div>
+      <div class="stat"><div class="num" id="statQte">0</div><div class="lab" data-i18n="stat_qte">Articles<br>achetés</div></div>
+      <div class="stat compta"><div class="num" id="statCompta">0</div><div class="lab" data-i18n="stat_compta">Écritures<br>comptables</div></div>
+    </div>
+
+    <div class="toolbar">
+      <button class="btn btn-gold" onclick="openForm()"><span>＋</span> <span data-i18n="btn_nouvel_achat">Nouvel achat</span></button>
+      <button class="btn btn-ghost" onclick="exportAchats()"><span>📤</span> <span data-i18n="btn_exporter">Exporter</span></button>
+    </div>
+
+    <!-- ===== FILTRES DATES v1.5 ===== -->
+    <div class="date-filters-wrap">
+      <span class="df-label" data-i18n="label_periode">📅 Période</span>
+      <div id="dateFilters"></div>
+    </div>
+
+    <div class="filters" id="filters">
+      <button class="filter-chip active" data-filter="tous" onclick="setFilter('tous')" data-i18n="filtre_tous">Tous</button>
+      <button class="filter-chip" data-filter="non_compta" onclick="setFilter('non_compta')" data-i18n="filtre_non_compta">Non comptabilisés</button>
+      <button class="filter-chip" data-filter="compta" onclick="setFilter('compta')" data-i18n="filtre_compta">Comptabilisés</button>
+    </div>
+
+    <div class="list" id="list"></div>
+
+  </div>
+
+  <div class="footer">
+    <span class="brand">BIPE</span> · <span data-i18n="footer_version">Commercial · Achats · Version 2.2</span>
+  </div>
+
+</div>
+
+<div id="bipe-overlay" onclick="BIPE.closeAllSheets()"></div>
+
+<div id="sheet-form" class="bipe-sheet" style="
+  position:fixed;left:0;right:0;bottom:0;background:#0a0a0a;
+  border-radius:24px 24px 0 0;border-top:2px solid #5a4a1f;
+  z-index:1001;max-height:92vh;display:flex;flex-direction:column;
+  max-width:720px;margin:0 auto;
+">
+  <div style="width:48px;height:5px;background:#2a2a2a;border-radius:3px;margin:12px auto 8px;flex-shrink:0;"></div>
+  <div style="padding:8px 24px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1f1f1f;">
+    <h3 id="formTitle" style="font-family:'Fredoka',sans-serif;font-size:1.5rem;color:#e8c96a;font-weight:700;" data-i18n="titre_form">Nouvel achat</h3>
+    <button onclick="BIPE.closeAllSheets()" style="
+      width:44px;height:44px;border-radius:12px;background:#141414;
+      border:1px solid #2a2a2a;color:#f5f0e1;font-size:1.4rem;
+      display:flex;align-items:center;justify-content:center;cursor:pointer;
+    ">✕</button>
+  </div>
+  <div style="padding:20px 24px 24px;overflow-y:auto;flex:1;">
+
+    <div class="form-group">
+      <label data-i18n="form_produit">Produit <span class="required">*</span></label>
+      <input type="text" id="fProduit" placeholder="Ex : Stylo, Cahier..." data-i18n-placeholder="ph_produit" maxlength="80" list="produitsExistants">
+      <datalist id="produitsExistants"></datalist>
+      <div id="stockInfo" style="margin-top:8px;"></div>
+    </div>
+
+    <div class="row">
+      <div class="form-group">
+        <label data-i18n="form_qte">Quantité <span class="required">*</span></label>
+        <input type="number" id="fQuantite" placeholder="0" step="1" min="1">
+      </div>
+      <div class="form-group">
+        <label data-i18n="form_prix">Prix unitaire (DT) <span class="required">*</span></label>
+        <input type="number" id="fPrix" placeholder="0" step="0.01" min="0">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label data-i18n="form_date">Date <span class="required">*</span></label>
+      <input type="date" id="fDate">
+    </div>
+
+    <div class="form-group">
+      <label data-i18n="form_fournisseur">Fournisseur</label>
+      <select id="fFournisseurId" onchange="toggleNewFournisseur()">
+        <option value="" data-i18n="opt_aucun">— Aucun —</option>
+        <option value="__NEW__" data-i18n="opt_nouveau">✨ Créer un nouveau fournisseur</option>
+      </select>
+    </div>
+
+    <div id="newFournisseurBox" class="new-fournisseur-box" style="display:none;">
+      <h4 data-i18n="form_nouveau_fourn">✨ Nouveau fournisseur</h4>
+      <div class="form-group">
+        <label data-i18n="form_nom">Nom <span class="required">*</span></label>
+        <input type="text" id="nfNom" placeholder="Ex : Fournitures Dupont" maxlength="80">
+      </div>
+      <div class="row">
+        <div class="form-group">
+          <label data-i18n="form_email">Email</label>
+          <input type="email" id="nfEmail" placeholder="contact@fournisseur.tn" maxlength="80">
+        </div>
+        <div class="form-group">
+          <label data-i18n="form_tel">Téléphone</label>
+          <input type="tel" id="nfTel" placeholder="+216 ..." maxlength="30">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label data-i18n="form_note">Note</label>
+      <textarea id="fNote" placeholder="Détails de l'achat..." data-i18n-placeholder="ph_note" maxlength="300"></textarea>
+    </div>
+
+    <button class="btn btn-gold" style="width:100%;justify-content:center;margin-top:8px;" onclick="saveAchat()" data-i18n="btn_enregistrer">💾 Enregistrer l'achat</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   BIPE — f-achats.html v2.2 (Bilingue FR/TN)
+   ============================================================ */
+
+// --- DICTIONNAIRE DE TRADUCTION ---
+const I18N = {
+  fr: {
+    subtitle: "Commercial · Achats",
+    titre_page: "Achats",
+    sous_titre: "Stock et fournisseurs synchronisés. Comptabilisation en un clic.",
+    stat_achats: "Achats<br>enregistrés",
+    stat_depenses: "Dépenses<br>totales (DT)",
+    stat_qte: "Articles<br>achetés",
+    stat_compta: "Écritures<br>comptables",
+    btn_nouvel_achat: "Nouvel achat",
+    btn_exporter: "Exporter",
+    label_periode: "📅 Période",
+    filtre_tous: "Tous",
+    filtre_non_compta: "Non comptabilisés",
+    filtre_compta: "Comptabilisés",
+    filtre_actif: "🏭 Achats filtrés sur :",
+    btn_retirer_filtre: "✕ Retirer le filtre",
+    footer_version: "Commercial · Achats · Version 2.2",
+    // Formulaire
+    titre_form: "Nouvel achat",
+    form_produit: "Produit *",
+    ph_produit: "Ex : Stylo, Cahier...",
+    form_qte: "Quantité *",
+    form_prix: "Prix unitaire (DT) *",
+    form_date: "Date *",
+    form_fournisseur: "Fournisseur",
+    opt_aucun: "— Aucun —",
+    opt_nouveau: "✨ Créer un nouveau fournisseur",
+    form_nouveau_fourn: "✨ Nouveau fournisseur",
+    form_nom: "Nom *",
+    form_email: "Email",
+    form_tel: "Téléphone",
+    form_note: "Note",
+    ph_note: "Détails de l'achat...",
+    btn_enregistrer: "💾 Enregistrer l'achat",
+    // Messages
+    aucun_achat: "Aucun achat",
+    msg_aucun_fourn: "Aucun achat pour ce fournisseur.",
+    msg_premier_achat: "Enregistre ton premier achat.",
+    msg_aucun_filtre: "Aucun achat dans ce filtre.",
+    sans_fournisseur: "Sans fournisseur",
+    supprime: "(supprimé)",
+    comptabilise_badge: "✓ Comptabilisé",
+    btn_generer_compta: "📒 Générer l'écriture comptable",
+    ecriture_generee_le: "✓ Écriture comptable générée le {date}",
+    ecriture_generee: "✓ Écriture comptable générée",
+    // Toasts
+    toast_nom_obligatoire: "⚠ Le nom du produit est obligatoire",
+    toast_qte_invalide: "⚠ Quantité invalide",
+    toast_date_obligatoire: "⚠ Date obligatoire",
+    toast_achat_modifie: "✅ Achat modifié — stock recalculé",
+    toast_achat_enregistre: "✅ Achat enregistré — stock mis à jour",
+    toast_achat_supprime: "🗑 Achat supprimé — stock recalculé",
+    toast_ecriture_generee: "✅ Écriture comptable générée (2 lignes)",
+    toast_ecriture_existe: "⚠ Cet achat a déjà une écriture comptable",
+    toast_fournisseur_nom_obligatoire: "⚠ Le nom du fournisseur est obligatoire",
+    toast_fournisseur_reutilise: "ℹ️ Fournisseur existant réutilisé",
+    toast_fournisseur_cree: "✅ Fournisseur créé",
+    // Confirmations
+    confirm_modif_compta: "Cet achat est déjà comptabilisé. Modifier les quantités/prix ne mettra pas à jour l'écriture comptable automatiquement.\n\nContinuer ?",
+    confirm_suppr_achat: "Supprimer l'achat de \"{nom}\" ?\n\nLe stock sera diminué ({qte} unité(s)).",
+    confirm_suppr_compta: "\n\n⚠ Cet achat a une écriture comptable. Elle sera AUSSI supprimée.",
+    confirm_generer_ecriture: "Générer l'écriture comptable pour cet achat ?\n\nProduit : {produit}\nMontant : {montant} DT\n\nCela va créer :\n- Débit achat (607) : {montant} DT\n- Crédit fournisseur (401) : {montant} DT",
+    // Stock info
+    stock_existant: "📦 Produit existant — stock actuel : <strong>{stock}</strong>",
+    stock_nouveau: "✨ Nouveau produit — sera créé avec cet achat"
+  },
+  tn: {
+    subtitle: "التجاري · الشراء",
+    titre_page: "الشراء",
+    sous_titre: "الستوك والمورّدين مربوطين. المحاسبة بضغطة زر.",
+    stat_achats: "عمليات شراء<br>مسجلة",
+    stat_depenses: "مصاريف<br>الكل (دينار)",
+    stat_qte: "منتوجات<br>تشراو",
+    stat_compta: "قيود<br>محاسبية",
+    btn_nouvel_achat: "شراء جديد",
+    btn_exporter: "صدّر",
+    label_periode: "📅 الفترة",
+    filtre_tous: "الكل",
+    filtre_non_compta: "موش محاسب",
+    filtre_compta: "محاسب",
+    filtre_actif: "🏭 الشراء مفلتر على :",
+    btn_retirer_filtre: "✕ نحي الفيلتر",
+    footer_version: "التجاري · الشراء · نسخة 2.2",
+    // Formulaire
+    titre_form: "شراء جديد",
+    form_produit: "المنتوج *",
+    ph_produit: "مثال : ستيلو، كراسة...",
+    form_qte: "الكمية *",
+    form_prix: "السوم للوحدة (دينار) *",
+    form_date: "التاريخ *",
+    form_fournisseur: "المورّد",
+    opt_aucun: "— حتي واحد —",
+    opt_nouveau: "✨ زيد مورّد جديد",
+    form_nouveau_fourn: "✨ مورّد جديد",
+    form_nom: "الإسم *",
+    form_email: "الإيميل",
+    form_tel: "التليفون",
+    form_note: "ملاحظة",
+    ph_note: "تفاصيل الشراء...",
+    btn_enregistrer: "💾 سجّل الشراء",
+    // Messages
+    aucun_achat: "ما فماش شراء",
+    msg_aucun_fourn: "ما فماش شراء من المورّد هذا.",
+    msg_premier_achat: "سجّل أول عملية شراء.",
+    msg_aucun_filtre: "ما فماش شراء في الفيلتر هذا.",
+    sans_fournisseur: "بلا مورّد",
+    supprime: "(تحذف)",
+    comptabilise_badge: "✓ محاسب",
+    btn_generer_compta: "📒 أعمل القيد المحاسبي",
+    ecriture_generee_le: "✓ القيد المحاسبي تعمل في {date}",
+    ecriture_generee: "✓ القيد المحاسبي تعمل",
+    // Toasts
+    toast_nom_obligatoire: "⚠ إسم المنتوج إلزامي",
+    toast_qte_invalide: "⚠ الكمية موش صحيحة",
+    toast_date_obligatoire: "⚠ التاريخ إلزامي",
+    toast_achat_modifie: "✅ الشراء تبدل — الستوك تحسب من جديد",
+    toast_achat_enregistre: "✅ الشراء تسجل — الستوك تحدث",
+    toast_achat_supprime: "🗑 الشراء تحذف — الستوك تحسب من جديد",
+    toast_ecriture_generee: "✅ القيد المحاسبي تعمل (2 سطور)",
+    toast_ecriture_existe: "⚠ الشراء هذا عندو قيد محاسبي",
+    toast_fournisseur_nom_obligatoire: "⚠ إسم المورّد إلزامي",
+    toast_fournisseur_reutilise: "ℹ️ المورّد موجود، نستعملوه",
+    toast_fournisseur_cree: "✅ المورّد تعمل",
+    // Confirmations
+    confirm_modif_compta: "الشراء هذا محاسب. تبديل الكمية/السوم ما يبدلش القيد المحاسبي أوتوماتيك.\n\nتحب تكمل ؟",
+    confirm_suppr_achat: "تحب تحذف الشراء متاع \"{nom}\" ؟\n\nالستوك ينقص ({qte} وحدة).",
+    confirm_suppr_compta: "\n\n⚠ الشراء هذا عندو قيد محاسبي. باش يتحذف حتى هو.",
+    confirm_generer_ecriture: "تحب تعمل القيد المحاسبي للشراء هذا ؟\n\nالمنتوج : {produit}\nالمبلغ : {montant} دينار\n\nباش يتعمل :\n- مدين شراء (607) : {montant} دينار\n- دائن مورّد (401) : {montant} دينار",
+    // Stock info
+    stock_existant: "📦 المنتوج موجود — الستوك الحالي : <strong>{stock}</strong>",
+    stock_nouveau: "✨ منتوج جديد — باش يتعمل مع الشراء هذا"
+  }
+};
+
+let currentLang = BIPE.storage.get('bipe_langue') || 'fr';
+
+function setLang(lang) {
+  currentLang = lang;
+  BIPE.storage.set('bipe_langue', lang);
+  
+  document.getElementById('btn-lang-fr').classList.toggle('active', lang === 'fr');
+  document.getElementById('btn-lang-tn').classList.toggle('active', lang === 'tn');
+  
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if(I18N[lang][key]) el.innerHTML = I18N[lang][key];
+  });
+  
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    if(I18N[lang][key]) el.placeholder = I18N[lang][key];
+  });
+
+  // Recharger la liste pour les textes dynamiques
+  render();
+}
+
+function t(key, vars = {}) {
+  let text = I18N[currentLang][key] || key;
+  for(const k in vars) {
+    text = text.replace(`{${k}}`, vars[k]);
+  }
+  return text;
+}
+
+BIPE.checkSession();
+
+let achats = [];
+let filter = 'tous';
+let editingId = null;
+let filtreFournisseurId = null;
+let dateFilter = { mode: 'all' };
+
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+
+/* ---------- Sheet ---------- */
+function ouvrirSheet(id){
+  let overlay = document.getElementById('bipe-overlay');
+  if(!overlay){
+    overlay = document.createElement('div');
+    overlay.id = 'bipe-overlay';
+    overlay.onclick = BIPE.closeAllSheets;
+    document.body.appendChild(overlay);
+  }
+  overlay.classList.add('show');
+  const sheet = document.getElementById(id);
+  if(sheet) sheet.classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function fermerSheet(){
+  const overlay = document.getElementById('bipe-overlay');
+  if(overlay) overlay.classList.remove('show');
+  document.querySelectorAll('.bipe-sheet').forEach(s => s.classList.remove('show'));
+  document.body.style.overflow = '';
+}
+
+/* ---------- Stock helpers ---------- */
+function getMouvements(){ return BIPE.storage.get(BIPE.KEYS.stock, []) || []; }
+function saveMouvements(mvts){ BIPE.storage.set(BIPE.KEYS.stock, mvts); }
+function getPid(m){ return m.produitId || m.produit || m.produit_id || m.id_produit || ('nom:' + (m.nom || '')); }
+
+function stockDisponible(produitId){
+  return getMouvements()
+    .filter(m => getPid(m) === produitId)
+    .reduce((s, m) => {
+      const qte = Number(m.quantite) || Number(m.qte) || 0;
+      const type = (m.type || m.sens || '').toLowerCase();
+      if(type === 'entree' || type === 'entrée' || type === 'in' || type === 'achat') return s + qte;
+      if(type === 'sortie' || type === 'out' || type === 'vente') return s - qte;
+      return s;
+    }, 0);
+}
+
+function getProduits(){
+  const mvts = getMouvements();
+  const map = new Map();
+  mvts.forEach(m => {
+    const pid = getPid(m);
+    if(!map.has(pid)){
+      map.set(pid, { id: pid, nom: m.nom || m.produit || pid || t('sans_nom') });
+    }
+  });
+  return Array.from(map.values())
+    .map(p => ({...p, stock: stockDisponible(p.id)}))
+    .sort((a, b) => a.nom.localeCompare(b.nom));
+}
+
+function creerMouvementEntree(achat){
+  const mvts = getMouvements();
+  mvts.push({
+    id: 'mv-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,6),
+    type: 'entree',
+    produitId: achat.produitId,
+    nom: achat.produitNom,
+    quantite: achat.quantite,
+    prix: achat.prix,
+    date: achat.date,
+    motif: 'Achat',
+    achatId: achat.id,
+    fournisseurId: achat.fournisseurId || null,
+    fournisseurNom: achat.fournisseurNom || null,
+    createdAt: new Date().toISOString()
+  });
+  saveMouvements(mvts);
+}
+
+function supprimerMouvementAchat(achatId){
+  const mvts = getMouvements();
+  const filtres = mvts.filter(m => m.achatId !== achatId);
+  if(filtres.length !== mvts.length){
+    saveMouvements(filtres);
+  }
+}
+
+/* ---------- Fournisseurs ---------- */
+function getFournisseurs(){ return BIPE.storage.get(BIPE.KEYS.fournisseurs, []) || []; }
+function saveFournisseurs(fs){ BIPE.storage.set(BIPE.KEYS.fournisseurs, fs); }
+
+function populateFournisseurs(selectedId){
+  const fournisseurs = getFournisseurs();
+  const sel = document.getElementById('fFournisseurId');
+  if(!sel) return;
+
+  const options = fournisseurs
+    .slice()
+    .sort((a, b) => (a.nom || '').localeCompare(b.nom || ''))
+    .map(f => `<option value="${f.id}" ${selectedId === f.id ? 'selected' : ''}>${BIPE.esc(f.nom || 'Fournisseur sans nom')}${f.email ? ' · ' + BIPE.esc(f.email) : ''}</option>`)
+    .join('');
+
+  sel.innerHTML = `
+    <option value="">${t('opt_aucun')}</option>
+    <option value="__NEW__">${t('opt_nouveau')}</option>
+    ${options}
+  `;
+
+  if(selectedId && fournisseurs.some(f => f.id === selectedId)){
+    sel.value = selectedId;
+  }
+}
+
+function toggleNewFournisseur(){
+  const sel = document.getElementById('fFournisseurId');
+  const box = document.getElementById('newFournisseurBox');
+  if(!sel || !box) return;
+  box.style.display = (sel.value === '__NEW__') ? 'block' : 'none';
+}
+
+function creerFournisseurRapide(){
+  const nom = document.getElementById('nfNom').value.trim();
+  const email = document.getElementById('nfEmail').value.trim();
+  const tel = document.getElementById('nfTel').value.trim();
+
+  if(!nom){
+    BIPE.toast(t('toast_fournisseur_nom_obligatoire'), true);
+    return null;
+  }
+
+  const fournisseurs = getFournisseurs();
+  const existant = fournisseurs.find(f => (f.nom || '').toLowerCase() === nom.toLowerCase());
+  if(existant){
+    BIPE.toast(t('toast_fournisseur_reutilise'));
+    return existant;
+  }
+
+  const newF = {
+    id: 'f-' + Date.now().toString(36),
+    nom, email, tel,
+    createdAt: new Date().toISOString()
+  };
+  fournisseurs.push(newF);
+  saveFournisseurs(fournisseurs);
+  BIPE.toast(t('toast_fournisseur_cree'));
+  return newF;
+}
+
+function fournisseurExiste(id){
+  if(!id) return true;
+  return getFournisseurs().some(f => f.id === id);
+}
+
+/* ---------- Compta ---------- */
+function getEcritures(){ return BIPE.storage.get(BIPE.KEYS.compta, []) || []; }
+function saveEcritures(ecritures){ BIPE.storage.set(BIPE.KEYS.compta, ecritures); }
+
+function ecritureExistePourAchat(achatId){
+  return getEcritures().some(e => e.achatId === achatId);
+}
+
+function genererEcriture(achatId){
+  const a = achats.find(x => x.id === achatId);
+  if(!a) return;
+
+  if(ecritureExistePourAchat(achatId)){
+    BIPE.toast(t('toast_ecriture_existe'), true);
+    return;
+  }
+
+  const confirmMsg = t('confirm_generer_ecriture', {
+    produit: a.produitNom,
+    montant: BIPE.fmt(a.montant)
+  });
+  if(!confirm(confirmMsg)) return;
+
+  const ecritures = getEcritures();
+  const now = new Date().toISOString();
+  const achatDetails = `${BIPE.esc(a.produitNom)} × ${a.quantite}${a.fournisseurNom ? ' — ' + BIPE.esc(a.fournisseurNom) : ''}`;
+
+  ecritures.push({
+    id: 'ec-' + Date.now().toString(36) + '-1',
+    libelle: `Achat ${BIPE.esc(a.produitNom)}`,
+    date: a.date,
+    compte: '607 Achats de marchandises',
+    sens: 'debit',
+    montant: Number(a.montant) || 0,
+    note: `${achatDetails}\n\nÉcriture générée depuis l'achat du ${BIPE.fmtDate(a.date)}.`,
+    source: 'achat',
+    achatId: a.id,
+    numero: '607',
+    typeLigne: 'debit',
+    createdAt: now
+  });
+
+  ecritures.push({
+    id: 'ec-' + Date.now().toString(36) + '-2',
+    libelle: `Achat ${BIPE.esc(a.produitNom)}`,
+    date: a.date,
+    compte: '401 Fournisseurs',
+    sens: 'credit',
+    montant: Number(a.montant) || 0,
+    note: achatDetails,
+    source: 'achat',
+    achatId: a.id,
+    numero: '401',
+    typeLigne: 'credit',
+    createdAt: now
+  });
+
+  saveEcritures(ecritures);
+
+  a.comptabilise = true;
+  a.dateCompta = now;
+  save();
+
+  BIPE.toast(t('toast_ecriture_generee'));
+  render();
+}
+
+/* ---------- Chargement ---------- */
+function load(){
+  achats = BIPE.storage.get(BIPE.KEYS.achats, []) || [];
+
+  const params = new URLSearchParams(window.location.search);
+  const fournisseurIdUrl = params.get('fournisseurId');
+  if(fournisseurIdUrl){
+    filtreFournisseurId = fournisseurIdUrl;
+    const f = getFournisseurs().find(x => x.id === fournisseurIdUrl);
+    if(f){
+      document.getElementById('filtreBanner').style.display = 'flex';
+      document.getElementById('filtreNom').textContent = f.nom;
+    }
+  }
+
+  render();
+}
+
+function save(){
+  BIPE.storage.set(BIPE.KEYS.achats, achats);
+}
+
+/* ---------- Rendu ---------- */
+function render(){
+  renderStats();
+  renderList();
+}
+
+function renderStats(){
+  let items = achats;
+  if(filtreFournisseurId){
+    items = items.filter(a => a.fournisseurId === filtreFournisseurId);
+  }
+  items = BIPE.filterByDate(items, 'date', dateFilter);
+
+  const total = items.length;
+  const depenses = items.reduce((s, a) => s + (Number(a.montant) || 0), 0);
+  const qte = items.reduce((s, a) => s + (Number(a.quantite) || 0), 0);
+  const compta = items.filter(a => a.comptabilise || ecritureExistePourAchat(a.id)).length;
+
+  document.getElementById('statAchats').textContent = total;
+  document.getElementById('statDepenses').textContent = BIPE.fmt(depenses);
+  document.getElementById('statQte').textContent = qte;
+  document.getElementById('statCompta').textContent = compta;
+}
+
+function matchFilter(a){
+  if(filtreFournisseurId && a.fournisseurId !== filtreFournisseurId) return false;
+  if(filter === 'non_compta') return !a.comptabilise && !ecritureExistePourAchat(a.id);
+  if(filter === 'compta') return a.comptabilise || ecritureExistePourAchat(a.id);
+  return true;
+}
+
+function renderList(){
+  const list = document.getElementById('list');
+  let items = achats.filter(matchFilter);
+  items = BIPE.filterByDate(items, 'date', dateFilter);
+  items.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+  if(items.length === 0){
+    list.innerHTML = `
+      <div class="empty">
+        <div class="ico">🧾</div>
+        <h3>${t('aucun_achat')}</h3>
+        <p>${filtreFournisseurId ? t('msg_aucun_fourn') : (filter === 'tous' ? t('msg_premier_achat') : t('msg_aucun_filtre'))}</p>
+        <button class="btn btn-gold" style="margin:0 auto;" onclick="openForm()">＋ ${t('btn_nouvel_achat')}</button>
+      </div>
+    `;
+    return;
+  }
+
+  list.innerHTML = items.map(a => {
+    const fSupprime = a.fournisseurId && !fournisseurExiste(a.fournisseurId);
+    const fLabel = a.fournisseurNom
+      ? (fSupprime ? `🏭 ${BIPE.esc(a.fournisseurNom)} ${t('supprime')}` : `🏭 ${BIPE.esc(a.fournisseurNom)}`)
+      : t('sans_fournisseur');
+    const dejaCompta = a.comptabilise || ecritureExistePourAchat(a.id);
+
+    return `
+      <div class="achat-card ${dejaCompta ? 'comptabilise' : ''}">
+        <div class="achat-body">
+          <div class="achat-head">
+            <div class="achat-titre">${BIPE.esc(a.produitNom || a.produit || 'Produit')}</div>
+            <div class="achat-date">${a.date ? BIPE.fmtDate(a.date) : '—'}</div>
+          </div>
+          <div class="achat-meta">
+            <span class="fournisseur ${fSupprime ? 'supprime' : ''}">${fLabel}</span>
+            <span class="qte">× ${a.quantite || 0}</span>
+            <span class="montant">${BIPE.fmt(a.montant || 0)} DT</span>
+            ${dejaCompta ? `<span class="badge-compta">${t('comptabilise_badge')}</span>` : ''}
+          </div>
+          ${a.note ? `<div style="margin-top:6px;font-size:.82rem;color:var(--txt-dim);">${BIPE.esc(a.note)}</div>` : ''}
+          ${!dejaCompta ? `
+            <button class="btn btn-compta" style="margin-top:10px;" onclick="genererEcriture('${a.id}')">
+              ${t('btn_generer_compta')}
+            </button>
+          ` : `
+            <div style="margin-top:10px;font-size:.82rem;color:var(--ok);font-weight:600;">
+              ${a.dateCompta ? t('ecriture_generee_le', {date: BIPE.fmtDate(a.dateCompta)}) : t('ecriture_generee')}
+            </div>
+          `}
+        </div>
+        <div class="achat-actions">
+          <button class="icon-btn" onclick="openForm('${a.id}')" title="Modifier">✏️</button>
+          <button class="icon-btn danger" onclick="deleteAchat('${a.id}')" title="Supprimer">🗑</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function setFilter(f){
+  filter = f;
+  document.querySelectorAll('.filter-chip').forEach(b => {
+    b.classList.toggle('active', b.dataset.filter === f);
+  });
+  render();
+}
+
+function clearFiltre(){
+  filtreFournisseurId = null;
+  document.getElementById('filtreBanner').style.display = 'none';
+  const url = new URL(window.location.href);
+  url.searchParams.delete('fournisseurId');
+  window.history.replaceState({}, '', url.toString());
+  render();
+}
+
+/* ---------- Formulaire ---------- */
+function populateDatalist(){
+  const produits = getProduits();
+  const dl = document.getElementById('produitsExistants');
+  if(!dl) return;
+  dl.innerHTML = produits.map(p => `<option value="${BIPE.esc(p.nom)}"></option>`).join('');
+}
+
+function updateStockInfo(){
+  const nom = document.getElementById('fProduit').value.trim();
+  const info = document.getElementById('stockInfo');
+  if(!info) return;
+
+  if(!nom){
+    info.innerHTML = '';
+    return;
+  }
+
+  const produits = getProduits();
+  const existant = produits.find(p => p.nom.toLowerCase() === nom.toLowerCase());
+
+  if(existant){
+    info.innerHTML = `<div class="stock-info ok">${t('stock_existant', {stock: existant.stock})}</div>`;
+  } else {
+    info.innerHTML = `<div class="stock-info warn">${t('stock_nouveau')}</div>`;
+  }
+}
+
+function openForm(id){
+  editingId = id || null;
+  const title = document.getElementById('formTitle');
+  document.getElementById('newFournisseurBox').style.display = 'none';
+  populateDatalist();
+
+  const params = new URLSearchParams(window.location.search);
+  const fournisseurIdUrl = params.get('fournisseurId');
+
+  if(id){
+    const a = achats.find(x => x.id === id);
+    if(!a) return;
+    title.textContent = currentLang === 'fr' ? "Modifier l'achat" : "بدّل الشراء";
+    document.getElementById('fProduit').value = a.produitNom || a.produit || '';
+    document.getElementById('fQuantite').value = a.quantite || '';
+    document.getElementById('fPrix').value = a.prix || '';
+    document.getElementById('fDate').value = a.date || todayISO();
+    document.getElementById('fNote').value = a.note || '';
+    populateFournisseurs(a.fournisseurId);
+  } else {
+    title.textContent = t('titre_form');
+    document.getElementById('fProduit').value = '';
+    document.getElementById('fQuantite').value = '';
+    document.getElementById('fPrix').value = '';
+    document.getElementById('fDate').value = todayISO();
+    document.getElementById('fNote').value = '';
+    populateFournisseurs(fournisseurIdUrl || null);
+  }
+
+  document.getElementById('nfNom').value = '';
+  document.getElementById('nfEmail').value = '';
+  document.getElementById('nfTel').value = '';
+
+  updateStockInfo();
+  ouvrirSheet('sheet-form');
+}
+
+function saveAchat(){
+  const nom = document.getElementById('fProduit').value.trim();
+  const quantite = parseInt(document.getElementById('fQuantite').value);
+  const prix = parseFloat(document.getElementById('fPrix').value) || 0;
+  const date = document.getElementById('fDate').value;
+  const fournisseurSel = document.getElementById('fFournisseurId').value;
+  const note = document.getElementById('fNote').value.trim();
+
+  if(!nom){
+    BIPE.toast(t('toast_nom_obligatoire'), true);
+    return;
+  }
+  if(!quantite || quantite <= 0){
+    BIPE.toast(t('toast_qte_invalide'), true);
+    return;
+  }
+  if(!date){
+    BIPE.toast(t('toast_date_obligatoire'), true);
+    return;
+  }
+
+  let fournisseurId = null;
+  let fournisseurNom = null;
+
+  if(fournisseurSel === '__NEW__'){
+    const nouveauF = creerFournisseurRapide();
+    if(!nouveauF) return;
+    fournisseurId = nouveauF.id;
+    fournisseurNom = nouveauF.nom;
+  } else if(fournisseurSel){
+    const f = getFournisseurs().find(x => x.id === fournisseurSel);
+    if(f){ fournisseurId = f.id; fournisseurNom = f.nom; }
+  }
+
+  const produits = getProduits();
+  const existant = produits.find(p => p.nom.toLowerCase() === nom.toLowerCase());
+  const produitId = existant ? existant.id : 'p-' + Date.now().toString(36);
+
+  const montant = quantite * prix;
+
+  if(editingId){
+    const a = achats.find(x => x.id === editingId);
+    if(!a) return;
+
+    if(a.comptabilise && (a.quantite !== quantite || a.prix !== prix || a.produitNom !== nom)){
+      if(!confirm(t('confirm_modif_compta'))){
+        return;
+      }
+    }
+
+    supprimerMouvementAchat(a.id);
+
+    a.produitId = produitId;
+    a.produitNom = nom;
+    a.quantite = quantite;
+    a.prix = prix;
+    a.montant = montant;
+    a.date = date;
+    a.fournisseurId = fournisseurId;
+    a.fournisseurNom = fournisseurNom;
+    a.note = note;
+    a.updatedAt = new Date().toISOString();
+
+    creerMouvementEntree(a);
+    BIPE.toast(t('toast_achat_modifie'));
+  } else {
+    const nouvelAchat = {
+      id: 'a-' + Date.now().toString(36),
+      produitId, produitNom: nom, quantite, prix, montant, date,
+      fournisseurId, fournisseurNom, note,
+      comptabilise: false, dateCompta: null,
+      createdAt: new Date().toISOString()
+    };
+    achats.push(nouvelAchat);
+    creerMouvementEntree(nouvelAchat);
+    BIPE.toast(t('toast_achat_enregistre'));
+  }
+
+  save();
+  fermerSheet();
+  render();
+}
+
+function deleteAchat(id){
+  const a = achats.find(x => x.id === id);
+  if(!a) return;
+
+  let msg = t('confirm_suppr_achat', {nom: a.produitNom || 'produit', qte: a.quantite});
+  if(a.comptabilise) msg += t('confirm_suppr_compta');
+
+  if(!confirm(msg)) return;
+
+  if(a.comptabilise || ecritureExistePourAchat(id)){
+    const ecritures = getEcritures().filter(e => e.achatId !== id);
+    saveEcritures(ecritures);
+  }
+
+  supprimerMouvementAchat(id);
+  achats = achats.filter(x => x.id !== id);
+  save();
+  render();
+  BIPE.toast(t('toast_achat_supprime'));
+}
+
+function exportAchats(){
+  BIPE.exportJSON('achats', achats);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  load();
+
+  // Traduire les filtres de date
+  const origRenderDateFilters = BIPE.renderDateFilters;
+  BIPE.renderDateFilters('dateFilters', (f) => {
+    dateFilter = f;
+    render();
+  });
+
+  // Patch pour traduire les boutons de dates (fait après le rendu)
+  setTimeout(() => {
+    const dateBtns = document.querySelectorAll('#dateFilters button[data-mode]');
+    const labels = {
+      'all': currentLang === 'fr' ? 'Tous' : 'الكل',
+      'month': currentLang === 'fr' ? 'Ce mois' : 'هذا الشهر',
+      'week': currentLang === 'fr' ? 'Cette semaine' : 'هذا الأسبوع',
+      'year': currentLang === 'fr' ? 'Cette année' : 'هذه السنة',
+      'range': currentLang === 'fr' ? 'Période' : 'فترة'
+    };
+    dateBtns.forEach(btn => {
+      if(labels[btn.dataset.mode]) btn.textContent = labels[btn.dataset.mode];
+    });
+  }, 100);
+
+  document.getElementById('fProduit').addEventListener('input', updateStockInfo);
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape') fermerSheet();
+  });
+});
+
+// Init langue
+document.addEventListener('DOMContentLoaded', () => {
+  setLang(currentLang);
+});
+</script>
+</body>
+</html>

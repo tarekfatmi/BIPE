@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>B!PE by MCE — Charges fixes</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="shared.js"></script>
+<style>
+  :root{
+    --black:#000000;
+    --black-2:#0a0a0a;
+    --black-3:#141414;
+    --line:#2a2a2a;
+    --line-soft:#1f1f1f;
+    --gold:#d4af37;
+    --gold-bright:#f0d060;
+    --gold-soft:#e8c96a;
+    --gold-dim:#8a7433;
+    --gold-deep:#5a4a1f;
+    --txt:#f5f0e1;
+    --txt-muted:#9a9384;
+    --txt-dim:#5a564e;
+    --ok:#6b9a5a;
+    --warn:#c9a040;
+    --bad:#b84040;
+    --info:#7cc4e8;
+    --radius:16px;
+    --radius-sm:12px;
+    /* Groupe 2 - Bleu ciel */
+    --g2:#7cc4e8;
+    --g2-deep:#1b4d6b;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+
+  html,body{height:100%;overscroll-behavior:none}
+
+  body{
+    font-family:'Baloo Bhaijaan 2', -apple-system, "Segoe UI", sans-serif;
+    background:var(--black);
+    color:var(--txt);
+    line-height:1.6;
+    font-weight:500;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(124,196,232,.04) 0%, transparent 60%);
+    background-attachment:fixed;
+  }
+
+  .app{
+    max-width:min(1100px, 92vw);
+    margin:0 auto;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    padding-bottom:clamp(24px, 4vw, 40px);
+  }
+
+  /* ===== HEADER ===== */
+  .header{
+    position:sticky;
+    top:0;
+    z-index:50;
+    background:rgba(0,0,0,.92);
+    backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--line-soft);
+    padding:clamp(12px, 2vw, 16px) clamp(16px, 3vw, 20px);
+    display:flex;
+    align-items:center;
+    gap:clamp(8px, 1.5vw, 16px);
+  }
+  .header .back{
+    width:clamp(40px, 6vw, 48px);
+    height:clamp(40px, 6vw, 48px);
+    border-radius:14px;
+    background:var(--black-3);
+    border:1px solid var(--line);
+    color:var(--g2);
+    font-size:clamp(1.2rem, 2vw, 1.6rem);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    flex-shrink:0;
+    text-decoration:none;
+    transition:transform .15s;
+  }
+  .header .back:active{transform:scale(.92)}
+  .header .title-block{flex:1; min-width:0;}
+  .header .logo{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(1.4rem, 3vw, 1.8rem);
+    font-weight:700;
+    color:#f0d060;
+    line-height:1.2;
+    letter-spacing:.02em;
+  }
+  .header .logo .b,
+  .header .logo .pe{color:var(--txt);}
+  .header .logo .excl{
+    color:var(--gold);
+    font-size:1.3em;
+    vertical-align:middle;
+    text-shadow:0 0 20px rgba(212,175,55,.5);
+  }
+  .header .subtitle{
+    font-size:clamp(.6rem, 1vw, .7rem);
+    color:var(--g2);
+    font-weight:600;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+  }
+  .header .menu{
+    width:clamp(40px, 6vw, 48px);
+    height:clamp(40px, 6vw, 48px);
+    border-radius:14px;
+    background:var(--black-3);
+    border:1px solid var(--line);
+    color:var(--g2);
+    font-size:clamp(1.1rem, 2vw, 1.4rem);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    flex-shrink:0;
+    transition:transform .15s;
+  }
+  .header .menu:active{transform:scale(.92)}
+
+  /* ===== CONTENT ===== */
+  .content{
+    flex:1;
+    padding:clamp(16px, 3vw, 24px) clamp(16px, 3vw, 20px);
+  }
+
+  /* ===== KPI PRINCIPAL ===== */
+  .kpi-main{
+    background:linear-gradient(135deg, var(--black-2) 0%, var(--black-3) 100%);
+    border:2px solid var(--g2-deep);
+    border-radius:var(--radius);
+    padding:clamp(24px, 4vw, 32px) clamp(20px, 3vw, 28px);
+    margin-bottom:clamp(18px, 3vw, 24px);
+    position:relative;
+    overflow:hidden;
+  }
+  .kpi-main::before{
+    content:'';
+    position:absolute;
+    top:0;left:0;right:0;
+    height:2px;
+    background:linear-gradient(90deg, transparent, var(--g2), transparent);
+  }
+  .kpi-main .lab{
+    font-size:clamp(.85rem, 1.1vw, 1.05rem);
+    color:var(--txt-muted);
+    font-weight:600;
+    margin-bottom:8px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .kpi-main .val{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(2.4rem, 5vw, 3.6rem);
+    font-weight:700;
+    color:var(--g2);
+    line-height:1;
+    text-shadow:0 0 30px rgba(124,196,232,.4);
+  }
+  .kpi-main .val small{
+    font-size:clamp(.9rem, 1.2vw, 1.2rem);
+    color:var(--txt-muted);
+    font-weight:500;
+    margin-left:8px;
+    text-shadow:none;
+  }
+  .kpi-main .sub{
+    font-size:clamp(.8rem, 1vw, 1rem);
+    color:var(--txt-muted);
+    margin-top:12px;
+    display:flex;
+    gap:clamp(12px, 2vw, 20px);
+    flex-wrap:wrap;
+  }
+  .kpi-main .sub span{
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .kpi-main .sub .dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:var(--ok);
+  }
+  .kpi-main .sub .dot.bad{background:var(--bad)}
+  .kpi-main .sub .dot.warn{background:var(--warn)}
+
+  /* ===== BOUTON PRINCIPAL ===== */
+  .btn-primary{
+    width:100%;
+    height:clamp(56px, 8vw, 64px);
+    border-radius:var(--radius);
+    background:linear-gradient(180deg, var(--g2), var(--info));
+    color:#0a0a0a;
+    border:none;
+    font-family:'Baloo Bhaijaan 2', sans-serif;
+    font-size:clamp(1.1rem, 1.5vw, 1.25rem);
+    font-weight:700;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    transition:transform .15s, filter .15s;
+    margin-bottom:clamp(18px, 3vw, 24px);
+    box-shadow:0 4px 16px rgba(124,196,232,.2);
+  }
+  .btn-primary:active{transform:scale(.97); filter:brightness(1.1)}
+
+  /* ===== SECTION TITRE ===== */
+  .section-title{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:clamp(12px, 2vw, 16px);
+    padding:0 4px;
+  }
+  .section-title h2{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(1.2rem, 2vw, 1.5rem);
+    font-weight:700;
+    color:var(--g2);
+  }
+  .section-title .count{
+    font-size:clamp(.85rem, 1.1vw, 1rem);
+    color:var(--txt-muted);
+    font-weight:600;
+  }
+
+  /* ===== GRILLE CHARGES ===== */
+  .charges-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(clamp(140px, 20vw, 180px), 1fr));
+    gap:clamp(10px, 2vw, 14px);
+    margin-bottom:clamp(24px, 4vw, 32px);
+  }
+  .charge-card{
+    background:var(--black-2);
+    border:2px solid var(--line);
+    border-radius:var(--radius);
+    padding:clamp(16px, 2.5vw, 20px);
+    cursor:pointer;
+    transition:transform .15s, border-color .15s;
+    position:relative;
+    overflow:hidden;
+  }
+  .charge-card::before{
+    content:'';
+    position:absolute;
+    top:0;left:0;
+    width:4px;height:100%;
+    background:var(--g2);
+    opacity:.6;
+  }
+  .charge-card:active{transform:scale(.97); border-color:var(--g2)}
+  .charge-card.locked::before{background:var(--info)}
+  
+  .charge-card .ico{
+    font-size:clamp(1.6rem, 2.5vw, 2rem);
+    margin-bottom:8px;
+    display:block;
+  }
+  .charge-card .name{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(.9rem, 1.2vw, 1.05rem);
+    font-weight:700;
+    color:var(--txt);
+    line-height:1.3;
+    margin-bottom:6px;
+  }
+  .charge-card .amount{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(1rem, 1.5vw, 1.2rem);
+    font-weight:700;
+    color:var(--g2);
+  }
+  .charge-card .amount.empty{color:var(--txt-dim); font-size:.9rem;}
+  
+  .charge-card .status-badge{
+    position:absolute;
+    top:12px;left:12px;
+    font-size:.65rem;
+    font-weight:700;
+    padding:2px 8px;
+    border-radius:999px;
+  }
+  .status-badge.payee{color:var(--ok); background:rgba(107,154,90,.15);}
+  .status-badge.impayee{color:var(--bad); background:rgba(184,64,64,.15);}
+  .status-badge.partiel{color:var(--warn); background:rgba(201,160,64,.15);}
+
+  /* ===== LISTE HISTORIQUE ===== */
+  .charge-list{
+    display:flex;
+    flex-direction:column;
+    gap:clamp(8px, 1.5vw, 10px);
+  }
+  .charge-item{
+    background:var(--black-2);
+    border:1px solid var(--line);
+    border-left:4px solid var(--g2);
+    border-radius:var(--radius-sm);
+    padding:clamp(12px, 2vw, 16px);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+  }
+  .charge-item.payee{border-left-color:var(--ok)}
+  .charge-item.impayee{border-left-color:var(--bad)}
+  
+  .charge-item .info{
+    flex:1;
+    min-width:0;
+  }
+  .charge-item .info .libelle{
+    font-weight:700;
+    color:var(--txt);
+    font-size:clamp(.9rem, 1.1vw, 1rem);
+    margin-bottom:2px;
+  }
+  .charge-item .info .meta-line{
+    font-size:clamp(.75rem, .9vw, .85rem);
+    color:var(--txt-muted);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .charge-item .montant{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(1rem, 1.3vw, 1.2rem);
+    font-weight:700;
+    color:var(--g2);
+    white-space:nowrap;
+  }
+  .charge-item .actions{
+    display:flex;
+    gap:6px;
+  }
+  .charge-item .actions button{
+    width:32px;height:32px;
+    border-radius:8px;
+    background:var(--black-3);
+    border:1px solid var(--line);
+    color:var(--txt-muted);
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition:all .2s;
+  }
+  .charge-item .actions button:active{transform:scale(.9)}
+  .charge-item .actions button.ok{color:var(--ok); border-color:var(--ok)}
+  .charge-item .actions button.bad{color:var(--bad); border-color:var(--bad)}
+
+  /* ===== BADGE ===== */
+  .pill{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:4px 10px;
+    border-radius:999px;
+    font-size:clamp(.65rem, .8vw, .75rem);
+    font-weight:700;
+    white-space:nowrap;
+  }
+  .pill::before{
+    content:'';
+    width:5px;
+    height:5px;
+    border-radius:50%;
+    background:currentColor;
+  }
+  .pill.payee{color:var(--ok); background:rgba(107,154,90,.1)}
+  .pill.impayee{color:var(--bad); background:rgba(184,64,64,.1)}
+
+  /* ===== ÉTAT VIDE ===== */
+  .empty{
+    text-align:center;
+    padding:clamp(40px, 6vw, 60px) 20px;
+    color:var(--txt-dim);
+    font-size:clamp(.95rem, 1.2vw, 1.15rem);
+    font-weight:500;
+  }
+  .empty .ico{
+    font-size:3rem;
+    margin-bottom:16px;
+    opacity:.6;
+  }
+
+  /* ===== BOTTOM SHEET ===== */
+  .sheet-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.7);
+    backdrop-filter:blur(8px);
+    z-index:100;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .3s;
+  }
+  .sheet-overlay.show{opacity:1; pointer-events:auto}
+
+  .sheet{
+    position:fixed;
+    left:0;right:0;bottom:0;
+    background:var(--black-2);
+    border-radius:24px 24px 0 0;
+    border-top:2px solid var(--g2-deep);
+    z-index:101;
+    max-height:92vh;
+    display:flex;
+    flex-direction:column;
+    transform:translateY(100%);
+    transition:transform .3s cubic-bezier(.32,.72,0,1);
+    max-width:720px;
+    margin:0 auto;
+  }
+  .sheet.show{transform:translateY(0)}
+  .sheet-handle{
+    width:48px;
+    height:5px;
+    background:var(--line);
+    border-radius:3px;
+    margin:12px auto 8px;
+    flex-shrink:0;
+  }
+  .sheet-head{
+    padding:8px 24px 16px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border-bottom:1px solid var(--line-soft);
+    flex-shrink:0;
+  }
+  .sheet-head h3{
+    font-family:'Fredoka', sans-serif;
+    font-size:1.5rem;
+    color:var(--g2);
+    font-weight:700;
+  }
+  .sheet-head .close{
+    width:44px;
+    height:44px;
+    border-radius:12px;
+    background:var(--black-3);
+    border:1px solid var(--line);
+    color:var(--txt);
+    font-size:1.4rem;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+  }
+  .sheet-body{
+    padding:24px;
+    overflow-y:auto;
+    flex:1;
+    -webkit-overflow-scrolling:touch;
+  }
+  .sheet-foot{
+    padding:16px 24px 24px;
+    border-top:1px solid var(--line-soft);
+    flex-shrink:0;
+    background:var(--black-2);
+  }
+
+  /* ===== FORMULAIRE ===== */
+  .field{margin-bottom:clamp(14px, 2vw, 20px);}
+  .field label{
+    display:block;
+    font-size:clamp(.85rem, 1vw, 1rem);
+    color:var(--txt-muted);
+    font-weight:600;
+    margin-bottom:6px;
+  }
+  .field input,
+  .field select,
+  .field textarea{
+    width:100%;
+    padding:clamp(12px, 1.5vw, 16px) clamp(14px, 2vw, 20px);
+    border-radius:var(--radius-sm);
+    border:2px solid var(--line);
+    background:var(--black-3);
+    color:var(--txt);
+    font-size:clamp(.95rem, 1.1vw, 1.15rem);
+    font-family:'Baloo Bhaijaan 2', sans-serif;
+    font-weight:500;
+    transition:all .2s;
+  }
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus{
+    outline:none;
+    border-color:var(--g2);
+    box-shadow:0 0 0 4px rgba(124,196,232,.15);
+  }
+  .field-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:clamp(10px, 2vw, 12px);
+  }
+
+  .statut-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+  }
+  .statut-btn{
+    padding:16px;
+    border-radius:var(--radius-sm);
+    background:var(--black-3);
+    border:2px solid var(--line);
+    color:var(--txt-muted);
+    font-family:'Baloo Bhaijaan 2', sans-serif;
+    font-size:1rem;
+    font-weight:700;
+    cursor:pointer;
+    text-align:center;
+    transition:all .2s;
+  }
+  .statut-btn.selected.impaye{
+    border-color:var(--bad);
+    background:rgba(184,64,64,.1);
+    color:var(--bad);
+  }
+  .statut-btn.selected.paye{
+    border-color:var(--ok);
+    background:rgba(107,154,90,.1);
+    color:var(--ok);
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width:600px){
+    .field-grid{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body data-groupe="g2">
+
+<div class="app">
+
+  <!-- ===== HEADER ===== -->
+  <div class="header">
+    <a href="groupe-flux.html" class="back">←</a>
+    <div class="title-block">
+      <div class="logo">
+        <span class="b">B</span><span class="excl">!</span><span class="pe">PE</span>
+      </div>
+      <div class="subtitle">Charges fixes</div>
+    </div>
+    <button class="menu" onclick="BIPE.openMenu()">⋮</button>
+  </div>
+
+  <!-- ===== CONTENT ===== -->
+  <div class="content">
+
+    <!-- KPI PRINCIPAL -->
+    <div class="kpi-main">
+      <div class="lab">📋 Total charges fixes</div>
+      <div class="val" id="kpiTotal">0<small>DT</small></div>
+      <div class="sub">
+        <span><span class="dot"></span>Payées : <b id="kpiPayees">0 DT</b></span>
+        <span><span class="dot bad"></span>Restantes : <b id="kpiRestantes">0 DT</b></span>
+      </div>
+    </div>
+
+    <!-- BOUTON PRINCIPAL -->
+    <button class="btn-primary" onclick="openForm()">
+      <span>➕</span> Nouvelle charge
+    </button>
+
+    <!-- GRILLE CHARGES (6 types) -->
+    <div class="section-title">
+      <h2>Ce mois</h2>
+      <div class="count" id="moisLabel">—</div>
+    </div>
+
+    <div class="charges-grid" id="chargesGrid"></div>
+
+    <!-- HISTORIQUE -->
+    <div class="section-title">
+      <h2>Historique</h2>
+      <div class="count" id="count">0</div>
+    </div>
+
+    <div class="charge-list" id="chargeList"></div>
+
+  </div>
+
+</div>
+
+<!-- ===== BOTTOM SHEET : FORMULAIRE ===== -->
+<div class="sheet-overlay" id="overlay" onclick="closeAll()"></div>
+
+<div class="sheet" id="sheetForm">
+  <div class="sheet-handle"></div>
+  <div class="sheet-head">
+    <h3 id="sheetTitle">Nouvelle charge</h3>
+    <button class="close" onclick="closeAll()">✕</button>
+  </div>
+  <div class="sheet-body">
+    <input type="hidden" id="editId">
+
+    <div class="field">
+      <label>Type de charge *</label>
+      <select id="fType" onchange="updateFormFields()">
+        <option value="Loyer">🏠 Loyer</option>
+        <option value="Crédit">🏦 Crédit</option>
+        <option value="STEG">⚡ STEG (électricité)</option>
+        <option value="SONEDE">💧 SONEDE (eau)</option>
+        <option value="Téléphone">📱 Téléphone / Internet</option>
+        <option value="Masse salariale">👥 Masse salariale</option>
+        <option value="Autre">📌 Autre</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Montant (DT) *</label>
+      <input type="number" id="fMontant" placeholder="0.00" inputmode="decimal" step="0.01" min="0">
+    </div>
+
+    <div class="field">
+      <label>Date *</label>
+      <input type="date" id="fDate">
+    </div>
+
+    <div class="field">
+      <label>Libellé (optionnel)</label>
+      <input type="text" id="fLibelle" placeholder="Ex : Loyer bureau novembre" autocomplete="off">
+    </div>
+
+    <div class="field">
+      <label>Statut *</label>
+      <div class="statut-grid" id="statutGrid">
+        <button class="statut-btn impaye selected" data-statut="Impayée" onclick="selectStatut('Impayée')">Impayée</button>
+        <button class="statut-btn paye" data-statut="Payée" onclick="selectStatut('Payée')">Payée</button>
+      </div>
+    </div>
+
+    <div id="infoMasse" class="field" style="display:none;">
+      <div style="background:rgba(124,196,232,.06);border:1px solid var(--g2);border-radius:8px;padding:12px;font-size:.85rem;color:var(--g2);">
+        💡 La masse salariale est calculée automatiquement depuis le module <b>RH</b>. Modifie les salaires dans RH pour la mettre à jour.
+      </div>
+    </div>
+
+  </div>
+  <div class="sheet-foot">
+    <button class="btn-primary" onclick="saveCharge()" style="background:linear-gradient(180deg, var(--g2), var(--info)); color:#0a0a0a; margin-bottom:0;">
+      💾 Enregistrer la charge
+    </button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   B!PE — f-charges.html
+   Module Charges fixes (Groupe 2 - Bleu ciel)
+   ============================================================ */
+
+/* ---------- Vérifier la session ---------- */
+BIPE.checkSession();
+
+/* ---------- État ---------- */
+let charges = [];
+let editId = null;
+let currentStatut = 'Impayée';
+
+/* ---------- Types de charges ---------- */
+const TYPES = {
+  'Loyer': { ico: '🏠', label: 'Loyer' },
+  'Crédit': { ico: '🏦', label: 'Crédit' },
+  'STEG': { ico: '⚡', label: 'STEG' },
+  'SONEDE': { ico: '💧', label: 'SONEDE' },
+  'Téléphone': { ico: '📱', label: 'Téléphone' },
+  'Masse salariale': { ico: '👥', label: 'Masse salariale' },
+  'Autre': { ico: '📌', label: 'Autre' }
+};
+
+/* ---------- Chargement ---------- */
+function load(){
+  charges = BIPE.storage.get(BIPE.KEYS.charges, []) || [];
+  // Migration : si anciennes charges sans statut, mettre "Payée"
+  charges.forEach(c => { if(!c.statut) c.statut = 'Payée'; });
+  render();
+}
+
+/* ---------- Persistance ---------- */
+function persist(){
+  BIPE.storage.set(BIPE.KEYS.charges, charges);
+}
+
+/* ---------- Masse salariale depuis RH ---------- */
+function getMasseSalariale(){
+  const rh = BIPE.storage.get(BIPE.KEYS.rh, []) || [];
+  return rh.reduce((s, c) => s + (c.salaire || 0), 0);
+}
+
+/* ---------- Sheets ---------- */
+function openSheet(id){
+  closeAll();
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById(id).classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeAll(){
+  document.getElementById('overlay').classList.remove('show');
+  document.querySelectorAll('.sheet').forEach(s=> s.classList.remove('show'));
+  document.body.style.overflow = '';
+}
+
+/* ---------- Statut sélecteur ---------- */
+function selectStatut(s){
+  currentStatut = s;
+  document.querySelectorAll('#statutGrid .statut-btn').forEach(b=>{
+    b.classList.remove('selected');
+    if(b.dataset.statut === s) b.classList.add('selected');
+  });
+}
+
+/* ---------- Form ---------- */
+function openForm(){
+  editId = null;
+  document.getElementById('sheetTitle').textContent = 'Nouvelle charge';
+  document.getElementById('fType').value = 'Loyer';
+  document.getElementById('fMontant').value = '';
+  document.getElementById('fDate').value = new Date().toISOString().slice(0,10);
+  document.getElementById('fLibelle').value = '';
+  document.getElementById('editId').value = '';
+  selectStatut('Impayée');
+  updateFormFields();
+  openSheet('sheetForm');
+}
+
+function editCharge(id){
+  const c = charges.find(x=> x.id === id);
+  if(!c) return;
+  editId = id;
+  document.getElementById('sheetTitle').textContent = 'Modifier la charge';
+  document.getElementById('fType').value = c.type || 'Autre';
+  document.getElementById('fMontant').value = c.montant || 0;
+  document.getElementById('fDate').value = c.date || '';
+  document.getElementById('fLibelle').value = c.libelle || '';
+  document.getElementById('editId').value = id;
+  selectStatut(c.statut || 'Impayée');
+  updateFormFields();
+  openSheet('sheetForm');
+}
+
+function updateFormFields(){
+  const type = document.getElementById('fType').value;
+  const montantInput = document.getElementById('fMontant');
+  const infoMasse = document.getElementById('infoMasse');
+
+  if(type === 'Masse salariale'){
+    const masse = getMasseSalariale();
+    montantInput.value = masse > 0 ? masse : '';
+    montantInput.readOnly = true;
+    montantInput.style.opacity = '0.6';
+    infoMasse.style.display = 'block';
+  } else {
+    montantInput.readOnly = false;
+    montantInput.style.opacity = '1';
+    infoMasse.style.display = 'none';
+  }
+}
+
+function saveCharge(){
+  const type = document.getElementById('fType').value;
+  const montant = parseFloat(document.getElementById('fMontant').value);
+  const date = document.getElementById('fDate').value;
+  const libelle = document.getElementById('fLibelle').value.trim();
+
+  if(!(montant > 0) || !date){
+    BIPE.toast('Montant et date obligatoires', true);
+    return;
+  }
+
+  const data = {
+    type,
+    montant,
+    date,
+    libelle: libelle || TYPES[type]?.label || type,
+    statut: currentStatut,
+    auto: type === 'Masse salariale'
+  };
+
+  if(editId){
+    const i = charges.findIndex(c=> c.id === editId);
+    if(i > -1) charges[i] = { ...charges[i], ...data };
+    BIPE.toast('Charge modifiée ✅');
+  } else {
+    charges.push({ id: Date.now().toString(36), ...data });
+    BIPE.toast('Charge enregistrée ✅');
+  }
+
+  persist();
+  closeAll();
+  render();
+}
+
+function deleteCharge(id){
+  if(!confirm('Supprimer cette charge ?')) return;
+  charges = charges.filter(c=> c.id !== id);
+  persist();
+  render();
+  BIPE.toast('Charge supprimée');
+}
+
+/* ---------- Toggle payé/impayé ---------- */
+function toggleStatut(id){
+  const c = charges.find(x=> x.id === id);
+  if(!c) return;
+  c.statut = c.statut === 'Payée' ? 'Impayée' : 'Payée';
+  persist();
+  render();
+  BIPE.toast(c.statut === 'Payée' ? 'Marquée payée ✅' : 'Marquée impayée');
+}
+
+/* ---------- Render ---------- */
+function render(){
+  renderMoisLabel();
+  renderGrid();
+  renderKPI();
+  renderHistorique();
+}
+
+function renderMoisLabel(){
+  const now = new Date();
+  const label = now.toLocaleDateString('fr-FR', {month:'long', year:'numeric'});
+  document.getElementById('moisLabel').textContent = label;
+}
+
+function currentMonthCharges(){
+  const now = new Date();
+  return charges.filter(c=>{
+    if(!c.date) return false;
+    const d = new Date(c.date);
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  });
+}
+
+function renderGrid(){
+  const grid = document.getElementById('chargesGrid');
+  const moisCharges = currentMonthCharges();
+  const types = ['Loyer', 'Crédit', 'STEG', 'SONEDE', 'Téléphone', 'Masse salariale'];
+
+  grid.innerHTML = types.map(type=>{
+    const t = TYPES[type];
+    let montant = 0;
+    let locked = false;
+    let badge = '';
+
+    if(type === 'Masse salariale'){
+      montant = getMasseSalariale();
+      locked = true;
+      const c = moisCharges.find(x => x.type === 'Masse salariale');
+      if(c){
+        badge = c.statut === 'Payée' 
+          ? '<span class="status-badge payee">Payée</span>'
+          : '<span class="status-badge impayee">Impayée</span>';
+      }
+    } else {
+      const items = moisCharges.filter(c => c.type === type);
+      montant = items.reduce((s, c) => s + (c.montant || 0), 0);
+      if(items.length > 0){
+        const allPayees = items.every(c => c.statut === 'Payée');
+        const allImpayees = items.every(c => c.statut === 'Impayée');
+        if(allPayees) badge = '<span class="status-badge payee">Payée</span>';
+        else if(allImpayees) badge = '<span class="status-badge impayee">Impayée</span>';
+        else badge = '<span class="status-badge partiel">Partiel</span>';
+      }
+    }
+
+    const montantHtml = montant > 0 
+      ? `${BIPE.fmt(montant)} <small style="font-size:.8rem;color:var(--txt-muted)">DT</small>`
+      : '—';
+
+    return `
+      <div class="charge-card ${locked ? 'locked' : ''}" onclick="nouvelleChargeRapide('${type}')">
+        ${badge}
+        <span class="ico">${t.ico}</span>
+        <div class="name">${t.label}</div>
+        <div class="amount ${montant > 0 ? '' : 'empty'}">${montantHtml}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderKPI(){
+  const moisCharges = currentMonthCharges();
+  const total = moisCharges.reduce((s, c) => s + (c.montant || 0), 0);
+  const payees = moisCharges.filter(c => c.statut === 'Payée').reduce((s, c) => s + (c.montant || 0), 0);
+  const restantes = total - payees;
+
+  document.getElementById('kpiTotal').innerHTML = BIPE.fmt(total) + '<small>DT</small>';
+  document.getElementById('kpiPayees').textContent = BIPE.fmt(payees) + ' DT';
+  document.getElementById('kpiRestantes').textContent = BIPE.fmt(restantes) + ' DT';
+}
+
+function renderHistorique(){
+  const list = document.getElementById('chargeList');
+  document.getElementById('count').textContent = charges.length;
+
+  if(!charges.length){
+    list.innerHTML = `
+      <div class="empty">
+        <div class="ico">📭</div>
+        <div class="txt">Aucune charge enregistrée.</div>
+      </div>`;
+    return;
+  }
+
+  const sorted = [...charges].sort((a,b) => {
+    // Impayées en premier, puis par date décroissante
+    const aPayee = a.statut === 'Payée' ? 1 : 0;
+    const bPayee = b.statut === 'Payée' ? 1 : 0;
+    if(aPayee !== bPayee) return aPayee - bPayee;
+    return (b.date||'').localeCompare(a.date||'');
+  });
+
+  list.innerHTML = sorted.slice(0, 30).map(c => {
+    const t = TYPES[c.type] || TYPES['Autre'];
+    const isPayee = c.statut === 'Payée';
+    return `
+      <div class="charge-item ${isPayee ? 'payee' : 'impayee'}">
+        <div class="info">
+          <div class="libelle">${t.ico} ${BIPE.esc(c.libelle || t.label)}</div>
+          <div class="meta-line">
+            <span>${BIPE.fmtDate(c.date)}</span>
+            <span class="pill ${isPayee ? 'payee' : 'impayee'}">${c.statut}</span>
+          </div>
+        </div>
+        <div class="montant">${BIPE.fmt(c.montant)} <small style="font-size:.8rem;color:var(--txt-muted)">DT</small></div>
+        <div class="actions">
+          <button class="${isPayee ? 'bad' : 'ok'}" onclick="event.stopPropagation();toggleStatut('${c.id}')" title="${isPayee ? 'Marquer impayée' : 'Marquer payée'}">
+            ${isPayee ? '↺' : '✓'}
+          </button>
+          <button onclick="event.stopPropagation();editCharge('${c.id}')">✏️</button>
+          <button class="bad" onclick="event.stopPropagation();deleteCharge('${c.id}')">🗑</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ---------- Nouvelle charge rapide (depuis une carte) ---------- */
+function nouvelleChargeRapide(type){
+  if(type === 'Masse salariale'){
+    const masse = getMasseSalariale();
+    if(masse <= 0){
+      BIPE.toast('Aucun salaire dans RH — ajoute d\'abord des collaborateurs', true);
+      return;
+    }
+    const now = new Date();
+    const deja = charges.find(c => 
+      c.type === 'Masse salariale' && 
+      c.date && 
+      new Date(c.date).getMonth() === now.getMonth() && 
+      new Date(c.date).getFullYear() === now.getFullYear()
+    );
+    if(deja){
+      BIPE.toast('Masse salariale déjà enregistrée ce mois-ci', true);
+      return;
+    }
+    if(!confirm(`Enregistrer la masse salariale de ${BIPE.fmt(masse)} DT pour ce mois ?`)) return;
+    
+    charges.push({
+      id: Date.now().toString(36),
+      type: 'Masse salariale',
+      montant: masse,
+      date: now.toISOString().slice(0,10),
+      libelle: `Masse salariale ${now.toLocaleDateString('fr-FR',{month:'long',year:'numeric'})}`,
+      statut: 'Impayée',
+      auto: true
+    });
+    persist();
+    render();
+    BIPE.toast('Masse salariale enregistrée ✅');
+    return;
+  }
+
+  editId = null;
+  document.getElementById('sheetTitle').textContent = 'Nouvelle charge';
+  document.getElementById('fType').value = type;
+  document.getElementById('fMontant').value = '';
+  document.getElementById('fDate').value = new Date().toISOString().slice(0,10);
+  document.getElementById('fLibelle').value = '';
+  document.getElementById('editId').value = '';
+  selectStatut('Impayée');
+  updateFormFields();
+  openSheet('sheetForm');
+  setTimeout(() => document.getElementById('fMontant').focus(), 350);
+}
+
+/* ---------- Init ---------- */
+document.addEventListener('DOMContentLoaded', load);
+</script>
+</body>
+</html>

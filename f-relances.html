@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>BIPE — Relances</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="shared.js"></script>
+<style>
+  :root{
+    --black:#000000; --black-2:#0a0a0a; --black-3:#141414;
+    --line:#2a2a2a; --line-soft:#1f1f1f;
+    --gold:#d4af37; --gold-bright:#f0d060; --gold-soft:#e8c96a;
+    --gold-dim:#8a7433; --gold-deep:#5a4a1f;
+    --txt:#f5f0e1; --txt-muted:#9a9384; --txt-dim:#5a564e;
+    --ok:#6b9a5a; --warn:#c9a040; --bad:#b84040; --info:#7cc4e8;
+    --radius:16px; --radius-sm:12px;
+    --groupe-couleur:#a78bfa;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overscroll-behavior:none}
+  body{
+    font-family:'Baloo Bhaijaan 2', -apple-system, "Segoe UI", sans-serif;
+    background:var(--black); color:var(--txt); line-height:1.6; font-weight:500;
+    -webkit-font-smoothing:antialiased; min-height:100vh;
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(167,139,250,.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(212,175,55,.02) 0%, transparent 40%);
+    background-attachment:fixed;
+  }
+  .app{max-width:min(1100px,92vw);margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding-bottom:clamp(24px,4vw,40px)}
+
+  .bipe-sheet{transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1)}
+  .bipe-sheet.show{transform:translateY(0) !important}
+  #bipe-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s}
+  #bipe-overlay.show{opacity:1 !important;pointer-events:auto !important}
+
+  .header{
+    position:sticky;top:0;z-index:50;background:rgba(0,0,0,.92);
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--line-soft);
+    padding:clamp(12px,2vw,16px) clamp(16px,3vw,20px);
+    display:flex;align-items:center;gap:clamp(8px,1.5vw,16px);
+  }
+  .header .back{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;text-decoration:none;transition:transform .15s;
+  }
+  .header .back:active{transform:scale(.92)}
+  .header .title-block{flex:1;min-width:0}
+  .header .logo{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2.5vw,1.5rem);
+    font-weight:700;color:#f0d060;line-height:1.2;letter-spacing:.02em;
+  }
+  .header .logo .b,.header .logo .pe{color:var(--txt)}
+  .header .logo .excl{color:var(--gold);font-size:1.3em;vertical-align:middle;text-shadow:0 0 20px rgba(212,175,55,.5)}
+  .header .subtitle{
+    font-size:clamp(.6rem,1vw,.7rem);color:var(--txt-muted);
+    font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  }
+  .header .menu{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;transition:transform .15s;
+  }
+  .header .menu:active{transform:scale(.92)}
+
+  .content{flex:1;padding:clamp(16px,3vw,24px) clamp(16px,3vw,20px)}
+
+  .hero-groupe{
+    background:linear-gradient(135deg,var(--black-2) 0%,var(--black-3) 100%);
+    border:2px solid var(--gold-deep);border-radius:var(--radius);
+    padding:clamp(18px,3vw,24px);margin-bottom:clamp(16px,3vw,20px);
+    position:relative;overflow:hidden;
+  }
+  .hero-groupe::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--groupe-couleur);opacity:.8;
+  }
+  .hero-groupe .num{
+    font-family:'Fredoka',sans-serif;font-size:clamp(.75rem,1vw,.85rem);
+    font-weight:700;color:var(--groupe-couleur);letter-spacing:.05em;margin-bottom:6px;
+  }
+  .hero-groupe .ico{font-size:clamp(1.6rem,2.5vw,2rem);line-height:1;margin-bottom:6px}
+  .hero-groupe h1{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.3rem,2.2vw,1.7rem);
+    font-weight:700;color:var(--gold-bright);line-height:1.2;margin-bottom:4px;
+  }
+  .hero-groupe p{font-size:clamp(.85rem,1.1vw,1rem);color:var(--txt-muted);font-weight:500}
+
+  .stats{
+    display:grid;grid-template-columns:repeat(4,1fr);
+    gap:clamp(8px,1.5vw,12px);margin-bottom:clamp(16px,3vw,20px);
+  }
+  .stat{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(12px,2vw,16px) clamp(10px,1.5vw,14px);
+  }
+  .stat .num{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2.2vw,1.5rem);
+    font-weight:700;line-height:1;margin-bottom:4px;
+  }
+  .stat .lab{font-size:clamp(.68rem,.9vw,.76rem);color:var(--txt-muted);font-weight:600;line-height:1.3}
+  .stat.total .num{color:var(--gold-bright)}
+  .stat.retard .num{color:var(--bad)}
+  .stat.jour .num{color:var(--warn)}
+  .stat.fait .num{color:var(--ok)}
+
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:clamp(14px,2.5vw,18px)}
+  .btn{
+    padding:clamp(11px,1.5vw,13px) clamp(16px,2vw,20px);
+    border-radius:999px;border:none;cursor:pointer;
+    font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:clamp(.88rem,1.1vw,1rem);font-weight:700;
+    display:inline-flex;align-items:center;gap:8px;transition:all .2s;
+  }
+  .btn-gold{
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold));
+    color:#0a0a0a;box-shadow:0 4px 16px rgba(212,175,55,.25);
+  }
+  .btn-gold:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  .btn-gold:active{transform:scale(.97)}
+  .btn-ghost{background:var(--black-2);border:2px solid var(--line);color:var(--txt)}
+  .btn-ghost:hover{border-color:var(--gold-dim)}
+
+  .search-bar{
+    display:flex;gap:8px;margin-bottom:clamp(12px,2vw,16px);
+    flex-wrap:wrap;
+  }
+  .search-bar input{
+    flex:1;min-width:200px;
+    padding:clamp(10px,1.5vw,12px) clamp(14px,2vw,16px);
+    border-radius:999px;border:2px solid var(--line);
+    background:var(--black-2);color:var(--txt);
+    font-size:clamp(.88rem,1vw,.95rem);
+    font-family:'Baloo Bhaijaan 2',sans-serif;font-weight:500;
+  }
+  .search-bar input:focus{
+    outline:none;border-color:var(--gold);
+    box-shadow:0 0 0 4px rgba(212,175,55,.12);
+  }
+
+  .filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:clamp(10px,1.8vw,14px)}
+  .filter-chip{
+    padding:8px 14px;border-radius:999px;border:2px solid var(--line);
+    background:var(--black-2);color:var(--txt-muted);
+    font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:clamp(.8rem,1vw,.9rem);font-weight:600;cursor:pointer;transition:.2s;
+  }
+  .filter-chip.active{border-color:var(--groupe-couleur);color:var(--groupe-couleur);background:rgba(167,139,250,.08)}
+  .filter-chip:hover:not(.active){color:var(--txt)}
+
+  .filters-secondary{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:clamp(14px,2.5vw,18px)}
+  .filter-chip-sm{
+    padding:6px 12px;border-radius:999px;border:2px solid var(--line);
+    background:var(--black-2);color:var(--txt-muted);
+    font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:clamp(.72rem,.88vw,.82rem);font-weight:600;cursor:pointer;transition:.2s;
+  }
+  .filter-chip-sm.active{border-color:var(--gold-dim);color:var(--gold-soft);background:rgba(212,175,55,.06)}
+  .filter-chip-sm:hover:not(.active){color:var(--txt)}
+
+  .list{display:flex;flex-direction:column;gap:clamp(8px,1.5vw,10px)}
+  .relance-card{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(14px,2.5vw,18px) clamp(16px,2.5vw,20px);
+    display:flex;gap:clamp(10px,2vw,14px);align-items:flex-start;
+    transition:transform .15s,border-color .15s;position:relative;overflow:hidden;
+  }
+  .relance-card::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--status-couleur,var(--groupe-couleur));opacity:.9;
+  }
+  .relance-card:hover{border-color:var(--gold-dim)}
+  .relance-card.retard{border-color:rgba(184,64,64,.4)}
+  .relance-card.retard::before{background:var(--bad)}
+  .relance-card.aujourdhui{border-color:rgba(201,160,64,.4)}
+  .relance-card.aujourdhui::before{background:var(--warn)}
+  .relance-card.fait{opacity:.6}
+  .relance-card.fait::before{background:var(--ok)}
+
+  .relance-check{
+    width:clamp(28px,4vw,32px);height:clamp(28px,4vw,32px);
+    border-radius:50%;border:2px solid var(--line);
+    background:var(--black-3);cursor:pointer;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    font-size:clamp(.9rem,1.3vw,1rem);color:var(--txt-dim);
+    transition:.2s;margin-top:2px;
+  }
+  .relance-check:hover{border-color:var(--groupe-couleur);color:var(--groupe-couleur)}
+  .relance-check.done{background:var(--ok);border-color:var(--ok);color:#fff}
+
+  .relance-body{flex:1;min-width:0}
+  .relance-titre{
+    font-family:'Fredoka',sans-serif;font-size:clamp(.95rem,1.4vw,1.1rem);
+    font-weight:700;color:var(--txt);line-height:1.3;margin-bottom:4px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .relance-card.fait .relance-titre{text-decoration:line-through;color:var(--txt-muted)}
+  .relance-desc{
+    font-size:clamp(.8rem,1vw,.9rem);color:var(--txt-muted);
+    line-height:1.5;margin-bottom:8px;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  }
+  .relance-cible{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:4px 10px;border-radius:6px;margin-bottom:8px;
+    font-size:clamp(.72rem,.9vw,.8rem);font-weight:700;
+  }
+  .relance-cible.client{background:rgba(107,154,90,.12);color:#8fc47a;border:1px solid rgba(107,154,90,.3)}
+  .relance-cible.prospect{background:rgba(167,139,250,.12);color:#c8b8e8;border:1px solid rgba(167,139,250,.3)}
+  .relance-cible.supprime{background:rgba(184,64,64,.12);color:#e08a8a;border:1px solid rgba(184,64,64,.3);font-style:italic}
+  .relance-meta{
+    display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+    font-size:clamp(.72rem,.95vw,.82rem);color:var(--txt-dim);font-weight:600;
+  }
+  .relance-meta .date{display:flex;align-items:center;gap:4px}
+  .relance-meta .canal{
+    padding:2px 8px;border-radius:6px;font-size:.75em;font-weight:700;
+    text-transform:uppercase;letter-spacing:.04em;
+    background:rgba(167,139,250,.15);color:#c8b8e8;
+  }
+  .relance-actions{display:flex;gap:4px;flex-shrink:0}
+  .icon-btn{
+    width:clamp(32px,4.5vw,36px);height:clamp(32px,4.5vw,36px);
+    border-radius:10px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--txt-muted);font-size:clamp(.85rem,1.2vw,.95rem);
+    cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;
+  }
+  .icon-btn:hover{border-color:var(--gold-dim);color:var(--gold-soft)}
+  .icon-btn.danger:hover{border-color:var(--bad);color:#e08a8a}
+
+  .empty{
+    text-align:center;padding:clamp(40px,8vw,60px) clamp(20px,3vw,24px);
+    background:var(--black-2);border:2px dashed var(--line);border-radius:var(--radius);
+  }
+  .empty .ico{font-size:clamp(2.5rem,6vw,3.5rem);margin-bottom:12px;opacity:.6}
+  .empty h3{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.1rem,1.8vw,1.3rem);
+    color:var(--gold-soft);margin-bottom:8px;
+  }
+  .empty p{font-size:clamp(.85rem,1.1vw,1rem);color:var(--txt-muted);margin-bottom:16px}
+
+  .footer{
+    text-align:center;padding:clamp(20px,3vw,28px) 16px 16px;
+    font-size:clamp(.72rem,.9vw,.8rem);color:var(--txt-dim);
+    line-height:1.8;font-weight:500;border-top:1px solid var(--line-soft);margin-top:auto;
+  }
+  .footer .brand{color:var(--gold-soft);font-weight:700}
+
+  .form-group{margin-bottom:clamp(14px,2vw,18px)}
+  label{
+    display:block;font-size:clamp(.85rem,1vw,.95rem);
+    color:var(--txt-muted);margin-bottom:6px;font-weight:600;
+  }
+  label .required{color:var(--bad);margin-left:2px}
+  input,textarea,select{
+    width:100%;padding:clamp(12px,1.5vw,14px) clamp(14px,2vw,16px);
+    border-radius:var(--radius-sm);border:2px solid var(--line);
+    background:var(--black-3);color:var(--txt);
+    font-size:clamp(.95rem,1.1vw,1rem);
+    font-family:'Baloo Bhaijaan 2',sans-serif;font-weight:500;transition:all .2s;
+  }
+  input:focus,textarea:focus,select:focus{
+    outline:none;border-color:var(--gold);box-shadow:0 0 0 4px rgba(212,175,55,.12);
+  }
+  input::placeholder,textarea::placeholder{color:var(--txt-dim)}
+  textarea{resize:vertical;min-height:90px}
+  select{cursor:pointer}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  @media (max-width:700px){
+    .stats{grid-template-columns:repeat(2,1fr)}
+  }
+  @media (max-width:600px){
+    .row{grid-template-columns:1fr}
+    .relance-actions{flex-direction:column}
+  }
+</style>
+</head>
+<body data-groupe="g7">
+
+<div class="app">
+
+  <div class="header">
+    <a href="groupe-marketing.html" class="back">←</a>
+    <div class="title-block">
+      <div class="logo"><span class="b">B</span><span class="excl">!</span><span class="pe">PE</span></div>
+      <div class="subtitle">Marketing · Relances</div>
+    </div>
+    <button class="menu" onclick="BIPE.openMenu()">⋮</button>
+  </div>
+
+  <div class="content">
+
+    <div class="hero-groupe">
+      <div class="num">GROUPE 07</div>
+      <div class="ico">🔔</div>
+      <h1>Relances</h1>
+      <p>Ne laisse plus un client ou un prospect sans réponse. Chaque relance compte.</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat total"><div class="num" id="statTotal">0</div><div class="lab">À faire</div></div>
+      <div class="stat retard"><div class="num" id="statRetard">0</div><div class="lab">En retard</div></div>
+      <div class="stat jour"><div class="num" id="statJour">0</div><div class="lab">Aujourd'hui</div></div>
+      <div class="stat fait"><div class="num" id="statFait">0</div><div class="lab">Faites</div></div>
+    </div>
+
+    <div class="toolbar">
+      <button class="btn btn-gold" onclick="openForm()"><span>＋</span> Nouvelle relance</button>
+      <button class="btn btn-ghost" onclick="exportRelances()"><span>📤</span> Exporter</button>
+    </div>
+
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="🔍 Rechercher par titre ou destinataire..." oninput="renderList()">
+    </div>
+
+    <div class="filters" id="filters">
+      <button class="filter-chip active" data-filter="actifs" onclick="setFilter('actifs')">À faire</button>
+      <button class="filter-chip" data-filter="retard" onclick="setFilter('retard')">En retard</button>
+      <button class="filter-chip" data-filter="aujourdhui" onclick="setFilter('aujourdhui')">Aujourd'hui</button>
+      <button class="filter-chip" data-filter="fait" onclick="setFilter('fait')">Faites</button>
+      <button class="filter-chip" data-filter="tous" onclick="setFilter('tous')">Toutes</button>
+    </div>
+
+    <div class="filters-secondary" id="filtersCible">
+      <button class="filter-chip-sm active" data-cible="tous" onclick="setFiltreCible('tous')">Toutes cibles</button>
+      <button class="filter-chip-sm" data-cible="client" onclick="setFiltreCible('client')">👤 Clients</button>
+      <button class="filter-chip-sm" data-cible="prospect" onclick="setFiltreCible('prospect')">🎯 Prospects</button>
+      <button class="filter-chip-sm" data-cible="sans" onclick="setFiltreCible('sans')">Sans cible</button>
+    </div>
+
+    <div class="list" id="list"></div>
+
+  </div>
+
+  <div class="footer">
+    <span class="brand">BIPE</span> · Bureau Intelligent Pour Entrepreneur<br>
+    Marketing · Relances · Version 2.0
+  </div>
+
+</div>
+
+<div id="bipe-overlay" onclick="BIPE.closeAllSheets()"></div>
+
+<!-- SHEET FORMULAIRE -->
+<div id="sheet-form" class="bipe-sheet" style="
+  position:fixed;left:0;right:0;bottom:0;background:#0a0a0a;
+  border-radius:24px 24px 0 0;border-top:2px solid #5a4a1f;
+  z-index:1001;max-height:92vh;display:flex;flex-direction:column;
+  max-width:720px;margin:0 auto;
+">
+  <div style="width:48px;height:5px;background:#2a2a2a;border-radius:3px;margin:12px auto 8px;flex-shrink:0;"></div>
+  <div style="padding:8px 24px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1f1f1f;">
+    <h3 id="formTitle" style="font-family:'Fredoka',sans-serif;font-size:1.5rem;color:#e8c96a;font-weight:700;">Nouvelle relance</h3>
+    <button onclick="BIPE.closeAllSheets()" style="
+      width:44px;height:44px;border-radius:12px;background:#141414;
+      border:1px solid #2a2a2a;color:#f5f0e1;font-size:1.4rem;
+      display:flex;align-items:center;justify-content:center;cursor:pointer;
+    ">✕</button>
+  </div>
+  <div style="padding:20px 24px 24px;overflow-y:auto;flex:1;">
+
+    <div class="form-group">
+      <label>Titre <span class="required">*</span></label>
+      <input type="text" id="fTitre" placeholder="Ex : Relancer Ahmed pour devis" maxlength="120">
+    </div>
+
+    <div class="form-group">
+      <label>Description</label>
+      <textarea id="fDesc" placeholder="Contexte, historique..." maxlength="500"></textarea>
+    </div>
+
+    <!-- CIBLE : Client ou Prospect -->
+    <div class="form-group">
+      <label>Lié à</label>
+      <select id="fCibleType" onchange="toggleCible()">
+        <option value="">— Aucune cible —</option>
+        <option value="client">👤 Client</option>
+        <option value="prospect">🎯 Prospect</option>
+      </select>
+    </div>
+
+    <div class="form-group" id="groupeClient" style="display:none;">
+      <label>Client</label>
+      <select id="fClientId">
+        <option value="">— Choisir un client —</option>
+      </select>
+    </div>
+
+    <div class="form-group" id="groupeProspect" style="display:none;">
+      <label>Prospect</label>
+      <select id="fProspectId">
+        <option value="">— Choisir un prospect —</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Date de relance <span class="required">*</span></label>
+      <input type="date" id="fDate">
+    </div>
+
+    <div class="form-group">
+      <label>Canal</label>
+      <select id="fCanal">
+        <option value="email">📧 Email</option>
+        <option value="tel">📞 Téléphone</option>
+        <option value="sms">💬 SMS</option>
+        <option value="whatsapp">📱 WhatsApp</option>
+        <option value="autre">📌 Autre</option>
+      </select>
+    </div>
+
+    <button class="btn btn-gold" style="width:100%;justify-content:center;margin-top:8px;" onclick="saveRelance()">💾 Enregistrer</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   BIPE — f-relances.html (v2)
+   Groupe 7 — Marketing : relances
+   - Lien vers Client ou Prospect
+   - Filtre par type de cible
+   ============================================================ */
+
+BIPE.checkSession();
+
+let relances = [];
+let filter = 'actifs';
+let filtreCible = 'tous';
+let editingId = null;
+
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+
+/* ---------- Sheet ---------- */
+function ouvrirSheet(id){
+  let overlay = document.getElementById('bipe-overlay');
+  if(!overlay){
+    overlay = document.createElement('div');
+    overlay.id = 'bipe-overlay';
+    overlay.onclick = BIPE.closeAllSheets;
+    document.body.appendChild(overlay);
+  }
+  overlay.classList.add('show');
+  const sheet = document.getElementById(id);
+  if(sheet) sheet.classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function fermerSheet(){
+  const overlay = document.getElementById('bipe-overlay');
+  if(overlay) overlay.classList.remove('show');
+  document.querySelectorAll('.bipe-sheet').forEach(s => s.classList.remove('show'));
+  document.body.style.overflow = '';
+}
+
+/* ---------- Classification ---------- */
+function classify(r){
+  if(r.fait) return 'fait';
+  const today = todayISO();
+  if(r.date < today) return 'retard';
+  if(r.date === today) return 'aujourdhui';
+  return 'actif';
+}
+
+function daysFromToday(iso){
+  const t = new Date(todayISO());
+  const d = new Date(iso);
+  return Math.round((d - t) / 86400000);
+}
+
+/* ---------- Données ---------- */
+function load(){
+  relances = BIPE.storage.get(BIPE.KEYS.relances, []) || [];
+  render();
+}
+
+function save(){
+  BIPE.storage.set(BIPE.KEYS.relances, relances);
+}
+
+/* ---------- Clients / Prospects ---------- */
+function getClients(){
+  return BIPE.storage.get(BIPE.KEYS.clients, []) || [];
+}
+
+function getProspects(){
+  return BIPE.storage.get(BIPE.KEYS.prospects, []) || [];
+}
+
+function populateClients(selectedId){
+  const clients = getClients();
+  const sel = document.getElementById('fClientId');
+  if(!sel) return;
+  sel.innerHTML = '<option value="">— Choisir un client —</option>' +
+    clients
+      .slice()
+      .sort((a, b) => (a.nom || '').localeCompare(b.nom || ''))
+      .map(c => `<option value="${c.id}" ${selectedId === c.id ? 'selected' : ''}>${BIPE.esc(c.nom)}</option>`)
+      .join('');
+}
+
+function populateProspects(selectedId){
+  const prospects = getProspects();
+  const sel = document.getElementById('fProspectId');
+  if(!sel) return;
+  sel.innerHTML = '<option value="">— Choisir un prospect —</option>' +
+    prospects
+      .slice()
+      .sort((a, b) => (a.nom || '').localeCompare(b.nom || ''))
+      .map(p => `<option value="${p.id}" ${selectedId === p.id ? 'selected' : ''}>${BIPE.esc(p.nom)}${p.societe ? ' · ' + BIPE.esc(p.societe) : ''}</option>`)
+      .join('');
+}
+
+function toggleCible(){
+  const type = document.getElementById('fCibleType').value;
+  document.getElementById('groupeClient').style.display = type === 'client' ? 'block' : 'none';
+  document.getElementById('groupeProspect').style.display = type === 'prospect' ? 'block' : 'none';
+
+  if(type === 'client') populateClients(null);
+  if(type === 'prospect') populateProspects(null);
+}
+
+function cibleExiste(r){
+  if(!r.cibleType || !r.cibleId) return true;
+  if(r.cibleType === 'client') return getClients().some(c => c.id === r.cibleId);
+  if(r.cibleType === 'prospect') return getProspects().some(p => p.id === r.cibleId);
+  return true;
+}
+
+/* ---------- Rendu ---------- */
+function render(){
+  renderStats();
+  renderList();
+}
+
+function renderStats(){
+  const actifs = relances.filter(r => !r.fait).length;
+  const retard = relances.filter(r => classify(r) === 'retard').length;
+  const jour = relances.filter(r => classify(r) === 'aujourdhui').length;
+  const fait = relances.filter(r => r.fait).length;
+  document.getElementById('statTotal').textContent = actifs;
+  document.getElementById('statRetard').textContent = retard;
+  document.getElementById('statJour').textContent = jour;
+  document.getElementById('statFait').textContent = fait;
+}
+
+function matchFilter(r){
+  const c = classify(r);
+  if(filter === 'tous') return true;
+  if(filter === 'actifs') return !r.fait;
+  if(filter === 'fait') return r.fait;
+  if(filter === 'retard') return c === 'retard';
+  if(filter === 'aujourdhui') return c === 'aujourdhui';
+  return true;
+}
+
+function matchCible(r){
+  if(filtreCible === 'tous') return true;
+  if(filtreCible === 'sans') return !r.cibleType;
+  return r.cibleType === filtreCible;
+}
+
+function matchSearch(r, query){
+  if(!query) return true;
+  const q = query.toLowerCase();
+  return (r.titre || '').toLowerCase().includes(q)
+    || (r.cibleNom || '').toLowerCase().includes(q)
+    || (r.description || '').toLowerCase().includes(q);
+}
+
+function renderList(){
+  const list = document.getElementById('list');
+  const query = (document.getElementById('searchInput')?.value || '').trim();
+
+  let items = relances.filter(r => matchFilter(r) && matchCible(r) && matchSearch(r, query));
+  items.sort((a,b) => {
+    if(a.fait !== b.fait) return a.fait ? 1 : -1;
+    return (a.date || '').localeCompare(b.date || '');
+  });
+
+  if(items.length === 0){
+    list.innerHTML = `
+      <div class="empty">
+        <div class="ico">🔔</div>
+        <h3>Aucune relance</h3>
+        <p>${filter === 'tous' ? 'Crée ta première relance.' : 'Aucune relance dans ce filtre.'}</p>
+        <button class="btn btn-gold" style="margin:0 auto;" onclick="openForm()">＋ Nouvelle relance</button>
+      </div>
+    `;
+    return;
+  }
+
+  const canaux = {email:'📧 Email', tel:'📞 Téléphone', sms:'💬 SMS', whatsapp:'📱 WhatsApp', autre:'📌 Autre'};
+
+  list.innerHTML = items.map(r => {
+    const c = classify(r);
+    const dateLabel = r.date ? BIPE.fmtDate(r.date) : '—';
+    const rel = r.date ? daysFromToday(r.date) : null;
+    let relLabel = '';
+    if(rel !== null && !r.fait){
+      if(rel === 0) relLabel = ' · Aujourd\'hui';
+      else if(rel === 1) relLabel = ' · Demain';
+      else if(rel === -1) relLabel = ' · Hier';
+      else if(rel < 0) relLabel = ` · Il y a ${Math.abs(rel)} j`;
+      else relLabel = ` · Dans ${rel} j`;
+    }
+
+    let cibleHtml = '';
+    if(r.cibleType && r.cibleNom){
+      const exists = cibleExiste(r);
+      const cls = !exists ? 'supprime' : r.cibleType;
+      const ico = r.cibleType === 'client' ? '👤' : '🎯';
+      const suffix = !exists ? ' (supprimé)' : '';
+      cibleHtml = `<div class="relance-cible ${cls}">${ico} ${BIPE.esc(r.cibleNom)}${suffix}</div>`;
+    }
+
+    return `
+      <div class="relance-card ${c}">
+        <button class="relance-check ${r.fait ? 'done' : ''}" onclick="toggleFait('${r.id}')" aria-label="Marquer fait">
+          ${r.fait ? '✓' : ''}
+        </button>
+        <div class="relance-body">
+          <div class="relance-titre">${BIPE.esc(r.titre)}</div>
+          ${cibleHtml}
+          ${r.description ? `<div class="relance-desc">${BIPE.esc(r.description)}</div>` : ''}
+          <div class="relance-meta">
+            <span class="date">📅 ${dateLabel}${relLabel}</span>
+            <span class="canal">${canaux[r.canal] || '📌 Autre'}</span>
+          </div>
+        </div>
+        <div class="relance-actions">
+          <button class="icon-btn" onclick="openForm('${r.id}')" title="Modifier">✏️</button>
+          <button class="icon-btn danger" onclick="deleteRelance('${r.id}')" title="Supprimer">🗑</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ---------- Filtres ---------- */
+function setFilter(f){
+  filter = f;
+  document.querySelectorAll('#filters .filter-chip').forEach(b => {
+    b.classList.toggle('active', b.dataset.filter === f);
+  });
+  renderList();
+}
+
+function setFiltreCible(f){
+  filtreCible = f;
+  document.querySelectorAll('#filtersCible .filter-chip-sm').forEach(b => {
+    b.classList.toggle('active', b.dataset.cible === f);
+  });
+  renderList();
+}
+
+/* ---------- Actions ---------- */
+function toggleFait(id){
+  const r = relances.find(x => x.id === id);
+  if(!r) return;
+  r.fait = !r.fait;
+  r.dateFait = r.fait ? new Date().toISOString() : null;
+  save();
+  render();
+  BIPE.toast(r.fait ? '✅ Relance faite' : '↩ Relance réactivée');
+}
+
+/* ---------- Formulaire ---------- */
+function openForm(id){
+  editingId = id || null;
+  const title = document.getElementById('formTitle');
+
+  if(id){
+    const r = relances.find(x => x.id === id);
+    if(!r) return;
+    title.textContent = 'Modifier la relance';
+    document.getElementById('fTitre').value = r.titre || '';
+    document.getElementById('fDesc').value = r.description || '';
+    document.getElementById('fDate').value = r.date || todayISO();
+    document.getElementById('fCanal').value = r.canal || 'email';
+    document.getElementById('fCibleType').value = r.cibleType || '';
+    toggleCible();
+    if(r.cibleType === 'client'){
+      populateClients(r.cibleId);
+    } else if(r.cibleType === 'prospect'){
+      populateProspects(r.cibleId);
+    }
+  } else {
+    title.textContent = 'Nouvelle relance';
+    document.getElementById('fTitre').value = '';
+    document.getElementById('fDesc').value = '';
+    document.getElementById('fDate').value = todayISO();
+    document.getElementById('fCanal').value = 'email';
+    document.getElementById('fCibleType').value = '';
+    toggleCible();
+  }
+
+  ouvrirSheet('sheet-form');
+  setTimeout(() => { try { document.getElementById('fTitre').focus(); } catch(e){} }, 300);
+}
+
+function saveRelance(){
+  const titre = document.getElementById('fTitre').value.trim();
+  const description = document.getElementById('fDesc').value.trim();
+  const date = document.getElementById('fDate').value;
+  const canal = document.getElementById('fCanal').value;
+  const cibleType = document.getElementById('fCibleType').value;
+
+  if(!titre || !date){
+    BIPE.toast('⚠ Titre et date obligatoires', true);
+    return;
+  }
+
+  // Gestion de la cible
+  let cibleId = null;
+  let cibleNom = null;
+
+  if(cibleType === 'client'){
+    cibleId = document.getElementById('fClientId').value;
+    if(!cibleId){
+      BIPE.toast('⚠ Choisis un client ou retire la cible', true);
+      return;
+    }
+    const c = getClients().find(x => x.id === cibleId);
+    if(c) cibleNom = c.nom;
+  } else if(cibleType === 'prospect'){
+    cibleId = document.getElementById('fProspectId').value;
+    if(!cibleId){
+      BIPE.toast('⚠ Choisis un prospect ou retire la cible', true);
+      return;
+    }
+    const p = getProspects().find(x => x.id === cibleId);
+    if(p) cibleNom = p.nom;
+  }
+
+  if(editingId){
+    const r = relances.find(x => x.id === editingId);
+    if(r){
+      Object.assign(r, {titre, description, date, canal, cibleType: cibleType || null, cibleId, cibleNom});
+      r.updatedAt = new Date().toISOString();
+    }
+    BIPE.toast('✅ Relance modifiée');
+  } else {
+    relances.push({
+      id: Date.now().toString(36),
+      titre, description, date, canal,
+      cibleType: cibleType || null,
+      cibleId, cibleNom,
+      fait: false,
+      dateFait: null,
+      createdAt: new Date().toISOString()
+    });
+    BIPE.toast('✅ Relance créée');
+  }
+
+  save();
+  fermerSheet();
+  render();
+}
+
+function deleteRelance(id){
+  const r = relances.find(x => x.id === id);
+  if(!r) return;
+  if(!confirm(`Supprimer "${r.titre}" ?`)) return;
+  relances = relances.filter(x => x.id !== id);
+  save();
+  render();
+  BIPE.toast('🗑 Relance supprimée');
+}
+
+function exportRelances(){
+  BIPE.exportJSON('relances', relances);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  load();
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape') fermerSheet();
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>BIPE — Banque & Rapprochement</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="shared.js"></script>
+<style>
+  :root{
+    --black:#000000; --black-2:#0a0a0a; --black-3:#141414;
+    --line:#2a2a2a; --line-soft:#1f1f1f;
+    --gold:#d4af37; --gold-bright:#f0d060; --gold-soft:#e8c96a;
+    --gold-dim:#8a7433; --gold-deep:#5a4a1f;
+    --txt:#f5f0e1; --txt-muted:#9a9384; --txt-dim:#5a564e;
+    --ok:#6b9a5a; --warn:#c9a040; --bad:#b84040; --info:#7cc4e8;
+    --radius:16px; --radius-sm:12px;
+    --groupe-couleur:#c9a040;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overscroll-behavior:none}
+  body{
+    font-family:'Baloo Bhaijaan 2', -apple-system, "Segoe UI", sans-serif;
+    background:var(--black); color:var(--txt); line-height:1.6; font-weight:500;
+    -webkit-font-smoothing:antialiased; min-height:100vh;
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(201,160,64,.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(212,175,55,.02) 0%, transparent 40%);
+    background-attachment:fixed;
+  }
+  .app{max-width:min(1100px,92vw);margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding-bottom:clamp(24px,4vw,40px)}
+
+  /* ============================================================
+     SHEET + OVERLAY — CSS ajouté
+     ============================================================ */
+  .bipe-sheet{
+    transform:translateY(100%);
+    transition:transform .3s cubic-bezier(.32,.72,0,1);
+  }
+  .bipe-sheet.show{
+    transform:translateY(0) !important;
+  }
+  #bipe-overlay{
+    position:fixed;inset:0;
+    background:rgba(0,0,0,.7);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    z-index:1000;
+    opacity:0;pointer-events:none;
+    transition:opacity .3s;
+  }
+  #bipe-overlay.show{
+    opacity:1 !important;
+    pointer-events:auto !important;
+  }
+
+  .header{
+    position:sticky;top:0;z-index:50;background:rgba(0,0,0,.92);
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--line-soft);
+    padding:clamp(12px,2vw,16px) clamp(16px,3vw,20px);
+    display:flex;align-items:center;gap:clamp(8px,1.5vw,16px);
+  }
+  .header .back{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;text-decoration:none;transition:transform .15s;
+  }
+  .header .back:active{transform:scale(.92)}
+  .header .title-block{flex:1;min-width:0}
+  .header .logo{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2.5vw,1.5rem);
+    font-weight:700;color:#f0d060;line-height:1.2;letter-spacing:.02em;
+  }
+  .header .logo .b,.header .logo .pe{color:var(--txt)}
+  .header .logo .excl{color:var(--gold);font-size:1.3em;vertical-align:middle;text-shadow:0 0 20px rgba(212,175,55,.5)}
+  .header .subtitle{
+    font-size:clamp(.6rem,1vw,.7rem);color:var(--txt-muted);
+    font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  }
+  .header .menu{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;transition:transform .15s;
+  }
+  .header .menu:active{transform:scale(.92)}
+
+  .content{flex:1;padding:clamp(16px,3vw,24px) clamp(16px,3vw,20px)}
+
+  .hero-groupe{
+    background:linear-gradient(135deg,var(--black-2) 0%,var(--black-3) 100%);
+    border:2px solid var(--gold-deep);border-radius:var(--radius);
+    padding:clamp(18px,3vw,24px);margin-bottom:clamp(16px,3vw,20px);
+    position:relative;overflow:hidden;
+  }
+  .hero-groupe::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--groupe-couleur);opacity:.8;
+  }
+  .hero-groupe .num{
+    font-family:'Fredoka',sans-serif;font-size:clamp(.75rem,1vw,.85rem);
+    font-weight:700;color:var(--groupe-couleur);letter-spacing:.05em;margin-bottom:6px;
+  }
+  .hero-groupe .ico{font-size:clamp(1.6rem,2.5vw,2rem);line-height:1;margin-bottom:6px}
+  .hero-groupe h1{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.3rem,2.2vw,1.7rem);
+    font-weight:700;color:var(--gold-bright);line-height:1.2;margin-bottom:4px;
+  }
+  .hero-groupe p{font-size:clamp(.85rem,1.1vw,1rem);color:var(--txt-muted);font-weight:500}
+
+  .tabs{
+    display:flex;gap:6px;background:var(--black-3);
+    border:2px solid var(--line);border-radius:999px;
+    padding:5px;margin-bottom:clamp(16px,3vw,20px);
+  }
+  .tab{
+    flex:1;padding:clamp(10px,1.5vw,12px) clamp(12px,2vw,16px);
+    border-radius:999px;background:transparent;border:none;
+    color:var(--txt-muted);font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:clamp(.9rem,1.1vw,1rem);font-weight:700;cursor:pointer;transition:all .2s;
+  }
+  .tab.active{
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold));color:#0a0a0a;
+  }
+  .tab:hover:not(.active){color:var(--gold-soft)}
+
+  .stats{
+    display:grid;grid-template-columns:repeat(3,1fr);
+    gap:clamp(8px,1.5vw,12px);margin-bottom:clamp(16px,3vw,20px);
+  }
+  .stat{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(12px,2vw,16px) clamp(10px,1.5vw,14px);
+  }
+  .stat .num{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.3rem,2.5vw,1.7rem);
+    font-weight:700;line-height:1;margin-bottom:4px;color:var(--gold-bright);
+  }
+  .stat .lab{font-size:clamp(.7rem,.95vw,.8rem);color:var(--txt-muted);font-weight:600;line-height:1.3}
+
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:clamp(14px,2.5vw,18px)}
+  .btn{
+    padding:clamp(11px,1.5vw,13px) clamp(16px,2vw,20px);
+    border-radius:999px;border:none;cursor:pointer;
+    font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:clamp(.88rem,1.1vw,1rem);font-weight:700;
+    display:inline-flex;align-items:center;gap:8px;transition:all .2s;
+  }
+  .btn-gold{
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold));
+    color:#0a0a0a;box-shadow:0 4px 16px rgba(212,175,55,.25);
+  }
+  .btn-gold:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  .btn-gold:active{transform:scale(.97)}
+  .btn-ghost{background:var(--black-2);border:2px solid var(--line);color:var(--txt)}
+  .btn-ghost:hover{border-color:var(--gold-dim)}
+
+  .list{display:flex;flex-direction:column;gap:clamp(8px,1.5vw,10px)}
+  .item-card{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(14px,2.5vw,18px) clamp(16px,2.5vw,20px);
+    display:flex;gap:clamp(10px,2vw,14px);align-items:flex-start;
+    transition:transform .15s,border-color .15s;position:relative;overflow:hidden;
+  }
+  .item-card::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--groupe-couleur);opacity:.7;
+  }
+  .item-card:hover{border-color:var(--gold-dim)}
+  .item-body{flex:1;min-width:0}
+  .item-head{
+    display:flex;justify-content:space-between;align-items:baseline;
+    gap:8px;margin-bottom:6px;flex-wrap:wrap;
+  }
+  .item-title{
+    font-family:'Fredoka',sans-serif;font-size:clamp(.95rem,1.4vw,1.1rem);
+    font-weight:700;color:var(--txt);line-height:1.3;flex:1;min-width:0;
+  }
+  .item-date{
+    font-size:clamp(.72rem,.95vw,.82rem);color:var(--txt-dim);
+    font-weight:600;white-space:nowrap;
+  }
+  .item-meta{
+    display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+    font-size:clamp(.78rem,1vw,.88rem);font-weight:600;
+  }
+  .item-meta .montant{font-weight:700}
+  .item-meta .credit{color:var(--ok)}
+  .item-meta .debit{color:var(--bad)}
+  .item-meta .badge{
+    padding:2px 8px;border-radius:6px;font-size:.75em;font-weight:700;
+    text-transform:uppercase;letter-spacing:.04em;background:rgba(255,255,255,.06);
+    color:var(--txt-muted);
+  }
+  .item-actions{display:flex;gap:4px;flex-shrink:0}
+  .icon-btn{
+    width:clamp(32px,4.5vw,36px);height:clamp(32px,4.5vw,36px);
+    border-radius:10px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--txt-muted);font-size:clamp(.85rem,1.2vw,.95rem);
+    cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;
+  }
+  .icon-btn:hover{border-color:var(--gold-dim);color:var(--gold-soft)}
+  .icon-btn.danger:hover{border-color:var(--bad);color:#e08a8a}
+
+  .empty{
+    text-align:center;padding:clamp(40px,8vw,60px) clamp(20px,3vw,24px);
+    background:var(--black-2);border:2px dashed var(--line);border-radius:var(--radius);
+  }
+  .empty .ico{font-size:clamp(2.5rem,6vw,3.5rem);margin-bottom:12px;opacity:.6}
+  .empty h3{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.1rem,1.8vw,1.3rem);
+    color:var(--gold-soft);margin-bottom:8px;
+  }
+  .empty p{font-size:clamp(.85rem,1.1vw,1rem);color:var(--txt-muted);margin-bottom:16px}
+
+  .footer{
+    text-align:center;padding:clamp(20px,3vw,28px) 16px 16px;
+    font-size:clamp(.72rem,.9vw,.8rem);color:var(--txt-dim);
+    line-height:1.8;font-weight:500;border-top:1px solid var(--line-soft);margin-top:auto;
+  }
+  .footer .brand{color:var(--gold-soft);font-weight:700}
+
+  .form-group{margin-bottom:clamp(14px,2vw,18px)}
+  label{
+    display:block;font-size:clamp(.85rem,1vw,.95rem);
+    color:var(--txt-muted);margin-bottom:6px;font-weight:600;
+  }
+  label .required{color:var(--bad);margin-left:2px}
+  input,textarea,select{
+    width:100%;padding:clamp(12px,1.5vw,14px) clamp(14px,2vw,16px);
+    border-radius:var(--radius-sm);border:2px solid var(--line);
+    background:var(--black-3);color:var(--txt);
+    font-size:clamp(.95rem,1.1vw,1rem);
+    font-family:'Baloo Bhaijaan 2',sans-serif;font-weight:500;transition:all .2s;
+  }
+  input:focus,textarea:focus,select:focus{
+    outline:none;border-color:var(--gold);box-shadow:0 0 0 4px rgba(212,175,55,.12);
+  }
+  input::placeholder,textarea::placeholder{color:var(--txt-dim)}
+  textarea{resize:vertical;min-height:80px}
+  select{cursor:pointer}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  @media (max-width:600px){
+    .stats{grid-template-columns:1fr}
+    .row{grid-template-columns:1fr}
+    .item-actions{flex-direction:column}
+  }
+</style>
+</head>
+<body data-groupe="g4">
+
+<div class="app">
+
+  <div class="header">
+    <a href="groupe-comptabilite.html" class="back">←</a>
+    <div class="title-block">
+      <div class="logo"><span class="b">B</span><span class="excl">!</span><span class="pe">PE</span></div>
+      <div class="subtitle">Comptabilité · Banque</div>
+    </div>
+    <button class="menu" onclick="BIPE.openMenu()">⋮</button>
+  </div>
+
+  <div class="content">
+
+    <div class="hero-groupe">
+      <div class="num">GROUPE 04</div>
+      <div class="ico">🏦</div>
+      <h1>Banque & Rapprochement</h1>
+      <p>Comptes, mouvements, soldes. La réalité bancaire, sans surprise.</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="num" id="statComptes">0</div><div class="lab">Comptes<br>bancaires</div></div>
+      <div class="stat"><div class="num" id="statMouvements">0</div><div class="lab">Mouvements<br>enregistrés</div></div>
+      <div class="stat"><div class="num" id="statSolde">0</div><div class="lab">Solde<br>total (DT)</div></div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="comptes" onclick="switchTab('comptes')">🏦 Comptes</button>
+      <button class="tab" data-tab="mouvements" onclick="switchTab('mouvements')">💸 Mouvements</button>
+    </div>
+
+    <div class="toolbar">
+      <button class="btn btn-gold" id="btnAdd" onclick="openForm()"><span>＋</span> Ajouter</button>
+      <button class="btn btn-ghost" onclick="exportBanque()"><span>📤</span> Exporter</button>
+    </div>
+
+    <div class="list" id="list"></div>
+
+  </div>
+
+  <div class="footer">
+    <span class="brand">BIPE</span> · Bureau Intelligent Pour Entrepreneur<br>
+    Comptabilité · Banque · Version 1.0
+  </div>
+
+</div>
+
+<!-- OVERLAY -->
+<div id="bipe-overlay" onclick="BIPE.closeAllSheets()"></div>
+
+<!-- SHEET -->
+<div id="sheet-form" class="bipe-sheet" style="
+  position:fixed;left:0;right:0;bottom:0;background:#0a0a0a;
+  border-radius:24px 24px 0 0;border-top:2px solid #5a4a1f;
+  z-index:1001;max-height:92vh;display:flex;flex-direction:column;
+  max-width:720px;margin:0 auto;
+">
+  <div style="width:48px;height:5px;background:#2a2a2a;border-radius:3px;margin:12px auto 8px;flex-shrink:0;"></div>
+  <div style="padding:8px 24px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1f1f1f;">
+    <h3 id="formTitle" style="font-family:'Fredoka',sans-serif;font-size:1.5rem;color:#e8c96a;font-weight:700;">Ajouter</h3>
+    <button onclick="BIPE.closeAllSheets()" style="
+      width:44px;height:44px;border-radius:12px;background:#141414;
+      border:1px solid #2a2a2a;color:#f5f0e1;font-size:1.4rem;
+      display:flex;align-items:center;justify-content:center;cursor:pointer;
+    ">✕</button>
+  </div>
+  <div style="padding:20px 24px 24px;overflow-y:auto;flex:1;" id="formBody"></div>
+</div>
+
+<script>
+/* ============================================================
+   BIPE — f-banque.html (CORRIGÉ)
+   Groupe 4 — Comptabilité : banque & rapprochement
+   ============================================================ */
+
+BIPE.checkSession();
+
+let items = [];
+let currentTab = 'comptes';
+let editingId = null;
+
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+
+/* ---------- Sheet sécurisée ---------- */
+function ouvrirSheet(id){
+  let overlay = document.getElementById('bipe-overlay');
+  if(!overlay){
+    overlay = document.createElement('div');
+    overlay.id = 'bipe-overlay';
+    overlay.onclick = BIPE.closeAllSheets;
+    document.body.appendChild(overlay);
+  }
+  overlay.classList.add('show');
+  const sheet = document.getElementById(id);
+  if(sheet) sheet.classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function fermerSheet(){
+  const overlay = document.getElementById('bipe-overlay');
+  if(overlay) overlay.classList.remove('show');
+  document.querySelectorAll('.bipe-sheet').forEach(s => s.classList.remove('show'));
+  document.body.style.overflow = '';
+}
+
+function load(){
+  items = BIPE.storage.get(BIPE.KEYS.banque, []) || [];
+  render();
+}
+
+function save(){
+  BIPE.storage.set(BIPE.KEYS.banque, items);
+}
+
+function getComptes(){ return items.filter(i => i.type === 'compte'); }
+function getMouvements(){ return items.filter(i => i.type === 'mouvement'); }
+
+function soldeCompte(compteId){
+  const c = items.find(x => x.id === compteId && x.type === 'compte');
+  if(!c) return 0;
+  let solde = Number(c.soldeInitial) || 0;
+  getMouvements()
+    .filter(m => m.compteId === compteId)
+    .forEach(m => {
+      solde += m.sens === 'credit' ? (Number(m.montant)||0) : -(Number(m.montant)||0);
+    });
+  return solde;
+}
+
+function soldeTotal(){
+  return getComptes().reduce((s,c) => s + soldeCompte(c.id), 0);
+}
+
+function render(){
+  renderStats();
+  renderList();
+}
+
+function renderStats(){
+  document.getElementById('statComptes').textContent = getComptes().length;
+  document.getElementById('statMouvements').textContent = getMouvements().length;
+  document.getElementById('statSolde').textContent = BIPE.fmt(soldeTotal());
+}
+
+function switchTab(tab){
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.tab === tab);
+  });
+  document.getElementById('btnAdd').innerHTML = tab === 'comptes'
+    ? '<span>＋</span> Nouveau compte'
+    : '<span>＋</span> Nouveau mouvement';
+  renderList();
+}
+
+function renderList(){
+  const list = document.getElementById('list');
+
+  if(currentTab === 'comptes'){
+    const comptes = getComptes();
+    if(comptes.length === 0){
+      list.innerHTML = `
+        <div class="empty">
+          <div class="ico">🏦</div>
+          <h3>Aucun compte</h3>
+          <p>Ajoute ton premier compte bancaire.</p>
+          <button class="btn btn-gold" style="margin:0 auto;" onclick="openForm()">＋ Nouveau compte</button>
+        </div>
+      `;
+      return;
+    }
+    list.innerHTML = comptes.map(c => {
+      const solde = soldeCompte(c.id);
+      return `
+        <div class="item-card">
+          <div class="item-body">
+            <div class="item-head">
+              <div class="item-title">${BIPE.esc(c.nom)}</div>
+              <div class="item-date">${c.dateOuverture ? BIPE.fmtDate(c.dateOuverture) : ''}</div>
+            </div>
+            <div class="item-meta">
+              <span class="badge">${BIPE.esc(c.banque||'—')}</span>
+              <span class="montant ${solde >= 0 ? 'credit' : 'debit'}">Solde : ${BIPE.fmt(solde)} DT</span>
+            </div>
+          </div>
+          <div class="item-actions">
+            <button class="icon-btn" onclick="openForm('${c.id}')" title="Modifier">✏️</button>
+            <button class="icon-btn danger" onclick="deleteItem('${c.id}')" title="Supprimer">🗑</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  } else {
+    const mvs = getMouvements().slice().sort((a,b) => (b.date||'').localeCompare(a.date||''));
+    if(mvs.length === 0){
+      list.innerHTML = `
+        <div class="empty">
+          <div class="ico">💸</div>
+          <h3>Aucun mouvement</h3>
+          <p>Enregistre ton premier mouvement bancaire.</p>
+          <button class="btn btn-gold" style="margin:0 auto;" onclick="openForm()">＋ Nouveau mouvement</button>
+        </div>
+      `;
+      return;
+    }
+    list.innerHTML = mvs.map(m => {
+      const c = items.find(x => x.id === m.compteId);
+      return `
+        <div class="item-card">
+          <div class="item-body">
+            <div class="item-head">
+              <div class="item-title">${BIPE.esc(m.libelle)}</div>
+              <div class="item-date">${m.date ? BIPE.fmtDate(m.date) : '—'}</div>
+            </div>
+            <div class="item-meta">
+              <span class="badge">${BIPE.esc(c ? c.nom : '—')}</span>
+              <span class="montant ${m.sens === 'credit' ? 'credit' : 'debit'}">
+                ${m.sens === 'credit' ? '+' : '−'} ${BIPE.fmt(m.montant)} DT
+              </span>
+            </div>
+          </div>
+          <div class="item-actions">
+            <button class="icon-btn" onclick="openForm('${m.id}')" title="Modifier">✏️</button>
+            <button class="icon-btn danger" onclick="deleteItem('${m.id}')" title="Supprimer">🗑</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+}
+
+function openForm(id){
+  editingId = id || null;
+  const body = document.getElementById('formBody');
+  const title = document.getElementById('formTitle');
+
+  if(currentTab === 'comptes'){
+    title.textContent = id ? 'Modifier le compte' : 'Nouveau compte';
+    const c = id ? items.find(x => x.id === id) : null;
+    body.innerHTML = `
+      <div class="form-group">
+        <label>Nom du compte <span class="required">*</span></label>
+        <input type="text" id="fNom" placeholder="Ex : Compte courant BNP" value="${c ? BIPE.esc(c.nom) : ''}" maxlength="80">
+      </div>
+      <div class="form-group">
+        <label>Banque</label>
+        <input type="text" id="fBanque" placeholder="Ex : BNP, UIB, BIAT..." value="${c ? BIPE.esc(c.banque||'') : ''}" maxlength="60">
+      </div>
+      <div class="row">
+        <div class="form-group">
+          <label>Solde initial (DT)</label>
+          <input type="number" id="fSolde" placeholder="0" step="0.01" value="${c ? (c.soldeInitial||0) : 0}">
+        </div>
+        <div class="form-group">
+          <label>Date d'ouverture</label>
+          <input type="date" id="fDateOuv" value="${c && c.dateOuverture ? c.dateOuverture : todayISO()}">
+        </div>
+      </div>
+      <button class="btn btn-gold" style="width:100%;justify-content:center;margin-top:8px;" onclick="saveCompte()">💾 Enregistrer</button>
+    `;
+  } else {
+    title.textContent = id ? 'Modifier le mouvement' : 'Nouveau mouvement';
+    const m = id ? items.find(x => x.id === id) : null;
+    const comptes = getComptes();
+    if(comptes.length === 0){
+      body.innerHTML = `
+        <div class="empty" style="padding:30px 20px;">
+          <div class="ico">🏦</div>
+          <h3>Aucun compte</h3>
+          <p>Crée d'abord un compte bancaire avant d'ajouter un mouvement.</p>
+          <button class="btn btn-gold" style="margin:0 auto;" onclick="fermerSheet();switchTab('comptes');openForm();">＋ Nouveau compte</button>
+        </div>
+      `;
+      ouvrirSheet('sheet-form');
+      return;
+    }
+    body.innerHTML = `
+      <div class="form-group">
+        <label>Compte <span class="required">*</span></label>
+        <select id="fCompteId">
+          <option value="">— Choisir un compte —</option>
+          ${comptes.map(c => `<option value="${c.id}" ${m && m.compteId === c.id ? 'selected' : ''}>${BIPE.esc(c.nom)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Libellé <span class="required">*</span></label>
+        <input type="text" id="fLibelle" placeholder="Ex : Virement client" value="${m ? BIPE.esc(m.libelle) : ''}" maxlength="120">
+      </div>
+      <div class="row">
+        <div class="form-group">
+          <label>Sens <span class="required">*</span></label>
+          <select id="fSens">
+            <option value="debit" ${m && m.sens === 'debit' ? 'selected' : ''}>Débit (−)</option>
+            <option value="credit" ${m && m.sens === 'credit' ? 'selected' : ''}>Crédit (+)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Montant (DT) <span class="required">*</span></label>
+          <input type="number" id="fMontant" placeholder="0" step="0.01" min="0" value="${m ? (m.montant||'') : ''}">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Date <span class="required">*</span></label>
+        <input type="date" id="fDate" value="${m && m.date ? m.date : todayISO()}">
+      </div>
+      <button class="btn btn-gold" style="width:100%;justify-content:center;margin-top:8px;" onclick="saveMouvement()">💾 Enregistrer</button>
+    `;
+  }
+  ouvrirSheet('sheet-form');
+}
+
+function saveCompte(){
+  const nom = document.getElementById('fNom').value.trim();
+  const banque = document.getElementById('fBanque').value.trim();
+  const soldeInitial = parseFloat(document.getElementById('fSolde').value) || 0;
+  const dateOuverture = document.getElementById('fDateOuv').value;
+
+  if(!nom){ BIPE.toast('⚠ Le nom est obligatoire', true); return; }
+
+  if(editingId){
+    const c = items.find(x => x.id === editingId);
+    if(c){
+      c.nom = nom; c.banque = banque;
+      c.soldeInitial = soldeInitial; c.dateOuverture = dateOuverture;
+    }
+    BIPE.toast('✅ Compte modifié');
+  } else {
+    items.push({
+      id: Date.now().toString(36),
+      type: 'compte',
+      nom, banque, soldeInitial, dateOuverture,
+      createdAt: new Date().toISOString()
+    });
+    BIPE.toast('✅ Compte créé');
+  }
+  save();
+  fermerSheet();
+  render();
+}
+
+function saveMouvement(){
+  const compteId = document.getElementById('fCompteId').value;
+  const libelle = document.getElementById('fLibelle').value.trim();
+  const sens = document.getElementById('fSens').value;
+  const montant = parseFloat(document.getElementById('fMontant').value);
+  const date = document.getElementById('fDate').value;
+
+  if(!compteId || !libelle || !montant || montant <= 0 || !date){
+    BIPE.toast('⚠ Remplis compte, libellé, montant et date', true);
+    return;
+  }
+
+  if(editingId){
+    const m = items.find(x => x.id === editingId);
+    if(m){
+      m.compteId = compteId; m.libelle = libelle;
+      m.sens = sens; m.montant = montant; m.date = date;
+    }
+    BIPE.toast('✅ Mouvement modifié');
+  } else {
+    items.push({
+      id: Date.now().toString(36),
+      type: 'mouvement',
+      compteId, libelle, sens, montant, date,
+      createdAt: new Date().toISOString()
+    });
+    BIPE.toast('✅ Mouvement enregistré');
+  }
+  save();
+  fermerSheet();
+  render();
+}
+
+function deleteItem(id){
+  const it = items.find(x => x.id === id);
+  if(!it) return;
+  let msg = `Supprimer "${it.nom || it.libelle}" ?`;
+  if(it.type === 'compte'){
+    const nb = getMouvements().filter(m => m.compteId === id).length;
+    if(nb > 0) msg += `\n\n⚠ ${nb} mouvement(s) lié(s) seront aussi supprimés.`;
+  }
+  if(!confirm(msg)) return;
+  if(it.type === 'compte'){
+    items = items.filter(x => x.id !== id && x.compteId !== id);
+  } else {
+    items = items.filter(x => x.id !== id);
+  }
+  save();
+  render();
+  BIPE.toast('🗑 Supprimé');
+}
+
+function exportBanque(){
+  BIPE.exportJSON('banque', items);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  load();
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape') fermerSheet();
+  });
+});
+</script>
+</body>
+</html>

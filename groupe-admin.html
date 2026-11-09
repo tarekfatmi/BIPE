@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>BIPE — Administration</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="shared.js"></script>
+<style>
+  :root{
+    --black:#000000; --black-2:#0a0a0a; --black-3:#141414;
+    --line:#2a2a2a; --line-soft:#1f1f1f;
+    --gold:#d4af37; --gold-bright:#f0d060; --gold-soft:#e8c96a;
+    --gold-dim:#8a7433; --gold-deep:#5a4a1f;
+    --txt:#f5f0e1; --txt-muted:#9a9384; --txt-dim:#5a564e;
+    --ok:#6b9a5a; --warn:#c9a040; --bad:#b84040; --info:#7cc4e8;
+    --radius:16px; --radius-sm:12px;
+    --groupe-couleur:#8a9bb5;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overscroll-behavior:none}
+  body{
+    font-family:'Baloo Bhaijaan 2', -apple-system, "Segoe UI", sans-serif;
+    background:var(--black); color:var(--txt); line-height:1.6; font-weight:500;
+    -webkit-font-smoothing:antialiased; min-height:100vh;
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(138,155,181,.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(212,175,55,.02) 0%, transparent 40%);
+    background-attachment:fixed;
+  }
+  .app{max-width:min(1100px,92vw);margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding-bottom:clamp(24px,4vw,40px)}
+
+  .header{
+    position:sticky;top:0;z-index:50;background:rgba(0,0,0,.92);
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--line-soft);
+    padding:clamp(12px,2vw,16px) clamp(16px,3vw,20px);
+    display:flex;align-items:center;gap:clamp(8px,1.5vw,16px);
+  }
+  .header .back{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;text-decoration:none;transition:transform .15s;
+  }
+  .header .back:active{transform:scale(.92)}
+  .header .title-block{flex:1;min-width:0}
+  .header .logo{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2.5vw,1.5rem);
+    font-weight:700;color:#f0d060;line-height:1.2;letter-spacing:.02em;
+  }
+  .header .logo .b,.header .logo .pe{color:var(--txt)}
+  .header .logo .excl{color:var(--gold);font-size:1.3em;vertical-align:middle;text-shadow:0 0 20px rgba(212,175,55,.5)}
+  .header .subtitle{
+    font-size:clamp(.6rem,1vw,.7rem);color:var(--txt-muted);
+    font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  }
+  .header .menu{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;transition:transform .15s;
+  }
+  .header .menu:active{transform:scale(.92)}
+
+  .content{flex:1;padding:clamp(16px,3vw,24px) clamp(16px,3vw,20px)}
+
+  .hero-groupe{
+    background:linear-gradient(135deg,var(--black-2) 0%,var(--black-3) 100%);
+    border:2px solid var(--gold-deep);border-radius:var(--radius);
+    padding:clamp(18px,3vw,24px);margin-bottom:clamp(16px,3vw,24px);
+    position:relative;overflow:hidden;
+  }
+  .hero-groupe::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--groupe-couleur);opacity:.8;
+  }
+  .hero-groupe .num{
+    font-family:'Fredoka',sans-serif;font-size:clamp(.75rem,1vw,.85rem);
+    font-weight:700;color:var(--groupe-couleur);letter-spacing:.05em;margin-bottom:6px;
+  }
+  .hero-groupe .ico{font-size:clamp(1.8rem,3vw,2.4rem);line-height:1;margin-bottom:8px}
+  .hero-groupe h1{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.4rem,2.5vw,1.9rem);
+    font-weight:700;color:var(--gold-bright);line-height:1.2;margin-bottom:6px;
+  }
+  .hero-groupe p{font-size:clamp(.9rem,1.2vw,1.05rem);color:var(--txt-muted);font-weight:500}
+
+  /* SECTIONS */
+  .section{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(18px,3vw,24px);
+    margin-bottom:clamp(14px,2.5vw,18px);
+    position:relative;overflow:hidden;
+  }
+  .section::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--groupe-couleur);opacity:.5;
+  }
+  .section.danger::before{background:var(--bad)}
+  .section-head{
+    display:flex;justify-content:space-between;align-items:center;
+    gap:12px;margin-bottom:clamp(14px,2.5vw,18px);flex-wrap:wrap;
+  }
+  .section-head h2{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.1rem,1.8vw,1.35rem);
+    font-weight:700;color:var(--gold-soft);display:flex;align-items:center;gap:10px;
+  }
+  .section-head .ico{font-size:1.3em}
+  .section.danger .section-head h2{color:#e08a8a}
+
+  /* FORM */
+  .form-group{margin-bottom:clamp(12px,2vw,16px)}
+  label{
+    display:block;font-size:clamp(.85rem,1vw,.95rem);
+    color:var(--txt-muted);margin-bottom:6px;font-weight:600;
+  }
+  label .required{color:var(--bad);margin-left:2px}
+  input,textarea,select{
+    width:100%;padding:clamp(12px,1.5vw,14px) clamp(14px,2vw,16px);
+    border-radius:var(--radius-sm);border:2px solid var(--line);
+    background:var(--black-3);color:var(--txt);
+    font-size:clamp(.95rem,1.1vw,1rem);
+    font-family:'Baloo Bhaijaan 2',sans-serif;font-weight:500;transition:all .2s;
+  }
+  input:focus,textarea:focus,select:focus{
+    outline:none;border-color:var(--gold);box-shadow:0 0 0 4px rgba(212,175,55,.12);
+  }
+  input::placeholder,textarea::placeholder{color:var(--txt-dim)}
+  textarea{resize:vertical;min-height:80px}
+  select{cursor:pointer}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+  /* BOUTONS */
+  .btn{
+    padding:clamp(12px,1.6vw,14px) clamp(18px,2.2vw,22px);
+    border-radius:999px;border:none;cursor:pointer;
+    font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:clamp(.9rem,1.1vw,1rem);font-weight:700;
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    transition:all .2s;
+  }
+  .btn-gold{
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold));
+    color:#0a0a0a;box-shadow:0 4px 16px rgba(212,175,55,.25);
+  }
+  .btn-gold:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  .btn-gold:active{transform:scale(.97)}
+  .btn-ghost{background:var(--black-3);border:2px solid var(--line);color:var(--txt)}
+  .btn-ghost:hover{border-color:var(--gold-dim)}
+  .btn-danger{background:linear-gradient(180deg,#d06060,#b84040);color:#fff}
+  .btn-danger:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  .btn-danger:active{transform:scale(.97)}
+  .btn-full{width:100%;margin-top:8px}
+
+  /* DONNÉES */
+  .data-grid{
+    display:grid;grid-template-columns:repeat(auto-fill, minmax(clamp(140px,20vw,180px), 1fr));
+    gap:clamp(8px,1.5vw,12px);margin-bottom:clamp(14px,2.5vw,18px);
+  }
+  .data-item{
+    background:var(--black-3);border:1px solid var(--line);
+    border-radius:var(--radius-sm);padding:clamp(10px,1.8vw,14px) clamp(12px,2vw,16px);
+  }
+  .data-item .key{
+    font-size:clamp(.68rem,.9vw,.76rem);color:var(--txt-muted);
+    font-weight:600;margin-bottom:4px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .data-item .val{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.1rem,2vw,1.4rem);
+    font-weight:700;color:var(--gold-bright);line-height:1;
+  }
+  .data-item .val.empty{color:var(--txt-dim)}
+
+  .total-box{
+    display:flex;justify-content:space-between;align-items:center;
+    gap:12px;padding:clamp(14px,2.5vw,18px) clamp(16px,2.5vw,20px);
+    background:rgba(212,175,55,.06);border:2px solid var(--gold-dim);
+    border-radius:var(--radius-sm);flex-wrap:wrap;
+  }
+  .total-box .lab{
+    font-size:clamp(.85rem,1.1vw,1rem);color:var(--txt-muted);font-weight:600;
+  }
+  .total-box .val{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2.2vw,1.5rem);
+    font-weight:700;color:var(--gold-bright);
+  }
+
+  /* DIAGNOSTIC */
+  .diag-info{
+    padding:clamp(14px,2.5vw,18px) clamp(16px,2.5vw,20px);
+    background:rgba(138,155,181,.08);
+    border:2px solid rgba(138,155,181,.35);
+    border-radius:var(--radius-sm);
+    font-size:clamp(.85rem,1vw,.95rem);
+    color:#b8c4d8;
+    font-weight:500;
+    line-height:1.6;
+    margin-bottom:14px;
+  }
+  .diag-actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+  .diag-actions .btn{width:100%;margin-top:0}
+  @media (max-width:500px){
+    .diag-actions{grid-template-columns:1fr}
+  }
+
+  /* DANGER ZONE */
+  .danger-actions{display:flex;flex-direction:column;gap:10px}
+  .danger-info{
+    padding:clamp(12px,2vw,16px) clamp(14px,2.2vw,18px);
+    background:rgba(184,64,64,.08);border:2px solid rgba(184,64,64,.4);
+    border-radius:var(--radius-sm);
+    font-size:clamp(.8rem,1vw,.9rem);color:#e08a8a;
+    font-weight:600;line-height:1.6;
+  }
+
+  .footer{
+    text-align:center;padding:clamp(20px,3vw,28px) 16px 16px;
+    font-size:clamp(.72rem,.9vw,.8rem);color:var(--txt-dim);
+    line-height:1.8;font-weight:500;border-top:1px solid var(--line-soft);margin-top:auto;
+  }
+  .footer .brand{color:var(--gold-soft);font-weight:700}
+
+  @media (max-width:600px){
+    .row{grid-template-columns:1fr}
+    .data-grid{grid-template-columns:1fr 1fr}
+  }
+</style>
+</head>
+<body data-groupe="g6">
+
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <a href="index.html" class="back">←</a>
+    <div class="title-block">
+      <div class="logo"><span class="b">B</span><span class="excl">!</span><span class="pe">PE</span></div>
+      <div class="subtitle">Groupe 06 · Administration</div>
+    </div>
+    <button class="menu" onclick="BIPE.openMenu()">⋮</button>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- HERO -->
+    <div class="hero-groupe">
+      <div class="num">GROUPE 06</div>
+      <div class="ico">🛡</div>
+      <h1>Administration</h1>
+      <p>Identité, compte, données. Le centre de contrôle de ton BIPE.</p>
+    </div>
+
+    <!-- ============ IDENTITÉ ENTREPRISE ============ -->
+    <div class="section">
+      <div class="section-head">
+        <h2><span class="ico">🏢</span> Identité entreprise</h2>
+      </div>
+      <div class="form-group">
+        <label>Nom de l'entreprise</label>
+        <input type="text" id="pNom" placeholder="Ex : Mon Entreprise SARL" maxlength="100">
+      </div>
+      <div class="row">
+        <div class="form-group">
+          <label>Forme juridique</label>
+          <select id="pForme">
+            <option value="">— Choisir —</option>
+            <option value="auto-entrepreneur">Auto-entrepreneur</option>
+            <option value="sarl">SARL</option>
+            <option value="suarl">SUARL</option>
+            <option value="sa">SA</option>
+            <option value="sas">SAS</option>
+            <option value="ei">Entreprise individuelle</option>
+            <option value="autre">Autre</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Matricule fiscal</label>
+          <input type="text" id="pMF" placeholder="Ex : 1234567/A/M/000" maxlength="40">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Adresse</label>
+        <input type="text" id="pAdresse" placeholder="Ex : 12 rue de la Liberté, Tunis" maxlength="200">
+      </div>
+      <div class="row">
+        <div class="form-group">
+          <label>Téléphone</label>
+          <input type="tel" id="pTel" placeholder="+216 ..." maxlength="30">
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="pEmail" placeholder="contact@exemple.tn" maxlength="100">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Devise</label>
+        <select id="pDevise">
+          <option value="DT">DT — Dinar tunisien</option>
+          <option value="EUR">EUR — Euro</option>
+          <option value="USD">USD — Dollar</option>
+          <option value="MAD">MAD — Dirham</option>
+          <option value="XOF">XOF — Franc CFA</option>
+        </select>
+      </div>
+      <button class="btn btn-gold btn-full" onclick="saveParams()">
+        💾 Enregistrer l'identité
+      </button>
+    </div>
+
+    <!-- ============ COMPTE UTILISATEUR ============ -->
+    <div class="section">
+      <div class="section-head">
+        <h2><span class="ico">👤</span> Compte utilisateur</h2>
+      </div>
+      <div class="form-group">
+        <label>Nom complet</label>
+        <input type="text" id="uNom" maxlength="80">
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="uEmail" maxlength="100">
+      </div>
+      <div class="row">
+        <div class="form-group">
+          <label>Nouveau mot de passe</label>
+          <input type="password" id="uPwd" placeholder="Laisser vide pour ne pas changer" maxlength="100">
+        </div>
+        <div class="form-group">
+          <label>Confirmer</label>
+          <input type="password" id="uPwd2" placeholder="Retape le mot de passe" maxlength="100">
+        </div>
+      </div>
+      <button class="btn btn-gold btn-full" onclick="saveCompte()">
+        💾 Enregistrer le compte
+      </button>
+    </div>
+
+    <!-- ============ DONNÉES LOCALES ============ -->
+    <div class="section">
+      <div class="section-head">
+        <h2><span class="ico">💾</span> Données locales</h2>
+      </div>
+      <div class="data-grid" id="dataGrid"></div>
+      <div class="total-box">
+        <span class="lab">📦 Taille totale dans le navigateur</span>
+        <span class="val" id="dataTaille">0 Ko</span>
+      </div>
+    </div>
+
+    <!-- ============ SAUVEGARDE ============ -->
+    <div class="section">
+      <div class="section-head">
+        <h2><span class="ico">⬇️</span> Sauvegarde & Restauration</h2>
+      </div>
+      <div class="danger-info" style="background:rgba(212,175,55,.06);border-color:var(--gold-dim);color:var(--gold-soft);margin-bottom:14px;">
+        💡 Exporte régulièrement ta sauvegarde. En cas de vidage du navigateur, c'est ton seul filet de sécurité.
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button class="btn btn-gold btn-full" onclick="exportGlobal()">
+          📤 Exporter toute la sauvegarde
+        </button>
+        <button class="btn btn-ghost btn-full" onclick="document.getElementById('fileImport').click()">
+          📥 Importer une sauvegarde
+        </button>
+        <input type="file" id="fileImport" accept=".json,application/json" style="display:none" onchange="importGlobal(event)">
+      </div>
+    </div>
+
+    <!-- ============ DIAGNOSTIC SYSTÈME ============ -->
+    <div class="section">
+      <div class="section-head">
+        <h2><span class="ico">🩺</span> Diagnostic système</h2>
+      </div>
+      <div class="diag-info">
+        Vérifie l'état de BIPE : chargement des fichiers, session, intégrité des données, sauvegarde. Utile avant de signaler un problème ou de contacter le support.
+      </div>
+      <div class="diag-actions">
+        <a href="f-diagnostic.html" class="btn btn-gold" style="text-decoration:none;text-align:center;">
+          🩺 Ouvrir le diagnostic
+        </a>
+        <button class="btn btn-ghost" onclick="quickCheck()">
+          ⚡ Vérification rapide
+        </button>
+      </div>
+      <div id="quickCheckResult" style="margin-top:14px;"></div>
+    </div>
+
+    <!-- ============ DANGER ZONE ============ -->
+    <div class="section danger">
+      <div class="section-head">
+        <h2><span class="ico">⚠️</span> Zone sensible</h2>
+      </div>
+      <div class="danger-actions">
+        <div class="danger-info">
+          🚨 Ces actions sont <b>irréversibles</b>. Fais une sauvegarde avant de continuer.
+        </div>
+        <button class="btn btn-danger btn-full" onclick="resetData()">
+          🗑 Réinitialiser toutes les données
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <span class="brand">BIPE</span> · Bureau Intelligent Pour Entrepreneur<br>
+    Groupe 06 · Administration · Version 1.0
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   BIPE — groupe-admin.html
+   Groupe 6 — Administration : identité, compte, données, backup, diagnostic
+   ============================================================ */
+
+BIPE.checkSession();
+
+/* ---------- Utils ---------- */
+async function sha256(str){
+  const buf = new TextEncoder().encode(str);
+  const hash = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(hash))
+    .map(b => b.toString(16).padStart(2,'0'))
+    .join('');
+}
+
+function tailleKo(str){
+  if(!str) return 0;
+  const bytes = new Blob([str]).size;
+  return (bytes / 1024).toFixed(1);
+}
+
+/* ---------- Paramètres entreprise ---------- */
+function loadParams(){
+  const p = BIPE.getParams() || {};
+  document.getElementById('pNom').value = p.nom || '';
+  document.getElementById('pForme').value = p.forme || '';
+  document.getElementById('pMF').value = p.mf || '';
+  document.getElementById('pAdresse').value = p.adresse || '';
+  document.getElementById('pTel').value = p.tel || '';
+  document.getElementById('pEmail').value = p.email || '';
+  document.getElementById('pDevise').value = p.devise || 'DT';
+}
+
+function saveParams(){
+  const params = {
+    nom: document.getElementById('pNom').value.trim(),
+    forme: document.getElementById('pForme').value,
+    mf: document.getElementById('pMF').value.trim(),
+    adresse: document.getElementById('pAdresse').value.trim(),
+    tel: document.getElementById('pTel').value.trim(),
+    email: document.getElementById('pEmail').value.trim(),
+    devise: document.getElementById('pDevise').value
+  };
+  BIPE.storage.set(BIPE.KEYS.parametres, params);
+  BIPE.toast('✅ Identité enregistrée');
+  renderData();
+}
+
+/* ---------- Compte utilisateur ---------- */
+function loadCompte(){
+  const user = BIPE.getUser();
+  if(!user) return;
+  document.getElementById('uNom').value = user.nom || '';
+  document.getElementById('uEmail').value = user.email || '';
+}
+
+async function saveCompte(){
+  const user = BIPE.getUser();
+  if(!user) return;
+
+  const nom = document.getElementById('uNom').value.trim();
+  const email = document.getElementById('uEmail').value.trim();
+  const pwd = document.getElementById('uPwd').value;
+  const pwd2 = document.getElementById('uPwd2').value;
+
+  if(!nom || !email){
+    BIPE.toast('⚠ Nom et email obligatoires', true);
+    return;
+  }
+  if(!email.includes('@') || !email.includes('.')){
+    BIPE.toast('⚠ Email invalide', true);
+    return;
+  }
+  if(pwd && pwd !== pwd2){
+    BIPE.toast('⚠ Les mots de passe ne correspondent pas', true);
+    return;
+  }
+  if(pwd && pwd.length < 6){
+    BIPE.toast('⚠ Mot de passe : 6 caractères minimum', true);
+    return;
+  }
+
+  const users = BIPE.storage.get(BIPE.KEYS.users, []) || [];
+  const idx = users.findIndex(u => u.id === user.userId);
+  if(idx === -1){
+    BIPE.toast('⚠ Utilisateur introuvable', true);
+    return;
+  }
+
+  const conflit = users.find(u => u.id !== user.userId && u.email.toLowerCase() === email.toLowerCase());
+  if(conflit){
+    BIPE.toast('⚠ Email déjà utilisé', true);
+    return;
+  }
+
+  users[idx].nom = nom;
+  users[idx].email = email;
+  if(pwd){
+    users[idx].passwordHash = await sha256(pwd);
+  }
+  users[idx].updatedAt = new Date().toISOString();
+  BIPE.storage.set(BIPE.KEYS.users, users);
+
+  const session = BIPE.getUser();
+  if(session){
+    session.nom = nom;
+    session.email = email;
+    BIPE.storage.set(BIPE.KEYS.session, session);
+  }
+
+  BIPE.toast('✅ Compte mis à jour');
+  document.getElementById('uPwd').value = '';
+  document.getElementById('uPwd2').value = '';
+}
+
+/* ---------- Données locales ---------- */
+function renderData(){
+  const grid = document.getElementById('dataGrid');
+  const keys = Object.entries(BIPE.KEYS).filter(([name]) =>
+    name !== 'session' && name !== 'lastBackup'
+  );
+
+  let totalBytes = 0;
+  grid.innerHTML = keys.map(([name, key]) => {
+    const raw = localStorage.getItem(key);
+    const size = raw ? new Blob([raw]).size : 0;
+    totalBytes += size;
+
+    let count = 0;
+    if(raw){
+      try {
+        const v = JSON.parse(raw);
+        if(Array.isArray(v)) count = v.length;
+        else if(typeof v === 'object' && v !== null) count = Object.keys(v).length;
+        else count = 1;
+      } catch(e){ count = 0; }
+    }
+
+    const label = key.replace('bipe_','');
+    return `
+      <div class="data-item">
+        <div class="key">${label}</div>
+        <div class="val ${count === 0 ? 'empty' : ''}">${count}</div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('dataTaille').textContent = tailleKo(
+    keys.map(([,k]) => localStorage.getItem(k) || '').join('')
+  ) + ' Ko';
+}
+
+/* ---------- Export global ---------- */
+function exportGlobal(){
+  const payload = {
+    standard: 'BIPE-backup-v1',
+    version: BIPE.VERSION,
+    date: new Date().toISOString(),
+    data: {}
+  };
+  Object.entries(BIPE.KEYS).forEach(([name, key]) => {
+    if(name === 'session') return;
+    const raw = localStorage.getItem(key);
+    if(raw){
+      try { payload.data[key] = JSON.parse(raw); }
+      catch(e){ payload.data[key] = raw; }
+    }
+  });
+
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `bipe_sauvegarde_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+
+  localStorage.setItem(BIPE.KEYS.lastBackup, new Date().toISOString());
+  BIPE.toast('📤 Sauvegarde exportée');
+  renderData();
+}
+
+/* ---------- Import global ---------- */
+function importGlobal(evt){
+  const file = evt.target.files[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const payload = JSON.parse(e.target.result);
+      if(!payload || payload.standard !== 'BIPE-backup-v1'){
+        BIPE.toast('⚠ Fichier de sauvegarde invalide', true);
+        return;
+      }
+      const keys = Object.keys(payload.data || {});
+      if(keys.length === 0){
+        BIPE.toast('⚠ Sauvegarde vide', true);
+        return;
+      }
+      if(!confirm(`Importer ${keys.length} clé(s) de données ?\n\nCela remplacera les données actuelles des mêmes clés.`)){
+        return;
+      }
+      keys.forEach(k => {
+        if(k === BIPE.KEYS.session) return;
+        localStorage.setItem(k, JSON.stringify(payload.data[k]));
+      });
+      BIPE.toast('📥 Sauvegarde restaurée');
+      renderData();
+      loadParams();
+      loadCompte();
+    } catch(err){
+      BIPE.toast('⚠ Erreur : ' + err.message, true);
+    }
+  };
+  reader.readAsText(file);
+  evt.target.value = '';
+}
+
+/* ---------- Vérification rapide (diagnostic intégré) ---------- */
+function quickCheck(){
+  const result = document.getElementById('quickCheckResult');
+  const issues = [];
+  const ok = [];
+
+  // 1. shared.js
+  if(typeof BIPE === 'object' && BIPE !== null){
+    ok.push('shared.js chargé (v' + BIPE.VERSION + ')');
+  } else {
+    issues.push('shared.js introuvable');
+  }
+
+  // 2. Session
+  const session = BIPE.getUser();
+  const users = BIPE.storage.get(BIPE.KEYS.users, []) || [];
+  if(session && users.some(u => u.id === session.userId)){
+    ok.push('Session valide');
+  } else if(session){
+    issues.push('Session fantôme (utilisateur introuvable)');
+  } else {
+    issues.push('Aucune session active');
+  }
+
+  // 3. Sauvegarde
+  const lastBackup = localStorage.getItem(BIPE.KEYS.lastBackup);
+  if(!lastBackup){
+    issues.push('Aucune sauvegarde enregistrée');
+  } else {
+    const diff = Math.round((new Date() - new Date(lastBackup.replace(/^"|"$/g, ''))) / 86400000);
+    if(diff === 0){
+      ok.push('Sauvegarde aujourd\'hui');
+    } else if(diff <= 7){
+      ok.push('Sauvegarde il y a ' + diff + ' jour(s)');
+    } else {
+      issues.push('Dernière sauvegarde il y a ' + diff + ' jours');
+    }
+  }
+
+  // 4. JSON valides
+  let jsonBad = 0;
+  Object.values(BIPE.KEYS).forEach(k => {
+    const raw = localStorage.getItem(k);
+    if(raw){
+      try { JSON.parse(raw); }
+      catch(e){ jsonBad++; }
+    }
+  });
+  if(jsonBad > 0){
+    issues.push(jsonBad + ' clé(s) JSON invalide(s)');
+  } else {
+    ok.push('JSON valides');
+  }
+
+  // 5. Cohérence RH ↔ Planning
+  const rh = BIPE.storage.get(BIPE.KEYS.rh, []) || [];
+  const planning = BIPE.storage.get(BIPE.KEYS.planning, []) || [];
+  const rhIds = new Set(rh.map(m => m.id));
+  const orphan = planning.filter(e => e.membreId && !rhIds.has(e.membreId)).length;
+  if(orphan > 0){
+    issues.push(orphan + ' événement(s) planning orphelin(s)');
+  } else {
+    ok.push('Planning cohérent');
+  }
+
+  // 6. Données vides ?
+  const totalItems = Object.entries(BIPE.KEYS)
+    .filter(([name]) => name !== 'session' && name !== 'lastBackup')
+    .reduce((s, [, k]) => {
+      const raw = localStorage.getItem(k);
+      if(!raw) return s;
+      try {
+        const v = JSON.parse(raw);
+        if(Array.isArray(v)) return s + v.length;
+        if(typeof v === 'object' && v !== null) return s + Object.keys(v).length;
+        return s + 1;
+      } catch(e){ return s; }
+    }, 0);
+
+  if(totalItems === 0){
+    ok.push('Base vide (prêt à démarrer)');
+  } else {
+    ok.push(totalItems + ' élément(s) en base');
+  }
+
+  // Rendu
+  const niveau = issues.length === 0 ? 'ok' : (issues.length <= 2 ? 'warn' : 'bad');
+  const couleur = niveau === 'ok' ? 'var(--ok)' : (niveau === 'warn' ? 'var(--warn)' : 'var(--bad)');
+  const icone = niveau === 'ok' ? '✅' : (niveau === 'warn' ? '⚠️' : '🚨');
+  const titre = niveau === 'ok' ? 'Système opérationnel' : (niveau === 'warn' ? 'Points à vérifier' : 'Anomalies détectées');
+
+  let html = `
+    <div style="
+      padding:14px 16px;border-radius:12px;
+      background:rgba(255,255,255,.03);
+      border-left:4px solid ${couleur};
+      margin-bottom:10px;
+    ">
+      <div style="font-family:'Fredoka',sans-serif;font-weight:700;color:${couleur};font-size:1rem;margin-bottom:4px;">
+        ${icone} ${titre}
+      </div>
+      <div style="font-size:.85rem;color:var(--txt-muted);">
+        ${ok.length} vérification(s) OK · ${issues.length} problème(s)
+      </div>
+    </div>
+  `;
+
+  if(ok.length > 0){
+    html += '<div style="margin-bottom:8px;">';
+    ok.forEach(o => {
+      html += `<div style="font-size:.82rem;color:#8fc47a;padding:3px 0;">✅ ${o}</div>`;
+    });
+    html += '</div>';
+  }
+
+  if(issues.length > 0){
+    html += '<div>';
+    issues.forEach(i => {
+      html += `<div style="font-size:.82rem;color:#e08a8a;padding:3px 0;">⚠️ ${i}</div>`;
+    });
+    html += '</div>';
+  }
+
+  result.innerHTML = html;
+  BIPE.toast('🩺 Vérification terminée');
+}
+
+/* ---------- Reset ---------- */
+function resetData(){
+  if(!confirm('🚨 ATTENTION\n\nCette action va SUPPRIMER toutes tes données BIPE (ventes, achats, clients, comptabilité, RH, etc.).\n\nLa session sera aussi fermée.\n\nContinuer ?')){
+    return;
+  }
+  if(!confirm('Dernière confirmation : es-tu vraiment sûr ?')){
+    return;
+  }
+  BIPE.storage.clear();
+  BIPE.toast('🗑 Données supprimées');
+  setTimeout(() => {
+    window.location.href = 'f-acces.html';
+  }, 800);
+}
+
+/* ---------- Init ---------- */
+document.addEventListener('DOMContentLoaded', () => {
+  loadParams();
+  loadCompte();
+  renderData();
+});
+</script>
+</body>
+</html>

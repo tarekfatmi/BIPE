@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>BIPE — Devis</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="shared.js"></script>
+<style>
+  :root{
+    --black:#000000; --black-2:#0a0a0a; --black-3:#141414;
+    --line:#2a2a2a; --line-soft:#1f1f1f;
+    --gold:#d4af37; --gold-bright:#f0d060; --gold-soft:#e8c96a;
+    --gold-dim:#8a7433; --gold-deep:#5a4a1f;
+    --txt:#f5f0e1; --txt-muted:#9a9384; --txt-dim:#5a564e;
+    --ok:#6b9a5a; --warn:#c9a040; --bad:#b84040; --info:#7cc4e8;
+    --radius:16px; --radius-sm:12px;
+    --groupe-couleur:#b19cd9;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overscroll-behavior:none}
+  body{
+    font-family:'Baloo Bhaijaan 2', -apple-system, "Segoe UI", sans-serif;
+    background:var(--black); color:var(--txt); line-height:1.6; font-weight:500;
+    -webkit-font-smoothing:antialiased; min-height:100vh;
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(177,156,217,.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(212,175,55,.02) 0%, transparent 40%);
+    background-attachment:fixed;
+  }
+  .app{max-width:min(1100px,92vw);margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding-bottom:clamp(24px,4vw,40px)}
+
+  .bipe-sheet{transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1)}
+  .bipe-sheet.show{transform:translateY(0) !important}
+  #bipe-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s}
+  #bipe-overlay.show{opacity:1 !important;pointer-events:auto !important}
+
+  .header{
+    position:sticky;top:0;z-index:50;background:rgba(0,0,0,.92);
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--line-soft);
+    padding:clamp(12px,2vw,16px) clamp(16px,3vw,20px);
+    display:flex;align-items:center;gap:clamp(8px,1.5vw,16px);
+  }
+  .header .back{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;text-decoration:none;transition:transform .15s;
+  }
+  .header .back:active{transform:scale(.92)}
+  .header .title-block{flex:1;min-width:0}
+  .header .logo{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2.5vw,1.5rem);
+    font-weight:700;color:#f0d060;line-height:1.2;letter-spacing:.02em;
+  }
+  .header .logo .b,.header .logo .pe{color:var(--txt)}
+  .header .logo .excl{color:var(--gold);font-size:1.3em;vertical-align:middle;text-shadow:0 0 20px rgba(212,175,55,.5)}
+  .header .subtitle{
+    font-size:clamp(.6rem,1vw,.7rem);color:var(--txt-muted);
+    font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  }
+  .header .menu{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;transition:transform .15s;
+  }
+  .header .menu:active{transform:scale(.92)}
+
+  .content{flex:1;padding:clamp(16px,3vw,24px) clamp(16px,3vw,20px)}
+
+  .hero-groupe{
+    background:linear-gradient(135deg,var(--black-2) 0%,var(--black-3) 100%);
+    border:2px solid var(--gold-deep);border-radius:var(--radius);
+    padding:clamp(18px,3vw,24px);margin-bottom:clamp(16px,3vw,20px);
+    position:relative;overflow:hidden;
+  }
+  .hero-groupe::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--groupe-couleur);opacity:.8;
+  }
+  .hero-groupe .num{
+    font-family:'Fredoka',sans-serif;font-size:clamp(.75rem,1vw,.85rem);
+    font-weight:700;color:var(--groupe-couleur);letter-spacing:.05em;margin-bottom:6px;
+  }
+  .hero-groupe .ico{font-size:clamp(1.6rem,2.5vw,2rem);line-height:1;margin-bottom:6px}
+  .hero-groupe h1{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.3rem,2.2vw,1.7rem);
+    font-weight:700;color:var(--gold-bright);line-height:1.2;margin-bottom:4px;
+  }
+  .hero-groupe p{font-size:clamp(.85rem,1.1vw,1rem);color:var(--txt-muted);font-weight:500}
+
+  .stats{
+    display:grid;grid-template-columns:repeat(4,1fr);
+    gap:clamp(8px,1.5vw,12px);margin-bottom:clamp(16px,3vw,20px);
+  }
+  .stat{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(12px,2vw,16px) clamp(10px,1.5vw,14px);
+  }
+  .stat .num{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2.2vw,1.5rem);
+    font-weight:700;line-height:1;margin-bottom:4px;color:var(--gold-bright);
+  }
+  .stat .lab{font-size:clamp(.68rem,.9vw,.76rem);color:var(--txt-muted);font-weight:600;line-height:1.3}
+  .stat.attente .num{color:var(--warn)}
+  .stat.accepte .num{color:var(--ok)}
+  .stat.converti .num{color:var(--info)}
+
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:clamp(14px,2.5vw,18px)}
+  .btn{
+    padding:clamp(11px,1.5vw,13px) clamp(16px,2vw,20px);
+    border-radius:999px;border:none;cursor:pointer;
+    font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:clamp(.88rem,1.1vw,1rem);font-weight:700;
+    display:inline-flex;align-items:center;gap:8px;transition:all .2s;
+  }
+  .btn-gold{
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold));
+    color:#0a0a0a;box-shadow:0 4px 16px rgba(212,175,55,.25);
+  }
+  .btn-gold:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  .btn-gold:active{transform:scale(.97)}
+  .btn-ghost{background:var(--black-2);border:2px solid var(--line);color:var(--txt)}
+  .btn-ghost:hover{border-color:var(--gold-dim)}
+
+  .filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:clamp(14px,2.5vw,18px)}
+  .filter-chip{
+    padding:8px 14px;border-radius:999px;border:2px solid var(--line);
+    background:var(--black-2);color:var(--txt-muted);
+    font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:clamp(.8rem,1vw,.9rem);font-weight:600;cursor:pointer;transition:.2s;
+  }
+  .filter-chip.active{border-color:var(--groupe-couleur);color:var(--groupe-couleur);background:rgba(177,156,217,.08)}
+  .filter-chip:hover:not(.active){color:var(--txt)}
+
+  /* Filtres dates v1.5 */
+  .date-filters-wrap{
+    margin-bottom:clamp(14px,2.5vw,18px);
+    padding:clamp(12px,2vw,16px);
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);
+  }
+  .date-filters-wrap .df-label{
+    font-size:.75rem;color:var(--txt-muted);font-weight:600;
+    text-transform:uppercase;letter-spacing:.05em;
+    margin-bottom:8px;display:block;
+  }
+  .date-filters-wrap button[data-mode]{
+    padding:8px 14px;border-radius:999px;
+    border:2px solid var(--line);
+    font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:.82rem;font-weight:700;cursor:pointer;transition:.2s;
+  }
+  .date-filters-wrap button[data-mode]:hover{border-color:var(--gold-dim)}
+  .date-filters-wrap input[type="date"]{
+    padding:8px 12px;border-radius:10px;
+    background:var(--black-3);border:2px solid var(--line);
+    color:var(--txt);font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:.85rem;font-weight:500;
+  }
+  .date-filters-wrap input[type="date"]:focus{outline:none;border-color:var(--gold)}
+
+  .list{display:flex;flex-direction:column;gap:clamp(8px,1.5vw,10px)}
+  .devis-card{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(14px,2.5vw,18px) clamp(16px,2.5vw,20px);
+    display:flex;gap:clamp(10px,2vw,14px);align-items:flex-start;
+    transition:transform .15s,border-color .15s;position:relative;overflow:hidden;
+  }
+  .devis-card::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--warn);opacity:.7;
+  }
+  .devis-card.accepte::before{background:var(--ok)}
+  .devis-card.refuse::before{background:var(--bad)}
+  .devis-card.converti::before{background:var(--info)}
+  .devis-card:hover{border-color:var(--gold-dim)}
+  .devis-body{flex:1;min-width:0}
+  .devis-head{
+    display:flex;justify-content:space-between;align-items:baseline;
+    gap:8px;margin-bottom:6px;flex-wrap:wrap;
+  }
+  .devis-titre{
+    font-family:'Fredoka',sans-serif;font-size:clamp(.95rem,1.4vw,1.1rem);
+    font-weight:700;color:var(--txt);line-height:1.3;flex:1;min-width:0;
+  }
+  .devis-date{
+    font-size:clamp(.72rem,.95vw,.82rem);color:var(--txt-dim);
+    font-weight:600;white-space:nowrap;
+  }
+  .devis-meta{
+    display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+    font-size:clamp(.78rem,1vw,.88rem);font-weight:600;
+  }
+  .devis-meta .client{
+    padding:2px 8px;border-radius:6px;background:rgba(255,255,255,.04);
+    color:var(--txt-muted);
+  }
+  .devis-meta .montant{color:var(--ok);font-weight:700}
+  .devis-meta .qte{color:var(--info);font-weight:700}
+  .devis-meta .statut-badge{
+    padding:2px 8px;border-radius:6px;font-size:.75em;font-weight:700;
+    text-transform:uppercase;letter-spacing:.04em;
+  }
+  .statut-attente{background:rgba(201,160,64,.15);color:var(--warn)}
+  .statut-accepte{background:rgba(107,154,90,.15);color:#8fc47a}
+  .statut-refuse{background:rgba(184,64,64,.15);color:#e08a8a}
+  .statut-converti{background:rgba(124,196,232,.15);color:var(--info)}
+  .devis-actions{display:flex;gap:4px;flex-shrink:0;flex-direction:column}
+  .icon-btn{
+    width:clamp(32px,4.5vw,36px);height:clamp(32px,4.5vw,36px);
+    border-radius:10px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--txt-muted);font-size:clamp(.85rem,1.2vw,.95rem);
+    cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;
+  }
+  .icon-btn:hover{border-color:var(--gold-dim);color:var(--gold-soft)}
+  .icon-btn.danger:hover{border-color:var(--bad);color:#e08a8a}
+  .icon-btn.ok:hover{border-color:var(--ok);color:#8fc47a}
+
+  .btn-convert{
+    background:linear-gradient(180deg,#8fc47a,#6b9a5a);
+    color:#0a0a0a;box-shadow:0 4px 16px rgba(107,154,90,.25);
+    padding:8px 14px;font-size:.82rem;
+    width:100%;justify-content:center;margin-top:10px;
+  }
+  .btn-convert:hover{filter:brightness(1.08);transform:translateY(-1px)}
+
+  .empty{
+    text-align:center;padding:clamp(40px,8vw,60px) clamp(20px,3vw,24px);
+    background:var(--black-2);border:2px dashed var(--line);border-radius:var(--radius);
+  }
+  .empty .ico{font-size:clamp(2.5rem,6vw,3.5rem);margin-bottom:12px;opacity:.6}
+  .empty h3{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.1rem,1.8vw,1.3rem);
+    color:var(--gold-soft);margin-bottom:8px;
+  }
+  .empty p{font-size:clamp(.85rem,1.1vw,1rem);color:var(--txt-muted);margin-bottom:16px}
+
+  .footer{
+    text-align:center;padding:clamp(20px,3vw,28px) 16px 16px;
+    font-size:clamp(.72rem,.9vw,.8rem);color:var(--txt-dim);
+    line-height:1.8;font-weight:500;border-top:1px solid var(--line-soft);margin-top:auto;
+  }
+  .footer .brand{color:var(--gold-soft);font-weight:700}
+
+  .form-group{margin-bottom:clamp(14px,2vw,18px)}
+  label{
+    display:block;font-size:clamp(.85rem,1vw,.95rem);
+    color:var(--txt-muted);margin-bottom:6px;font-weight:600;
+  }
+  label .required{color:var(--bad);margin-left:2px}
+  input,textarea,select{
+    width:100%;padding:clamp(12px,1.5vw,14px) clamp(14px,2vw,16px);
+    border-radius:var(--radius-sm);border:2px solid var(--line);
+    background:var(--black-3);color:var(--txt);
+    font-size:clamp(.95rem,1.1vw,1rem);
+    font-family:'Baloo Bhaijaan 2',sans-serif;font-weight:500;transition:all .2s;
+  }
+  input:focus,textarea:focus,select:focus{
+    outline:none;border-color:var(--gold);box-shadow:0 0 0 4px rgba(212,175,55,.12);
+  }
+  input::placeholder,textarea::placeholder{color:var(--txt-dim)}
+  textarea{resize:vertical;min-height:80px}
+  select{cursor:pointer}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  @media (max-width:700px){
+    .stats{grid-template-columns:repeat(2,1fr)}
+  }
+  @media (max-width:600px){
+    .row{grid-template-columns:1fr}
+    .devis-actions{flex-direction:row}
+  }
+</style>
+</head>
+<body data-groupe="g1">
+
+<div class="app">
+
+  <div class="header">
+    <a href="groupe-commercial.html" class="back">←</a>
+    <div class="title-block">
+      <div class="logo"><span class="b">B</span><span class="excl">!</span><span class="pe">PE</span></div>
+      <div class="subtitle">Commercial · Devis</div>
+    </div>
+    <button class="menu" onclick="BIPE.openMenu()">⋮</button>
+  </div>
+
+  <div class="content">
+
+    <div class="hero-groupe">
+      <div class="num">GROUPE 01</div>
+      <div class="ico">📄</div>
+      <h1>Devis</h1>
+      <p>Propose, suis, convertis. Chaque devis accepté devient une vente.</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="num" id="statDevis">0</div><div class="lab">Devis<br>créés</div></div>
+      <div class="stat attente"><div class="num" id="statAttente">0</div><div class="lab">En<br>attente</div></div>
+      <div class="stat accepte"><div class="num" id="statAccepte">0</div><div class="lab">Acceptés</div></div>
+      <div class="stat converti"><div class="num" id="statConverti">0</div><div class="lab">Convertis<br>en vente</div></div>
+    </div>
+
+    <div class="toolbar">
+      <button class="btn btn-gold" onclick="openForm()"><span>＋</span> Nouveau devis</button>
+      <button class="btn btn-ghost" onclick="exportDevis()"><span>📤</span> Exporter</button>
+    </div>
+
+    <!-- ===== FILTRES DATES v1.5 ===== -->
+    <div class="date-filters-wrap">
+      <span class="df-label">📅 Période</span>
+      <div id="dateFilters"></div>
+    </div>
+
+    <div class="filters" id="filters">
+      <button class="filter-chip active" data-filter="tous" onclick="setFilter('tous')">Tous</button>
+      <button class="filter-chip" data-filter="attente" onclick="setFilter('attente')">En attente</button>
+      <button class="filter-chip" data-filter="accepte" onclick="setFilter('accepte')">Acceptés</button>
+      <button class="filter-chip" data-filter="refuse" onclick="setFilter('refuse')">Refusés</button>
+      <button class="filter-chip" data-filter="converti" onclick="setFilter('converti')">Convertis</button>
+    </div>
+
+    <div class="list" id="list"></div>
+
+  </div>
+
+  <div class="footer">
+    <span class="brand">BIPE</span> · Bureau Intelligent Pour Entrepreneur<br>
+    Commercial · Devis · Version 1.0
+  </div>
+
+</div>
+
+<div id="bipe-overlay" onclick="BIPE.closeAllSheets()"></div>
+
+<div id="sheet-form" class="bipe-sheet" style="
+  position:fixed;left:0;right:0;bottom:0;background:#0a0a0a;
+  border-radius:24px 24px 0 0;border-top:2px solid #5a4a1f;
+  z-index:1001;max-height:92vh;display:flex;flex-direction:column;
+  max-width:720px;margin:0 auto;
+">
+  <div style="width:48px;height:5px;background:#2a2a2a;border-radius:3px;margin:12px auto 8px;flex-shrink:0;"></div>
+  <div style="padding:8px 24px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1f1f1f;">
+    <h3 id="formTitle" style="font-family:'Fredoka',sans-serif;font-size:1.5rem;color:#e8c96a;font-weight:700;">Nouveau devis</h3>
+    <button onclick="BIPE.closeAllSheets()" style="
+      width:44px;height:44px;border-radius:12px;background:#141414;
+      border:1px solid #2a2a2a;color:#f5f0e1;font-size:1.4rem;
+      display:flex;align-items:center;justify-content:center;cursor:pointer;
+    ">✕</button>
+  </div>
+  <div style="padding:20px 24px 24px;overflow-y:auto;flex:1;">
+
+    <div class="form-group">
+      <label>Produit / Prestation <span class="required">*</span></label>
+      <input type="text" id="fProduit" placeholder="Ex : Prestation de service, Produit..." maxlength="120">
+    </div>
+
+    <div class="row">
+      <div class="form-group">
+        <label>Quantité <span class="required">*</span></label>
+        <input type="number" id="fQuantite" placeholder="1" step="1" min="1">
+      </div>
+      <div class="form-group">
+        <label>Prix unitaire (DT) <span class="required">*</span></label>
+        <input type="number" id="fPrix" placeholder="0" step="0.01" min="0">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Date du devis <span class="required">*</span></label>
+      <input type="date" id="fDate">
+    </div>
+
+    <div class="form-group">
+      <label>Client</label>
+      <select id="fClientId" onchange="toggleNewClient()">
+        <option value="">— Aucun client —</option>
+        <option value="__NEW__">✨ Créer un nouveau client</option>
+      </select>
+    </div>
+
+    <div id="newClientBox" style="display:none;margin-top:12px;padding:14px;background:rgba(212,175,55,.05);border:2px solid var(--gold-dim);border-radius:var(--radius-sm);">
+      <h4 style="font-family:'Fredoka',sans-serif;font-size:.95rem;color:var(--gold-soft);font-weight:700;margin-bottom:10px;">✨ Nouveau client</h4>
+      <div class="form-group">
+        <label>Nom complet <span class="required">*</span></label>
+        <input type="text" id="ncNom" placeholder="Ex : Ahmed Ben Ali" maxlength="80">
+      </div>
+      <div class="row">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="ncEmail" placeholder="ahmed@exemple.tn" maxlength="80">
+        </div>
+        <div class="form-group">
+          <label>Téléphone</label>
+          <input type="tel" id="ncTel" placeholder="+216 ..." maxlength="30">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Statut</label>
+      <select id="fStatut">
+        <option value="attente">En attente</option>
+        <option value="accepte">Accepté</option>
+        <option value="refuse">Refusé</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Note</label>
+      <textarea id="fNote" placeholder="Détails du devis..." maxlength="300"></textarea>
+    </div>
+
+    <button class="btn btn-gold" style="width:100%;justify-content:center;margin-top:8px;" onclick="saveDevis()">💾 Enregistrer le devis</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   BIPE — f-devis.html v1.0 (from scratch)
+   Groupe 1 — Commercial : devis
+   + Filtres dates v1.5
+   + Synchro #5 : conversion en vente
+   ============================================================ */
+
+BIPE.checkSession();
+
+let devis = [];
+let filter = 'tous';
+let editingId = null;
+let dateFilter = { mode: 'all' };
+
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+
+/* ---------- Sheet ---------- */
+function ouvrirSheet(id){
+  let overlay = document.getElementById('bipe-overlay');
+  if(!overlay){
+    overlay = document.createElement('div');
+    overlay.id = 'bipe-overlay';
+    overlay.onclick = BIPE.closeAllSheets;
+    document.body.appendChild(overlay);
+  }
+  overlay.classList.add('show');
+  const sheet = document.getElementById(id);
+  if(sheet) sheet.classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function fermerSheet(){
+  const overlay = document.getElementById('bipe-overlay');
+  if(overlay) overlay.classList.remove('show');
+  document.querySelectorAll('.bipe-sheet').forEach(s => s.classList.remove('show'));
+  document.body.style.overflow = '';
+}
+
+/* ---------- Clients ---------- */
+function getClients(){ return BIPE.storage.get(BIPE.KEYS.clients, []) || []; }
+function saveClients(clients){ BIPE.storage.set(BIPE.KEYS.clients, clients); }
+
+function populateClients(selectedId){
+  const clients = getClients();
+  const sel = document.getElementById('fClientId');
+  if(!sel) return;
+
+  const options = clients
+    .slice()
+    .sort((a, b) => (a.nom || '').localeCompare(b.nom || ''))
+    .map(c => `<option value="${c.id}" ${selectedId === c.id ? 'selected' : ''}>${BIPE.esc(c.nom || 'Client sans nom')}${c.email ? ' · ' + BIPE.esc(c.email) : ''}</option>`)
+    .join('');
+
+  sel.innerHTML = `
+    <option value="">— Aucun client —</option>
+    <option value="__NEW__">✨ Créer un nouveau client</option>
+    ${options}
+  `;
+
+  if(selectedId && clients.some(c => c.id === selectedId)){
+    sel.value = selectedId;
+  }
+}
+
+function toggleNewClient(){
+  const sel = document.getElementById('fClientId');
+  const box = document.getElementById('newClientBox');
+  if(!sel || !box) return;
+  box.style.display = (sel.value === '__NEW__') ? 'block' : 'none';
+}
+
+function creerClientRapide(){
+  const nom = document.getElementById('ncNom').value.trim();
+  const email = document.getElementById('ncEmail').value.trim();
+  const tel = document.getElementById('ncTel').value.trim();
+
+  if(!nom){
+    BIPE.toast('⚠ Le nom du client est obligatoire', true);
+    return null;
+  }
+
+  const clients = getClients();
+  const existant = clients.find(c => (c.nom || '').toLowerCase() === nom.toLowerCase());
+  if(existant){
+    BIPE.toast('ℹ️ Client existant réutilisé');
+    return existant;
+  }
+
+  const newClient = {
+    id: 'c-' + Date.now().toString(36),
+    nom, email, tel,
+    createdAt: new Date().toISOString()
+  };
+  clients.push(newClient);
+  saveClients(clients);
+  BIPE.toast('✅ Client créé');
+  return newClient;
+}
+
+function clientExiste(clientId){
+  if(!clientId) return true;
+  return getClients().some(c => c.id === clientId);
+}
+
+/* ---------- Synchro #5 : conversion en vente ---------- */
+function convertirEnVente(devisId){
+  const d = devis.find(x => x.id === devisId);
+  if(!d) return;
+
+  if(d.statut === 'converti'){
+    BIPE.toast('⚠ Ce devis est déjà converti', true);
+    return;
+  }
+
+  if(d.statut !== 'accepte'){
+    if(!confirm('Ce devis n\'est pas marqué "accepté".\n\nLe convertir en vente quand même ?')){
+      return;
+    }
+  }
+
+  if(!confirm(`Convertir ce devis en vente ?\n\nProduit : ${d.produitNom}\nQuantité : ${d.quantite}\nMontant : ${BIPE.fmt(d.montant)} DT\n\nCela va :\n- Créer une vente (encaissée par défaut)\n- Créer un mouvement de stock\n- Marquer le devis comme "converti"`)){
+    return;
+  }
+
+  // Créer la vente
+  const ventes = BIPE.storage.get(BIPE.KEYS.ventes, []) || [];
+  const nouvelleVente = {
+    id: 'v-' + Date.now().toString(36),
+    produitId: d.produitId || ('nom:' + d.produitNom),
+    produitNom: d.produitNom,
+    quantite: d.quantite,
+    prix: d.prix,
+    montant: d.montant,
+    date: todayISO(),
+    clientId: d.clientId || null,
+    clientNom: d.clientNom || null,
+    note: `Converti depuis devis (${d.id})`,
+    source: 'devis',
+    devisId: d.id,
+    paye: true,
+    montantPaye: d.montant,
+    comptabilisee: false,
+    dateCompta: null,
+    createdAt: new Date().toISOString()
+  };
+  ventes.push(nouvelleVente);
+  BIPE.storage.set(BIPE.KEYS.ventes, ventes);
+
+  // Mouvement de stock
+  const mvts = BIPE.storage.get(BIPE.KEYS.stock, []) || [];
+  mvts.push({
+    id: 'mv-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,6),
+    type: 'sortie',
+    produitId: nouvelleVente.produitId,
+    nom: nouvelleVente.produitNom,
+    quantite: nouvelleVente.quantite,
+    prix: nouvelleVente.prix,
+    date: nouvelleVente.date,
+    motif: 'Vente (devis)',
+    venteId: nouvelleVente.id,
+    clientId: nouvelleVente.clientId,
+    clientNom: nouvelleVente.clientNom,
+    createdAt: new Date().toISOString()
+  });
+  BIPE.storage.set(BIPE.KEYS.stock, mvts);
+
+  // Marquer le devis converti
+  d.statut = 'converti';
+  d.venteId = nouvelleVente.id;
+  d.dateConversion = new Date().toISOString();
+  save();
+
+  BIPE.toast(`✅ Devis converti en vente — ${BIPE.fmt(d.montant)} DT`);
+  render();
+}
+
+/* ---------- Chargement ---------- */
+function load(){
+  devis = BIPE.storage.get(BIPE.KEYS.devis, []) || [];
+  render();
+}
+
+function save(){
+  BIPE.storage.set(BIPE.KEYS.devis, devis);
+}
+
+/* ---------- Rendu ---------- */
+function render(){
+  renderStats();
+  renderList();
+}
+
+function renderStats(){
+  const items = BIPE.filterByDate(devis, 'date', dateFilter);
+  const total = items.length;
+  const attente = items.filter(d => d.statut === 'attente').length;
+  const accepte = items.filter(d => d.statut === 'accepte').length;
+  const converti = items.filter(d => d.statut === 'converti').length;
+
+  document.getElementById('statDevis').textContent = total;
+  document.getElementById('statAttente').textContent = attente;
+  document.getElementById('statAccepte').textContent = accepte;
+  document.getElementById('statConverti').textContent = converti;
+}
+
+function matchFilter(d){
+  if(filter === 'tous') return true;
+  return d.statut === filter;
+}
+
+function renderList(){
+  const list = document.getElementById('list');
+  let items = devis.filter(matchFilter);
+  items = BIPE.filterByDate(items, 'date', dateFilter);
+  items.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+  if(items.length === 0){
+    list.innerHTML = `
+      <div class="empty">
+        <div class="ico">📄</div>
+        <h3>Aucun devis</h3>
+        <p>${filter === 'tous' ? 'Crée ton premier devis.' : 'Aucun devis dans ce filtre.'}</p>
+        <button class="btn btn-gold" style="margin:0 auto;" onclick="openForm()">＋ Nouveau devis</button>
+      </div>
+    `;
+    return;
+  }
+
+  list.innerHTML = items.map(d => {
+    const clientSupprime = d.clientId && !clientExiste(d.clientId);
+    const clientLabel = d.clientNom
+      ? (clientSupprime ? `👤 ${BIPE.esc(d.clientNom)} (supprimé)` : `👤 ${BIPE.esc(d.clientNom)}`)
+      : 'Sans client';
+
+    const statutLabels = {
+      attente: 'En attente',
+      accepte: 'Accepté',
+      refuse: 'Refusé',
+      converti: 'Converti'
+    };
+    const statutCls = 'statut-' + d.statut;
+
+    return `
+      <div class="devis-card ${d.statut}">
+        <div class="devis-body">
+          <div class="devis-head">
+            <div class="devis-titre">${BIPE.esc(d.produitNom || 'Devis')}</div>
+            <div class="devis-date">${d.date ? BIPE.fmtDate(d.date) : '—'}</div>
+          </div>
+          <div class="devis-meta">
+            <span class="client ${clientSupprime ? 'supprime' : ''}">${clientLabel}</span>
+            <span class="qte">× ${d.quantite || 0}</span>
+            <span class="montant">${BIPE.fmt(d.montant || 0)} DT</span>
+            <span class="statut-badge ${statutCls}">${statutLabels[d.statut] || d.statut}</span>
+          </div>
+          ${d.note ? `<div style="margin-top:6px;font-size:.82rem;color:var(--txt-dim);">${BIPE.esc(d.note)}</div>` : ''}
+          ${d.statut === 'accepte' ? `
+            <button class="btn btn-convert" onclick="convertirEnVente('${d.id}')">
+              💰 Convertir en vente
+            </button>
+          ` : ''}
+          ${d.statut === 'converti' ? `
+            <div style="margin-top:10px;font-size:.82rem;color:var(--info);font-weight:600;">
+              ✓ Converti en vente ${d.dateConversion ? 'le ' + BIPE.fmtDate(d.dateConversion.slice(0,10)) : ''}
+            </div>
+          ` : ''}
+        </div>
+        <div class="devis-actions">
+          <button class="icon-btn" onclick="openForm('${d.id}')" title="Modifier">✏️</button>
+          <button class="icon-btn danger" onclick="deleteDevis('${d.id}')" title="Supprimer">🗑</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function setFilter(f){
+  filter = f;
+  document.querySelectorAll('.filter-chip').forEach(b => {
+    b.classList.toggle('active', b.dataset.filter === f);
+  });
+  render();
+}
+
+/* ---------- Formulaire ---------- */
+function openForm(id){
+  editingId = id || null;
+  const title = document.getElementById('formTitle');
+  document.getElementById('newClientBox').style.display = 'none';
+
+  if(id){
+    const d = devis.find(x => x.id === id);
+    if(!d) return;
+    title.textContent = 'Modifier le devis';
+    document.getElementById('fProduit').value = d.produitNom || '';
+    document.getElementById('fQuantite').value = d.quantite || '';
+    document.getElementById('fPrix').value = d.prix || '';
+    document.getElementById('fDate').value = d.date || todayISO();
+    document.getElementById('fStatut').value = d.statut || 'attente';
+    document.getElementById('fNote').value = d.note || '';
+    populateClients(d.clientId);
+  } else {
+    title.textContent = 'Nouveau devis';
+    document.getElementById('fProduit').value = '';
+    document.getElementById('fQuantite').value = '1';
+    document.getElementById('fPrix').value = '';
+    document.getElementById('fDate').value = todayISO();
+    document.getElementById('fStatut').value = 'attente';
+    document.getElementById('fNote').value = '';
+    populateClients(null);
+  }
+
+  document.getElementById('ncNom').value = '';
+  document.getElementById('ncEmail').value = '';
+  document.getElementById('ncTel').value = '';
+
+  ouvrirSheet('sheet-form');
+}
+
+function saveDevis(){
+  const produitNom = document.getElementById('fProduit').value.trim();
+  const quantite = parseInt(document.getElementById('fQuantite').value);
+  const prix = parseFloat(document.getElementById('fPrix').value) || 0;
+  const date = document.getElementById('fDate').value;
+  const clientSel = document.getElementById('fClientId').value;
+  const statut = document.getElementById('fStatut').value;
+  const note = document.getElementById('fNote').value.trim();
+
+  if(!produitNom){
+    BIPE.toast('⚠ Le nom du produit/prestation est obligatoire', true);
+    return;
+  }
+  if(!quantite || quantite <= 0){
+    BIPE.toast('⚠ Quantité invalide', true);
+    return;
+  }
+  if(!date){
+    BIPE.toast('⚠ Date obligatoire', true);
+    return;
+  }
+
+  let clientId = null;
+  let clientNom = null;
+
+  if(clientSel === '__NEW__'){
+    const nouveauClient = creerClientRapide();
+    if(!nouveauClient) return;
+    clientId = nouveauClient.id;
+    clientNom = nouveauClient.nom;
+  } else if(clientSel){
+    const clients = getClients();
+    const c = clients.find(x => x.id === clientSel);
+    if(c){ clientId = c.id; clientNom = c.nom; }
+  }
+
+  const montant = quantite * prix;
+
+  if(editingId){
+    const d = devis.find(x => x.id === editingId);
+    if(!d) return;
+
+    // On empêche la modification d'un devis converti
+    if(d.statut === 'converti' && d.statut !== statut){
+      BIPE.toast('⚠ Un devis converti ne peut pas changer de statut', true);
+      return;
+    }
+
+    d.produitNom = produitNom;
+    d.quantite = quantite;
+    d.prix = prix;
+    d.montant = montant;
+    d.date = date;
+    d.clientId = clientId;
+    d.clientNom = clientNom;
+    d.statut = statut;
+    d.note = note;
+    d.updatedAt = new Date().toISOString();
+
+    BIPE.toast('✅ Devis modifié');
+  } else {
+    const nouveauDevis = {
+      id: 'd-' + Date.now().toString(36),
+      produitNom, quantite, prix, montant, date,
+      clientId, clientNom,
+      statut, note,
+      venteId: null,
+      dateConversion: null,
+      createdAt: new Date().toISOString()
+    };
+    devis.push(nouveauDevis);
+    BIPE.toast('✅ Devis créé');
+  }
+
+  save();
+  fermerSheet();
+  render();
+}
+
+function deleteDevis(id){
+  const d = devis.find(x => x.id === id);
+  if(!d) return;
+
+  if(d.statut === 'converti'){
+    BIPE.toast('⚠ Ce devis est converti en vente — supprime la vente d\'abord', true);
+    return;
+  }
+
+  if(!confirm(`Supprimer le devis "${d.produitNom}" ?`)) return;
+
+  devis = devis.filter(x => x.id !== id);
+  save();
+  render();
+  BIPE.toast('🗑 Devis supprimé');
+}
+
+function exportDevis(){
+  BIPE.exportJSON('devis', devis);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  load();
+
+  // Filtres dates v1.5
+  BIPE.renderDateFilters('dateFilters', (f) => {
+    dateFilter = f;
+    render();
+  });
+
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape') fermerSheet();
+  });
+});
+</script>
+</body>
+</html>

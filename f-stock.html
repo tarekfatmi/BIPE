@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>BIPE — Stock</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="shared.js"></script>
+<style>
+  :root{
+    --black:#000000; --black-2:#0a0a0a; --black-3:#141414;
+    --line:#2a2a2a; --line-soft:#1f1f1f;
+    --gold:#d4af37; --gold-bright:#f0d060; --gold-soft:#e8c96a;
+    --gold-dim:#8a7433; --gold-deep:#5a4a1f;
+    --txt:#f5f0e1; --txt-muted:#9a9384; --txt-dim:#5a564e;
+    --ok:#6b9a5a; --warn:#c9a040; --bad:#b84040; --info:#7cc4e8;
+    --radius:16px; --radius-sm:12px;
+    --groupe-couleur:#7cc4e8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overscroll-behavior:none}
+  body{
+    font-family:'Baloo Bhaijaan 2', -apple-system, "Segoe UI", sans-serif;
+    background:var(--black); color:var(--txt); line-height:1.6; font-weight:500;
+    -webkit-font-smoothing:antialiased; min-height:100vh;
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(124,196,232,.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(212,175,55,.02) 0%, transparent 40%);
+    background-attachment:fixed;
+  }
+  .app{max-width:min(1100px,92vw);margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding-bottom:clamp(24px,4vw,40px)}
+
+  /* SHEET + OVERLAY */
+  .bipe-sheet{transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1)}
+  .bipe-sheet.show{transform:translateY(0) !important}
+  #bipe-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s}
+  #bipe-overlay.show{opacity:1 !important;pointer-events:auto !important}
+
+  .header{
+    position:sticky;top:0;z-index:50;background:rgba(0,0,0,.92);
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--line-soft);
+    padding:clamp(12px,2vw,16px) clamp(16px,3vw,20px);
+    display:flex;align-items:center;gap:clamp(8px,1.5vw,16px);
+  }
+  .header .back{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;text-decoration:none;transition:transform .15s;
+  }
+  .header .back:active{transform:scale(.92)}
+  .header .title-block{flex:1;min-width:0}
+  .header .logo{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2.5vw,1.5rem);
+    font-weight:700;color:#f0d060;line-height:1.2;letter-spacing:.02em;
+  }
+  .header .logo .b,.header .logo .pe{color:var(--txt)}
+  .header .logo .excl{color:var(--gold);font-size:1.3em;vertical-align:middle;text-shadow:0 0 20px rgba(212,175,55,.5)}
+  .header .subtitle{
+    font-size:clamp(.6rem,1vw,.7rem);color:var(--txt-muted);
+    font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  }
+  .header .menu{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;transition:transform .15s;
+  }
+  .header .menu:active{transform:scale(.92)}
+
+  .content{flex:1;padding:clamp(16px,3vw,24px) clamp(16px,3vw,20px)}
+
+  .hero-groupe{
+    background:linear-gradient(135deg,var(--black-2) 0%,var(--black-3) 100%);
+    border:2px solid var(--gold-deep);border-radius:var(--radius);
+    padding:clamp(18px,3vw,24px);margin-bottom:clamp(16px,3vw,20px);
+    position:relative;overflow:hidden;
+  }
+  .hero-groupe::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--groupe-couleur);opacity:.8;
+  }
+  .hero-groupe .num{
+    font-family:'Fredoka',sans-serif;font-size:clamp(.75rem,1vw,.85rem);
+    font-weight:700;color:var(--groupe-couleur);letter-spacing:.05em;margin-bottom:6px;
+  }
+  .hero-groupe .ico{font-size:clamp(1.6rem,2.5vw,2rem);line-height:1;margin-bottom:6px}
+  .hero-groupe h1{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.3rem,2.2vw,1.7rem);
+    font-weight:700;color:var(--gold-bright);line-height:1.2;margin-bottom:4px;
+  }
+  .hero-groupe p{font-size:clamp(.85rem,1.1vw,1rem);color:var(--txt-muted);font-weight:500}
+
+  .stats{
+    display:grid;grid-template-columns:repeat(3,1fr);
+    gap:clamp(8px,1.5vw,12px);margin-bottom:clamp(16px,3vw,20px);
+  }
+  .stat{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(12px,2vw,16px) clamp(10px,1.5vw,14px);
+  }
+  .stat .num{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.3rem,2.5vw,1.7rem);
+    font-weight:700;line-height:1;margin-bottom:4px;color:var(--gold-bright);
+  }
+  .stat .lab{font-size:clamp(.7rem,.95vw,.8rem);color:var(--txt-muted);font-weight:600;line-height:1.3}
+
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:clamp(14px,2.5vw,18px)}
+  .btn{
+    padding:clamp(11px,1.5vw,13px) clamp(16px,2vw,20px);
+    border-radius:999px;border:none;cursor:pointer;
+    font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:clamp(.88rem,1.1vw,1rem);font-weight:700;
+    display:inline-flex;align-items:center;gap:8px;transition:all .2s;
+  }
+  .btn-gold{
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold));
+    color:#0a0a0a;box-shadow:0 4px 16px rgba(212,175,55,.25);
+  }
+  .btn-gold:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  .btn-gold:active{transform:scale(.97)}
+  .btn-ghost{background:var(--black-2);border:2px solid var(--line);color:var(--txt)}
+  .btn-ghost:hover{border-color:var(--gold-dim)}
+
+  .filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:clamp(14px,2.5vw,18px)}
+  .filter-chip{
+    padding:8px 14px;border-radius:999px;border:2px solid var(--line);
+    background:var(--black-2);color:var(--txt-muted);
+    font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:clamp(.8rem,1vw,.9rem);font-weight:600;cursor:pointer;transition:.2s;
+  }
+  .filter-chip.active{border-color:var(--groupe-couleur);color:var(--groupe-couleur);background:rgba(124,196,232,.08)}
+  .filter-chip:hover:not(.active){color:var(--txt)}
+
+  /* SECTION PRODUITS */
+  .produits-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(clamp(220px,30vw,280px), 1fr));
+    gap:clamp(10px,2vw,14px);
+    margin-bottom:clamp(20px,3vw,28px);
+  }
+  .produit-card{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(14px,2.5vw,18px) clamp(16px,2.5vw,20px);
+    transition:transform .15s,border-color .15s;
+    position:relative;overflow:hidden;
+  }
+  .produit-card::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--groupe-couleur);opacity:.7;
+  }
+  .produit-card:hover{border-color:var(--gold-dim)}
+  .produit-card.rupture::before{background:var(--bad)}
+  .produit-card.rupture{border-color:rgba(184,64,64,.4)}
+  .produit-card .nom{
+    font-family:'Fredoka',sans-serif;font-size:clamp(.95rem,1.4vw,1.1rem);
+    font-weight:700;color:var(--txt);line-height:1.3;margin-bottom:8px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .produit-card .stock{
+    display:flex;justify-content:space-between;align-items:baseline;
+    margin-bottom:6px;
+  }
+  .produit-card .stock .val{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.5rem,2.8vw,1.9rem);
+    font-weight:700;line-height:1;color:var(--gold-bright);
+  }
+  .produit-card.rupture .stock .val{color:#e08a8a}
+  .produit-card .stock .unit{
+    font-size:clamp(.72rem,.95vw,.82rem);color:var(--txt-muted);font-weight:600;
+  }
+  .produit-card .detail{
+    display:flex;gap:10px;flex-wrap:wrap;
+    font-size:clamp(.72rem,.95vw,.82rem);color:var(--txt-dim);font-weight:600;
+  }
+  .produit-card .detail .entrees{color:var(--ok)}
+  .produit-card .detail .sorties{color:var(--warn)}
+
+  /* HISTORIQUE */
+  .section-title{
+    display:flex;justify-content:space-between;align-items:baseline;
+    margin-bottom:clamp(12px,2vw,16px);padding:0 4px;
+  }
+  .section-title h2{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.1rem,1.8vw,1.3rem);
+    font-weight:700;color:var(--gold-soft);
+  }
+  .section-title .count{
+    font-size:clamp(.8rem,1vw,.9rem);color:var(--txt-muted);font-weight:600;
+  }
+
+  .list{display:flex;flex-direction:column;gap:clamp(8px,1.5vw,10px)}
+  .mvt-card{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(14px,2.5vw,18px) clamp(16px,2.5vw,20px);
+    display:flex;gap:clamp(10px,2vw,14px);align-items:flex-start;
+    transition:transform .15s,border-color .15s;position:relative;overflow:hidden;
+  }
+  .mvt-card::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--mvt-couleur,var(--groupe-couleur));opacity:.7;
+  }
+  .mvt-card.entree::before{background:var(--ok)}
+  .mvt-card.sortie::before{background:var(--warn)}
+  .mvt-card.vente::before{background:var(--info)}
+  .mvt-card:hover{border-color:var(--gold-dim)}
+  .mvt-body{flex:1;min-width:0}
+  .mvt-head{
+    display:flex;justify-content:space-between;align-items:baseline;
+    gap:8px;margin-bottom:4px;flex-wrap:wrap;
+  }
+  .mvt-titre{
+    font-family:'Fredoka',sans-serif;font-size:clamp(.95rem,1.4vw,1.1rem);
+    font-weight:700;color:var(--txt);line-height:1.3;flex:1;min-width:0;
+  }
+  .mvt-date{
+    font-size:clamp(.72rem,.95vw,.82rem);color:var(--txt-dim);
+    font-weight:600;white-space:nowrap;
+  }
+  .mvt-meta{
+    display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+    font-size:clamp(.75rem,.95vw,.85rem);font-weight:600;
+  }
+  .mvt-meta .badge{
+    padding:2px 8px;border-radius:6px;font-size:.75em;font-weight:700;
+    text-transform:uppercase;letter-spacing:.04em;
+  }
+  .badge-entree{background:rgba(107,154,90,.15);color:#8fc47a}
+  .badge-sortie{background:rgba(201,160,64,.15);color:var(--warn)}
+  .badge-vente{background:rgba(124,196,232,.15);color:var(--info)}
+  .mvt-meta .qte{font-weight:700}
+  .mvt-meta .qte.plus{color:var(--ok)}
+  .mvt-meta .qte.moins{color:var(--warn)}
+  .mvt-actions{display:flex;gap:4px;flex-shrink:0}
+  .icon-btn{
+    width:clamp(32px,4.5vw,36px);height:clamp(32px,4.5vw,36px);
+    border-radius:10px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--txt-muted);font-size:clamp(.85rem,1.2vw,.95rem);
+    cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;
+  }
+  .icon-btn:hover{border-color:var(--gold-dim);color:var(--gold-soft)}
+  .icon-btn.danger:hover{border-color:var(--bad);color:#e08a8a}
+
+  .empty{
+    text-align:center;padding:clamp(40px,8vw,60px) clamp(20px,3vw,24px);
+    background:var(--black-2);border:2px dashed var(--line);border-radius:var(--radius);
+  }
+  .empty .ico{font-size:clamp(2.5rem,6vw,3.5rem);margin-bottom:12px;opacity:.6}
+  .empty h3{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.1rem,1.8vw,1.3rem);
+    color:var(--gold-soft);margin-bottom:8px;
+  }
+  .empty p{font-size:clamp(.85rem,1.1vw,1rem);color:var(--txt-muted);margin-bottom:16px}
+
+  .footer{
+    text-align:center;padding:clamp(20px,3vw,28px) 16px 16px;
+    font-size:clamp(.72rem,.9vw,.8rem);color:var(--txt-dim);
+    line-height:1.8;font-weight:500;border-top:1px solid var(--line-soft);margin-top:auto;
+  }
+  .footer .brand{color:var(--gold-soft);font-weight:700}
+
+  .form-group{margin-bottom:clamp(14px,2vw,18px)}
+  label{
+    display:block;font-size:clamp(.85rem,1vw,.95rem);
+    color:var(--txt-muted);margin-bottom:6px;font-weight:600;
+  }
+  label .required{color:var(--bad);margin-left:2px}
+  input,textarea,select{
+    width:100%;padding:clamp(12px,1.5vw,14px) clamp(14px,2vw,16px);
+    border-radius:var(--radius-sm);border:2px solid var(--line);
+    background:var(--black-3);color:var(--txt);
+    font-size:clamp(.95rem,1.1vw,1rem);
+    font-family:'Baloo Bhaijaan 2',sans-serif;font-weight:500;transition:all .2s;
+  }
+  input:focus,textarea:focus,select:focus{
+    outline:none;border-color:var(--gold);box-shadow:0 0 0 4px rgba(212,175,55,.12);
+  }
+  input::placeholder,textarea::placeholder{color:var(--txt-dim)}
+  textarea{resize:vertical;min-height:80px}
+  select{cursor:pointer}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  .info-box{
+    padding:12px 14px;border-radius:10px;margin-top:10px;
+    font-size:clamp(.8rem,.95vw,.88rem);font-weight:600;
+    display:flex;gap:8px;align-items:flex-start;
+  }
+  .info-box.info{background:rgba(124,196,232,.08);border:1px solid rgba(124,196,232,.3);color:#b8ddf0}
+  .info-box.warn{background:rgba(201,160,64,.08);border:1px solid rgba(201,160,64,.3);color:#e0cc88}
+
+  @media (max-width:600px){
+    .stats{grid-template-columns:1fr}
+    .row{grid-template-columns:1fr}
+    .mvt-actions{flex-direction:column}
+  }
+</style>
+</head>
+<body data-groupe="g2">
+
+<div class="app">
+
+  <div class="header">
+    <a href="groupe-flux.html" class="back">←</a>
+    <div class="title-block">
+      <div class="logo"><span class="b">B</span><span class="excl">!</span><span class="pe">PE</span></div>
+      <div class="subtitle">Flux · Stock</div>
+    </div>
+    <button class="menu" onclick="BIPE.openMenu()">⋮</button>
+  </div>
+
+  <div class="content">
+
+    <div class="hero-groupe">
+      <div class="num">GROUPE 02</div>
+      <div class="ico">📦</div>
+      <h1>Stock</h1>
+      <p>Entrées, sorties, ventes. Ton stock calculé en temps réel.</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="num" id="statProduits">0</div><div class="lab">Produits<br>en stock</div></div>
+      <div class="stat"><div class="num" id="statEntrees">0</div><div class="lab">Total<br>entrées</div></div>
+      <div class="stat"><div class="num" id="statSorties">0</div><div class="lab">Total<br>sorties</div></div>
+    </div>
+
+    <div class="toolbar">
+      <button class="btn btn-gold" onclick="openForm('entree')"><span>＋</span> Entrée de stock</button>
+      <button class="btn btn-ghost" onclick="openForm('sortie')">− Sortie manuelle</button>
+      <button class="btn btn-ghost" onclick="exportStock()"><span>📤</span> Exporter</button>
+    </div>
+
+    <!-- SECTION PRODUITS -->
+    <div class="section-title">
+      <h2>Produits & stock disponible</h2>
+      <div class="count" id="countProduits">0</div>
+    </div>
+    <div class="produits-grid" id="produitsGrid"></div>
+
+    <!-- SECTION HISTORIQUE -->
+    <div class="section-title">
+      <h2>Historique des mouvements</h2>
+      <div class="count" id="countMvts">0</div>
+    </div>
+
+    <div class="filters" id="filters">
+      <button class="filter-chip active" data-filter="tous" onclick="setFilter('tous')">Tous</button>
+      <button class="filter-chip" data-filter="entree" onclick="setFilter('entree')">Entrées</button>
+      <button class="filter-chip" data-filter="sortie" onclick="setFilter('sortie')">Sorties</button>
+      <button class="filter-chip" data-filter="vente" onclick="setFilter('vente')">Ventes</button>
+    </div>
+
+    <div class="list" id="list"></div>
+
+  </div>
+
+  <div class="footer">
+    <span class="brand">BIPE</span> · Bureau Intelligent Pour Entrepreneur<br>
+    Flux · Stock · Version 1.0
+  </div>
+
+</div>
+
+<!-- OVERLAY -->
+<div id="bipe-overlay" onclick="BIPE.closeAllSheets()"></div>
+
+<!-- SHEET -->
+<div id="sheet-form" class="bipe-sheet" style="
+  position:fixed;left:0;right:0;bottom:0;background:#0a0a0a;
+  border-radius:24px 24px 0 0;border-top:2px solid #5a4a1f;
+  z-index:1001;max-height:92vh;display:flex;flex-direction:column;
+  transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);
+  max-width:720px;margin:0 auto;
+">
+  <div style="width:48px;height:5px;background:#2a2a2a;border-radius:3px;margin:12px auto 8px;flex-shrink:0;"></div>
+  <div style="padding:8px 24px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1f1f1f;">
+    <h3 id="formTitle" style="font-family:'Fredoka',sans-serif;font-size:1.5rem;color:#e8c96a;font-weight:700;">Nouveau mouvement</h3>
+    <button onclick="BIPE.closeAllSheets()" style="
+      width:44px;height:44px;border-radius:12px;background:#141414;
+      border:1px solid #2a2a2a;color:#f5f0e1;font-size:1.4rem;
+      display:flex;align-items:center;justify-content:center;cursor:pointer;
+    ">✕</button>
+  </div>
+  <div style="padding:20px 24px 24px;overflow-y:auto;flex:1;">
+    <div class="form-group">
+      <label>Type <span class="required">*</span></label>
+      <select id="fType">
+        <option value="entree">Entrée (achat, réception...)</option>
+        <option value="sortie">Sortie (perte, casse, manuelle...)</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Produit <span class="required">*</span></label>
+      <input type="text" id="fNom" placeholder="Ex : Stylo, Cahier, Câble USB..." maxlength="80" list="produitsExistants">
+      <datalist id="produitsExistants"></datalist>
+      <div class="info-box info" id="produitExistantInfo" style="display:none;"></div>
+    </div>
+
+    <div class="row">
+      <div class="form-group">
+        <label>Quantité <span class="required">*</span></label>
+        <input type="number" id="fQuantite" placeholder="0" step="1" min="1">
+      </div>
+      <div class="form-group">
+        <label>Prix unitaire (DT)</label>
+        <input type="number" id="fPrix" placeholder="0" step="0.01" min="0">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Date <span class="required">*</span></label>
+      <input type="date" id="fDate">
+    </div>
+
+    <div class="form-group">
+      <label>Motif / Note</label>
+      <textarea id="fMotif" placeholder="Ex : Achat fournisseur, Inventaire, Perte..." maxlength="200"></textarea>
+    </div>
+
+    <button class="btn btn-gold" style="width:100%;justify-content:center;margin-top:8px;" onclick="saveMouvement()">💾 Enregistrer</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   BIPE — f-stock.html
+   Groupe 2 — Flux : gestion du stock (Option B : mouvements)
+   Chaque mouvement est une ligne dans bipe_stock.
+   Le stock réel = somme(entrées) - somme(sorties).
+   ============================================================ */
+
+BIPE.checkSession();
+
+let mouvements = [];
+let filter = 'tous';
+let editingId = null;
+let formMode = 'entree';
+
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+
+/* ---------- Sheet sécurisée ---------- */
+function ouvrirSheet(id){
+  let overlay = document.getElementById('bipe-overlay');
+  if(!overlay){
+    overlay = document.createElement('div');
+    overlay.id = 'bipe-overlay';
+    overlay.onclick = BIPE.closeAllSheets;
+    document.body.appendChild(overlay);
+  }
+  overlay.classList.add('show');
+  const sheet = document.getElementById(id);
+  if(sheet) sheet.classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function fermerSheet(){
+  const overlay = document.getElementById('bipe-overlay');
+  if(overlay) overlay.classList.remove('show');
+  document.querySelectorAll('.bipe-sheet').forEach(s => s.classList.remove('show'));
+  document.body.style.overflow = '';
+}
+
+/* ---------- Chargement ---------- */
+function load(){
+  mouvements = BIPE.storage.get(BIPE.KEYS.stock, []) || [];
+  render();
+}
+
+function save(){
+  BIPE.storage.set(BIPE.KEYS.stock, mouvements);
+}
+
+/* ---------- Helpers ---------- */
+function getPid(m){
+  return m.produitId || m.produit || m.produit_id || m.id_produit || ('nom:' + (m.nom || ''));
+}
+
+function getNom(m){
+  return m.nom || m.produit || m.produitId || 'Produit sans nom';
+}
+
+function getQte(m){
+  return Number(m.quantite) || Number(m.qte) || 0;
+}
+
+function isEntree(m){
+  const t = (m.type || m.sens || '').toLowerCase();
+  return t === 'entree' || t === 'entrée' || t === 'in' || t === 'achat';
+}
+
+function isSortie(m){
+  const t = (m.type || m.sens || '').toLowerCase();
+  return t === 'sortie' || t === 'out' || t === 'vente';
+}
+
+/**
+ * Regroupe les mouvements par produit et calcule le stock réel.
+ */
+function getProduits(){
+  const map = new Map();
+
+  mouvements.forEach(m => {
+    const pid = getPid(m);
+    if(!map.has(pid)){
+      map.set(pid, {
+        id: pid,
+        nom: getNom(m),
+        entrees: 0,
+        sorties: 0,
+        mouvements: []
+      });
+    }
+    const p = map.get(pid);
+    const qte = getQte(m);
+    if(isEntree(m)) p.entrees += qte;
+    else if(isSortie(m)) p.sorties += qte;
+    p.mouvements.push(m);
+  });
+
+  return Array.from(map.values())
+    .map(p => ({...p, stock: p.entrees - p.sorties}))
+    .sort((a, b) => a.nom.localeCompare(b.nom));
+}
+
+/* ---------- Rendu ---------- */
+function render(){
+  renderStats();
+  renderProduits();
+  renderList();
+}
+
+function renderStats(){
+  const produits = getProduits();
+  const entrees = produits.reduce((s, p) => s + p.entrees, 0);
+  const sorties = produits.reduce((s, p) => s + p.sorties, 0);
+  document.getElementById('statProduits').textContent = produits.length;
+  document.getElementById('statEntrees').textContent = entrees;
+  document.getElementById('statSorties').textContent = sorties;
+}
+
+function renderProduits(){
+  const grid = document.getElementById('produitsGrid');
+  const produits = getProduits();
+
+  document.getElementById('countProduits').textContent = produits.length;
+
+  if(produits.length === 0){
+    grid.innerHTML = `
+      <div class="empty" style="grid-column:1/-1;">
+        <div class="ico">📦</div>
+        <h3>Aucun produit en stock</h3>
+        <p>Commence par enregistrer une entrée de stock.</p>
+        <button class="btn btn-gold" style="margin:0 auto;" onclick="openForm('entree')">＋ Entrée de stock</button>
+      </div>
+    `;
+    return;
+  }
+
+  grid.innerHTML = produits.map(p => `
+    <div class="produit-card ${p.stock <= 0 ? 'rupture' : ''}">
+      <div class="nom">${BIPE.esc(p.nom)}</div>
+      <div class="stock">
+        <span class="val">${p.stock}</span>
+        <span class="unit">unité${Math.abs(p.stock) !== 1 ? 's' : ''}</span>
+      </div>
+      <div class="detail">
+        <span class="entrees">+ ${p.entrees} entrée${p.entrees !== 1 ? 's' : ''}</span>
+        <span class="sorties">− ${p.sorties} sortie${p.sorties !== 1 ? 's' : ''}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function matchFilter(m){
+  if(filter === 'tous') return true;
+  if(filter === 'entree') return isEntree(m);
+  if(filter === 'sortie') return isSortie(m) && !m.venteId;
+  if(filter === 'vente') return isSortie(m) && !!m.venteId;
+  return true;
+}
+
+function renderList(){
+  const list = document.getElementById('list');
+  let items = mouvements.filter(matchFilter);
+  items.sort((a, b) => (b.date || b.createdAt || '').localeCompare(a.date || a.createdAt || ''));
+
+  document.getElementById('countMvts').textContent = items.length;
+
+  if(items.length === 0){
+    list.innerHTML = `
+      <div class="empty">
+        <div class="ico">📋</div>
+        <h3>Aucun mouvement</h3>
+        <p>${filter === 'tous' ? 'Enregistre ton premier mouvement de stock.' : 'Aucun mouvement dans ce filtre.'}</p>
+        <button class="btn btn-gold" style="margin:0 auto;" onclick="openForm('entree')">＋ Nouveau mouvement</button>
+      </div>
+    `;
+    return;
+  }
+
+  list.innerHTML = items.map(m => {
+    const entree = isEntree(m);
+    const vente = !!m.venteId;
+    const cls = vente ? 'vente' : (entree ? 'entree' : 'sortie');
+    const badgeLabel = vente ? 'Vente' : (entree ? 'Entrée' : 'Sortie');
+    const badgeCls = vente ? 'badge-vente' : (entree ? 'badge-entree' : 'badge-sortie');
+    const qte = getQte(m);
+    const qteCls = entree ? 'plus' : 'moins';
+    const signe = entree ? '+' : '−';
+
+    return `
+      <div class="mvt-card ${cls}">
+        <div class="mvt-body">
+          <div class="mvt-head">
+            <div class="mvt-titre">${BIPE.esc(getNom(m))}</div>
+            <div class="mvt-date">${m.date ? BIPE.fmtDate(m.date) : '—'}</div>
+          </div>
+          <div class="mvt-meta">
+            <span class="badge ${badgeCls}">${badgeLabel}</span>
+            <span class="qte ${qteCls}">${signe} ${qte}</span>
+            ${m.motif ? `<span>· ${BIPE.esc(m.motif)}</span>` : ''}
+          </div>
+        </div>
+        <div class="mvt-actions">
+          ${!vente ? `
+            <button class="icon-btn" onclick="openForm('edit', '${m.id}')" title="Modifier">✏️</button>
+            <button class="icon-btn danger" onclick="deleteMouvement('${m.id}')" title="Supprimer">🗑</button>
+          ` : `
+            <button class="icon-btn" onclick="voirVente('${m.venteId}')" title="Voir la vente">👁</button>
+          `}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function voirVente(venteId){
+  const ventes = BIPE.storage.get(BIPE.KEYS.ventes, []) || [];
+  const v = ventes.find(x => x.id === venteId);
+  if(!v){
+    BIPE.toast('⚠ Vente introuvable', true);
+    return;
+  }
+  BIPE.toast(`💰 Vente : ${v.quantite} × ${v.produitNom} = ${BIPE.fmt(v.montant)} DT`);
+}
+
+/* ---------- Filtres ---------- */
+function setFilter(f){
+  filter = f;
+  document.querySelectorAll('.filter-chip').forEach(b => {
+    b.classList.toggle('active', b.dataset.filter === f);
+  });
+  renderList();
+}
+
+/* ---------- Formulaire ---------- */
+function populateDatalist(){
+  const produits = getProduits();
+  const dl = document.getElementById('produitsExistants');
+  if(!dl) return;
+  dl.innerHTML = produits.map(p => `<option value="${BIPE.esc(p.nom)}"></option>`).join('');
+}
+
+function openForm(mode, id){
+  // mode = 'entree' | 'sortie' | 'edit'
+  editingId = (mode === 'edit') ? id : null;
+  formMode = (mode === 'edit') ? null : mode;
+
+  const title = document.getElementById('formTitle');
+  populateDatalist();
+
+  if(mode === 'edit' && id){
+    const m = mouvements.find(x => x.id === id);
+    if(!m) return;
+    title.textContent = 'Modifier le mouvement';
+    document.getElementById('fType').value = isEntree(m) ? 'entree' : 'sortie';
+    document.getElementById('fNom').value = getNom(m);
+    document.getElementById('fQuantite').value = getQte(m);
+    document.getElementById('fPrix').value = m.prix || '';
+    document.getElementById('fDate').value = m.date || todayISO();
+    document.getElementById('fMotif').value = m.motif || '';
+    document.getElementById('fType').disabled = false;
+  } else {
+    title.textContent = mode === 'entree' ? 'Entrée de stock' : 'Sortie manuelle';
+    document.getElementById('fType').value = mode;
+    document.getElementById('fNom').value = '';
+    document.getElementById('fQuantite').value = '';
+    document.getElementById('fPrix').value = '';
+    document.getElementById('fDate').value = todayISO();
+    document.getElementById('fMotif').value = '';
+    document.getElementById('fType').disabled = (mode !== 'edit');
+  }
+
+  updateProduitInfo();
+  ouvrirSheet('sheet-form');
+}
+
+function updateProduitInfo(){
+  const nom = document.getElementById('fNom').value.trim();
+  const info = document.getElementById('produitExistantInfo');
+  if(!info) return;
+
+  if(!nom){
+    info.style.display = 'none';
+    return;
+  }
+
+  const produits = getProduits();
+  const existant = produits.find(p => p.nom.toLowerCase() === nom.toLowerCase());
+
+  if(existant){
+    info.style.display = 'flex';
+    info.className = 'info-box info';
+    info.innerHTML = `💡 Produit existant — stock actuel : <strong>${existant.stock}</strong>`;
+  } else {
+    info.style.display = 'flex';
+    info.className = 'info-box warn';
+    info.innerHTML = `✨ Nouveau produit — il sera créé avec ce mouvement`;
+  }
+}
+
+function saveMouvement(){
+  const type = document.getElementById('fType').value;
+  const nom = document.getElementById('fNom').value.trim();
+  const quantite = parseInt(document.getElementById('fQuantite').value);
+  const prix = parseFloat(document.getElementById('fPrix').value) || 0;
+  const date = document.getElementById('fDate').value;
+  const motif = document.getElementById('fMotif').value.trim();
+
+  if(!nom){
+    BIPE.toast('⚠ Le nom du produit est obligatoire', true);
+    return;
+  }
+  if(!quantite || quantite <= 0){
+    BIPE.toast('⚠ Quantité invalide', true);
+    return;
+  }
+  if(!date){
+    BIPE.toast('⚠ Date obligatoire', true);
+    return;
+  }
+
+  // Vérifier si c'est un produit existant (pour réutiliser le même produitId)
+  const produits = getProduits();
+  const existant = produits.find(p => p.nom.toLowerCase() === nom.toLowerCase());
+  const produitId = existant ? existant.id : 'p-' + Date.now().toString(36);
+
+  if(editingId){
+    // ---------- MODIFICATION ----------
+    const m = mouvements.find(x => x.id === editingId);
+    if(!m) return;
+
+    // Si le mouvement est lié à une vente, on refuse la modification
+    if(m.venteId){
+      BIPE.toast('⚠ Ce mouvement est lié à une vente — modifie la vente dans f-ventes.html', true);
+      return;
+    }
+
+    m.type = type;
+    m.produitId = produitId;
+    m.nom = nom;
+    m.quantite = quantite;
+    m.prix = prix;
+    m.date = date;
+    m.motif = motif;
+    m.updatedAt = new Date().toISOString();
+
+    BIPE.toast('✅ Mouvement modifié');
+  } else {
+    // ---------- CRÉATION ----------
+    // Vérification de stock pour les sorties manuelles
+    if(type === 'sortie'){
+      const stockActuel = existant ? existant.stock : 0;
+      if(quantite > stockActuel){
+        BIPE.toast(`⚠ Stock insuffisant (dispo : ${stockActuel})`, true);
+        return;
+      }
+    }
+
+    mouvements.push({
+      id: 'mv-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,6),
+      type,
+      produitId,
+      nom,
+      quantite,
+      prix,
+      date,
+      motif,
+      createdAt: new Date().toISOString()
+    });
+
+    BIPE.toast(type === 'entree' ? '✅ Entrée enregistrée' : '✅ Sortie enregistrée');
+  }
+
+  save();
+  fermerSheet();
+  render();
+}
+
+function deleteMouvement(id){
+  const m = mouvements.find(x => x.id === id);
+  if(!m) return;
+
+  if(m.venteId){
+    BIPE.toast('⚠ Ce mouvement est lié à une vente — supprime la vente dans f-ventes.html', true);
+    return;
+  }
+
+  if(!confirm(`Supprimer ce mouvement de "${getNom(m)}" (${getQte(m)} unité(s)) ?\n\nLe stock sera recalculé.`)) return;
+
+  mouvements = mouvements.filter(x => x.id !== id);
+  save();
+  render();
+  BIPE.toast('🗑 Mouvement supprimé');
+}
+
+/* ---------- Export ---------- */
+function exportStock(){
+  BIPE.exportJSON('stock', mouvements);
+}
+
+/* ---------- Init ---------- */
+document.addEventListener('DOMContentLoaded', () => {
+  load();
+  document.getElementById('fNom').addEventListener('input', updateProduitInfo);
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape') fermerSheet();
+  });
+});
+</script>
+</body>
+</html>

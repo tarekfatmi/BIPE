@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>BIPE — Objectifs</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="shared.js"></script>
+<style>
+  :root{
+    --black:#000000; --black-2:#0a0a0a; --black-3:#141414;
+    --line:#2a2a2a; --line-soft:#1f1f1f;
+    --gold:#d4af37; --gold-bright:#f0d060; --gold-soft:#e8c96a;
+    --gold-dim:#8a7433; --gold-deep:#5a4a1f;
+    --txt:#f5f0e1; --txt-muted:#9a9384; --txt-dim:#5a564e;
+    --ok:#6b9a5a; --warn:#c9a040; --bad:#b84040; --info:#7cc4e8;
+    --radius:16px; --radius-sm:12px;
+    --groupe-couleur:#6b9a5a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overscroll-behavior:none}
+  body{
+    font-family:'Baloo Bhaijaan 2', -apple-system, "Segoe UI", sans-serif;
+    background:var(--black); color:var(--txt); line-height:1.6; font-weight:500;
+    -webkit-font-smoothing:antialiased; min-height:100vh;
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(107,154,90,.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(212,175,55,.02) 0%, transparent 40%);
+    background-attachment:fixed;
+  }
+  .app{max-width:min(1100px,92vw);margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding-bottom:clamp(24px,4vw,40px)}
+
+  .bipe-sheet{transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1)}
+  .bipe-sheet.show{transform:translateY(0) !important}
+  #bipe-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s}
+  #bipe-overlay.show{opacity:1 !important;pointer-events:auto !important}
+
+  .header{
+    position:sticky;top:0;z-index:50;background:rgba(0,0,0,.92);
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--line-soft);
+    padding:clamp(12px,2vw,16px) clamp(16px,3vw,20px);
+    display:flex;align-items:center;gap:clamp(8px,1.5vw,16px);
+  }
+  .header .back{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;text-decoration:none;transition:transform .15s;
+  }
+  .header .back:active{transform:scale(.92)}
+  .header .title-block{flex:1;min-width:0}
+  .header .logo{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2.5vw,1.5rem);
+    font-weight:700;color:#f0d060;line-height:1.2;letter-spacing:.02em;
+  }
+  .header .logo .b,.header .logo .pe{color:var(--txt)}
+  .header .logo .excl{color:var(--gold);font-size:1.3em;vertical-align:middle;text-shadow:0 0 20px rgba(212,175,55,.5)}
+  .header .subtitle{
+    font-size:clamp(.6rem,1vw,.7rem);color:var(--txt-muted);
+    font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  }
+  .header .menu{
+    width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);
+    border-radius:14px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--gold-soft);font-size:clamp(1.1rem,2vw,1.4rem);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;transition:transform .15s;
+  }
+  .header .menu:active{transform:scale(.92)}
+
+  .content{flex:1;padding:clamp(16px,3vw,24px) clamp(16px,3vw,20px)}
+
+  .hero-groupe{
+    background:linear-gradient(135deg,var(--black-2) 0%,var(--black-3) 100%);
+    border:2px solid var(--gold-deep);border-radius:var(--radius);
+    padding:clamp(18px,3vw,24px);margin-bottom:clamp(16px,3vw,20px);
+    position:relative;overflow:hidden;
+  }
+  .hero-groupe::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--groupe-couleur);opacity:.8;
+  }
+  .hero-groupe .num{
+    font-family:'Fredoka',sans-serif;font-size:clamp(.75rem,1vw,.85rem);
+    font-weight:700;color:var(--groupe-couleur);letter-spacing:.05em;margin-bottom:6px;
+  }
+  .hero-groupe .ico{font-size:clamp(1.6rem,2.5vw,2rem);line-height:1;margin-bottom:6px}
+  .hero-groupe h1{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.3rem,2.2vw,1.7rem);
+    font-weight:700;color:var(--gold-bright);line-height:1.2;margin-bottom:4px;
+  }
+  .hero-groupe p{font-size:clamp(.85rem,1.1vw,1rem);color:var(--txt-muted);font-weight:500}
+
+  .stats{
+    display:grid;grid-template-columns:repeat(4,1fr);
+    gap:clamp(8px,1.5vw,12px);margin-bottom:clamp(16px,3vw,20px);
+  }
+  .stat{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(12px,2vw,16px) clamp(10px,1.5vw,14px);
+  }
+  .stat .num{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.2rem,2.2vw,1.5rem);
+    font-weight:700;line-height:1;margin-bottom:4px;
+  }
+  .stat .lab{font-size:clamp(.68rem,.9vw,.76rem);color:var(--txt-muted);font-weight:600;line-height:1.3}
+  .stat.total .num{color:var(--gold-bright)}
+  .stat.ok .num{color:var(--ok)}
+  .stat.encours .num{color:var(--warn)}
+  .stat.retard .num{color:var(--bad)}
+
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:clamp(14px,2.5vw,18px)}
+  .btn{
+    padding:clamp(11px,1.5vw,13px) clamp(16px,2vw,20px);
+    border-radius:999px;border:none;cursor:pointer;
+    font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:clamp(.88rem,1.1vw,1rem);font-weight:700;
+    display:inline-flex;align-items:center;gap:8px;transition:all .2s;
+  }
+  .btn-gold{
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold));
+    color:#0a0a0a;box-shadow:0 4px 16px rgba(212,175,55,.25);
+  }
+  .btn-gold:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  .btn-gold:active{transform:scale(.97)}
+  .btn-ghost{background:var(--black-2);border:2px solid var(--line);color:var(--txt)}
+  .btn-ghost:hover{border-color:var(--gold-dim)}
+
+  .filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:clamp(14px,2.5vw,18px)}
+  .filter-chip{
+    padding:8px 14px;border-radius:999px;border:2px solid var(--line);
+    background:var(--black-2);color:var(--txt-muted);
+    font-family:'Baloo Bhaijaan 2',sans-serif;
+    font-size:clamp(.8rem,1vw,.9rem);font-weight:600;cursor:pointer;transition:.2s;
+  }
+  .filter-chip.active{border-color:var(--groupe-couleur);color:var(--groupe-couleur);background:rgba(107,154,90,.08)}
+  .filter-chip:hover:not(.active){color:var(--txt)}
+
+  .list{display:flex;flex-direction:column;gap:clamp(10px,2vw,14px)}
+  .objectif-card{
+    background:var(--black-2);border:2px solid var(--line);
+    border-radius:var(--radius);padding:clamp(16px,2.5vw,22px);
+    transition:transform .15s,border-color .15s;position:relative;overflow:hidden;
+  }
+  .objectif-card::before{
+    content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+    background:var(--statut-couleur,var(--groupe-couleur));opacity:.9;
+  }
+  .objectif-card.atteint::before{background:var(--ok)}
+  .objectif-card.en_cours::before{background:var(--warn)}
+  .objectif-card.retard::before{background:var(--bad)}
+  .objectif-card:hover{border-color:var(--gold-dim)}
+
+  .objectif-head{
+    display:flex;justify-content:space-between;align-items:flex-start;
+    gap:12px;margin-bottom:12px;flex-wrap:wrap;
+  }
+  .objectif-titre-block{flex:1;min-width:0}
+  .objectif-titre{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1rem,1.5vw,1.15rem);
+    font-weight:700;color:var(--txt);line-height:1.3;margin-bottom:4px;
+  }
+  .objectif-periode{
+    font-size:clamp(.75rem,.95vw,.85rem);color:var(--txt-dim);
+    font-weight:600;
+  }
+  .objectif-type{
+    padding:3px 10px;border-radius:6px;
+    font-size:clamp(.7rem,.88vw,.78rem);font-weight:700;
+    text-transform:uppercase;letter-spacing:.04em;
+    background:rgba(107,154,90,.15);color:#8fc47a;
+    white-space:nowrap;
+  }
+
+  .objectif-valeurs{
+    display:flex;justify-content:space-between;align-items:baseline;
+    gap:12px;margin-bottom:8px;flex-wrap:wrap;
+  }
+  .objectif-valeurs .actuel{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.5rem,2.8vw,2rem);
+    font-weight:700;color:var(--gold-bright);line-height:1;
+  }
+  .objectif-valeurs .actuel small{
+    font-size:.55em;color:var(--txt-muted);font-weight:600;
+  }
+  .objectif-valeurs .cible{
+    font-size:clamp(.85rem,1.1vw,1rem);color:var(--txt-muted);
+    font-weight:600;
+  }
+  .objectif-valeurs .pct{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1rem,1.6vw,1.2rem);
+    font-weight:700;
+  }
+  .objectif-valeurs .pct.ok{color:var(--ok)}
+  .objectif-valeurs .pct.warn{color:var(--warn)}
+  .objectif-valeurs .pct.bad{color:var(--bad)}
+
+  .progress-bar{
+    height:12px;border-radius:999px;
+    background:rgba(255,255,255,.06);
+    overflow:hidden;margin-bottom:12px;
+    position:relative;
+  }
+  .progress-fill{
+    height:100%;border-radius:999px;
+    transition:width .5s ease;
+    position:relative;
+  }
+  .progress-fill.ok{background:linear-gradient(90deg,#6b9a5a,#8fc47a)}
+  .progress-fill.warn{background:linear-gradient(90deg,#c9a040,#e0cc88)}
+  .progress-fill.bad{background:linear-gradient(90deg,#b84040,#e08a8a)}
+
+  .objectif-meta{
+    display:flex;gap:12px;flex-wrap:wrap;align-items:center;
+    font-size:clamp(.75rem,.95vw,.85rem);color:var(--txt-muted);
+    font-weight:600;margin-bottom:10px;
+  }
+  .objectif-meta .badge-statut{
+    padding:2px 10px;border-radius:6px;
+    font-size:.75em;font-weight:700;
+    text-transform:uppercase;letter-spacing:.04em;
+  }
+  .badge-atteint{background:rgba(107,154,90,.15);color:#8fc47a}
+  .badge-en_cours{background:rgba(201,160,64,.15);color:var(--warn)}
+  .badge-retard{background:rgba(184,64,64,.15);color:#e08a8a}
+
+  .objectif-actions{
+    display:flex;gap:6px;justify-content:flex-end;
+    padding-top:10px;border-top:1px solid var(--line-soft);
+  }
+  .icon-btn{
+    width:clamp(32px,4.5vw,36px);height:clamp(32px,4.5vw,36px);
+    border-radius:10px;background:var(--black-3);border:1px solid var(--line);
+    color:var(--txt-muted);font-size:clamp(.85rem,1.2vw,.95rem);
+    cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;
+  }
+  .icon-btn:hover{border-color:var(--gold-dim);color:var(--gold-soft)}
+  .icon-btn.danger:hover{border-color:var(--bad);color:#e08a8a}
+
+  .empty{
+    text-align:center;padding:clamp(40px,8vw,60px) clamp(20px,3vw,24px);
+    background:var(--black-2);border:2px dashed var(--line);border-radius:var(--radius);
+  }
+  .empty .ico{font-size:clamp(2.5rem,6vw,3.5rem);margin-bottom:12px;opacity:.6}
+  .empty h3{
+    font-family:'Fredoka',sans-serif;font-size:clamp(1.1rem,1.8vw,1.3rem);
+    color:var(--gold-soft);margin-bottom:8px;
+  }
+  .empty p{font-size:clamp(.85rem,1.1vw,1rem);color:var(--txt-muted);margin-bottom:16px}
+
+  .footer{
+    text-align:center;padding:clamp(20px,3vw,28px) 16px 16px;
+    font-size:clamp(.72rem,.9vw,.8rem);color:var(--txt-dim);
+    line-height:1.8;font-weight:500;border-top:1px solid var(--line-soft);margin-top:auto;
+  }
+  .footer .brand{color:var(--gold-soft);font-weight:700}
+
+  .form-group{margin-bottom:clamp(14px,2vw,18px)}
+  label{
+    display:block;font-size:clamp(.85rem,1vw,.95rem);
+    color:var(--txt-muted);margin-bottom:6px;font-weight:600;
+  }
+  label .required{color:var(--bad);margin-left:2px}
+  input,textarea,select{
+    width:100%;padding:clamp(12px,1.5vw,14px) clamp(14px,2vw,16px);
+    border-radius:var(--radius-sm);border:2px solid var(--line);
+    background:var(--black-3);color:var(--txt);
+    font-size:clamp(.95rem,1.1vw,1rem);
+    font-family:'Baloo Bhaijaan 2',sans-serif;font-weight:500;transition:all .2s;
+  }
+  input:focus,textarea:focus,select:focus{
+    outline:none;border-color:var(--gold);box-shadow:0 0 0 4px rgba(212,175,55,.12);
+  }
+  input::placeholder,textarea::placeholder{color:var(--txt-dim)}
+  textarea{resize:vertical;min-height:80px}
+  select{cursor:pointer}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  .preview-box{
+    padding:14px;border-radius:10px;
+    background:rgba(107,154,90,.08);
+    border:1px solid rgba(107,154,90,.3);
+    margin-top:12px;
+  }
+  .preview-box .lab{
+    font-size:.72rem;color:#8fc47a;font-weight:700;
+    text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;
+  }
+  .preview-box .val{
+    font-family:'Fredoka',sans-serif;font-size:1.4rem;
+    color:var(--gold-bright);font-weight:700;line-height:1;
+  }
+
+  @media (max-width:700px){
+    .stats{grid-template-columns:repeat(2,1fr)}
+  }
+  @media (max-width:600px){
+    .row{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body data-groupe="g3">
+
+<div class="app">
+
+  <div class="header">
+    <a href="groupe-pilotage.html" class="back">←</a>
+    <div class="title-block">
+      <div class="logo"><span class="b">B</span><span class="excl">!</span><span class="pe">PE</span></div>
+      <div class="subtitle">Pilotage · Objectifs</div>
+    </div>
+    <button class="menu" onclick="BIPE.openMenu()">⋮</button>
+  </div>
+
+  <div class="content">
+
+    <div class="hero-groupe">
+      <div class="num">GROUPE 03</div>
+      <div class="ico">🎯</div>
+      <h1>Objectifs</h1>
+      <p>Fixe tes cibles. BIPE calcule l'avancement en temps réel.</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat total"><div class="num" id="statTotal">0</div><div class="lab">Objectifs<br>actifs</div></div>
+      <div class="stat ok"><div class="num" id="statOk">0</div><div class="lab">Atteints</div></div>
+      <div class="stat encours"><div class="num" id="statEnCours">0</div><div class="lab">En cours</div></div>
+      <div class="stat retard"><div class="num" id="statRetard">0</div><div class="lab">En retard</div></div>
+    </div>
+
+    <div class="toolbar">
+      <button class="btn btn-gold" onclick="openForm()"><span>＋</span> Nouvel objectif</button>
+      <button class="btn btn-ghost" onclick="exportObjectifs()"><span>📤</span> Exporter</button>
+    </div>
+
+    <div class="filters" id="filters">
+      <button class="filter-chip active" data-filter="tous" onclick="setFilter('tous')">Tous</button>
+      <button class="filter-chip" data-filter="en_cours" onclick="setFilter('en_cours')">En cours</button>
+      <button class="filter-chip" data-filter="atteint" onclick="setFilter('atteint')">Atteints</button>
+      <button class="filter-chip" data-filter="retard" onclick="setFilter('retard')">En retard</button>
+    </div>
+
+    <div class="list" id="list"></div>
+
+  </div>
+
+  <div class="footer">
+    <span class="brand">BIPE</span> · Bureau Intelligent Pour Entrepreneur<br>
+    Pilotage · Objectifs · Version 1.0
+  </div>
+
+</div>
+
+<div id="bipe-overlay" onclick="BIPE.closeAllSheets()"></div>
+
+<!-- SHEET FORMULAIRE -->
+<div id="sheet-form" class="bipe-sheet" style="
+  position:fixed;left:0;right:0;bottom:0;background:#0a0a0a;
+  border-radius:24px 24px 0 0;border-top:2px solid #5a4a1f;
+  z-index:1001;max-height:92vh;display:flex;flex-direction:column;
+  max-width:720px;margin:0 auto;
+">
+  <div style="width:48px;height:5px;background:#2a2a2a;border-radius:3px;margin:12px auto 8px;flex-shrink:0;"></div>
+  <div style="padding:8px 24px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1f1f1f;">
+    <h3 id="formTitle" style="font-family:'Fredoka',sans-serif;font-size:1.5rem;color:#e8c96a;font-weight:700;">Nouvel objectif</h3>
+    <button onclick="BIPE.closeAllSheets()" style="
+      width:44px;height:44px;border-radius:12px;background:#141414;
+      border:1px solid #2a2a2a;color:#f5f0e1;font-size:1.4rem;
+      display:flex;align-items:center;justify-content:center;cursor:pointer;
+    ">✕</button>
+  </div>
+  <div style="padding:20px 24px 24px;overflow-y:auto;flex:1;">
+
+    <div class="form-group">
+      <label>Titre de l'objectif <span class="required">*</span></label>
+      <input type="text" id="fTitre" placeholder="Ex : CA 10 000 DT en 2026" maxlength="100">
+    </div>
+
+    <div class="form-group">
+      <label>Type d'objectif <span class="required">*</span></label>
+      <select id="fType" onchange="updatePreview()">
+        <option value="ca">💰 Chiffre d'affaires (ventes)</option>
+        <option value="ventes">🛒 Nombre de ventes</option>
+        <option value="clients">👤 Nouveaux clients</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Cible <span class="required">*</span></label>
+      <input type="number" id="fCible" placeholder="0" step="0.01" min="0" oninput="updatePreview()">
+      <div class="preview-box" style="margin-top:8px;">
+        <div class="lab">Actuel (calculé automatiquement)</div>
+        <div class="val" id="previewActuel">0</div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="form-group">
+        <label>Période <span class="required">*</span></label>
+        <select id="fPeriode" onchange="updatePreview()">
+          <option value="mois">Ce mois</option>
+          <option value="trimestre">Ce trimestre</option>
+          <option value="annee">Cette année</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Date de début</label>
+        <input type="date" id="fDateDebut">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Note</label>
+      <textarea id="fNote" placeholder="Motivation, contexte..." maxlength="300"></textarea>
+    </div>
+
+    <button class="btn btn-gold" style="width:100%;justify-content:center;margin-top:8px;" onclick="saveObjectif()">💾 Enregistrer</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   BIPE — f-objectifs.html
+   Groupe 3 — Pilotage : objectifs
+   - Types : CA, Ventes, Clients
+   - Avancement calculé automatiquement depuis les ventes/clients
+   - Statut : atteint / en cours / en retard
+   ============================================================ */
+
+BIPE.checkSession();
+
+let objectifs = [];
+let filter = 'tous';
+let editingId = null;
+
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+
+/* ---------- Sheet ---------- */
+function ouvrirSheet(id){
+  let overlay = document.getElementById('bipe-overlay');
+  if(!overlay){
+    overlay = document.createElement('div');
+    overlay.id = 'bipe-overlay';
+    overlay.onclick = BIPE.closeAllSheets;
+    document.body.appendChild(overlay);
+  }
+  overlay.classList.add('show');
+  const sheet = document.getElementById(id);
+  if(sheet) sheet.classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function fermerSheet(){
+  const overlay = document.getElementById('bipe-overlay');
+  if(overlay) overlay.classList.remove('show');
+  document.querySelectorAll('.bipe-sheet').forEach(s => s.classList.remove('show'));
+  document.body.style.overflow = '';
+}
+
+/* ---------- Périodes ---------- */
+function getPeriodeRange(periode){
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+
+  if(periode === 'mois'){
+    const debut = new Date(year, month, 1);
+    const fin = new Date(year, month + 1, 0);
+    return { debut, fin };
+  }
+  if(periode === 'trimestre'){
+    const trimestre = Math.floor(month / 3);
+    const debut = new Date(year, trimestre * 3, 1);
+    const fin = new Date(year, trimestre * 3 + 3, 0);
+    return { debut, fin };
+  }
+  // annee
+  const debut = new Date(year, 0, 1);
+  const fin = new Date(year, 11, 31);
+  return { debut, fin };
+}
+
+function getPeriodeLabel(periode){
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const moisNoms = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+
+  if(periode === 'mois'){
+    return moisNoms[month] + ' ' + year;
+  }
+  if(periode === 'trimestre'){
+    const trimestre = Math.floor(month / 3) + 1;
+    return 'T' + trimestre + ' ' + year;
+  }
+  return 'Année ' + year;
+}
+
+function estDansPeriode(dateStr, periode){
+  if(!dateStr) return false;
+  const { debut, fin } = getPeriodeRange(periode);
+  const d = new Date(dateStr);
+  return d >= debut && d <= fin;
+}
+
+/* ---------- Calcul de l'actuel ---------- */
+function calculerActuel(obj){
+  const ventes = BIPE.storage.get(BIPE.KEYS.ventes, []) || [];
+  const clients = BIPE.storage.get(BIPE.KEYS.clients, []) || [];
+
+  if(obj.type === 'ca'){
+    return ventes
+      .filter(v => estDansPeriode(v.date, obj.periode))
+      .reduce((s, v) => s + (Number(v.montant) || 0), 0);
+  }
+  if(obj.type === 'ventes'){
+    return ventes.filter(v => estDansPeriode(v.date, obj.periode)).length;
+  }
+  if(obj.type === 'clients'){
+    return clients.filter(c => estDansPeriode(c.createdAt, obj.periode)).length;
+  }
+  return 0;
+}
+
+/* ---------- Statut d'un objectif ---------- */
+function getStatut(obj){
+  const actuel = calculerActuel(obj);
+  const cible = Number(obj.cible) || 1;
+  const pct = (actuel / cible) * 100;
+
+  if(pct >= 100) return 'atteint';
+
+  // Calcul du temps écoulé dans la période
+  const { debut, fin } = getPeriodeRange(obj.periode);
+  const now = new Date();
+  const total = fin - debut;
+  const ecoule = Math.max(0, Math.min(now - debut, total));
+  const pctTemps = (ecoule / total) * 100;
+
+  // Si l'avancement est très en dessous du temps écoulé → en retard
+  if(pct < pctTemps * 0.7) return 'retard';
+  return 'en_cours';
+}
+
+function getStatutLabel(statut){
+  if(statut === 'atteint') return 'Atteint';
+  if(statut === 'retard') return 'En retard';
+  return 'En cours';
+}
+
+/* ---------- Chargement ---------- */
+function load(){
+  objectifs = BIPE.storage.get(BIPE.KEYS.objectifs, []) || [];
+  render();
+}
+
+function save(){
+  BIPE.storage.set(BIPE.KEYS.objectifs, objectifs);
+}
+
+/* ---------- Rendu ---------- */
+function render(){
+  renderStats();
+  renderList();
+}
+
+function renderStats(){
+  let total = 0, ok = 0, encours = 0, retard = 0;
+  objectifs.forEach(o => {
+    const s = getStatut(o);
+    total++;
+    if(s === 'atteint') ok++;
+    else if(s === 'retard') retard++;
+    else encours++;
+  });
+
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statOk').textContent = ok;
+  document.getElementById('statEnCours').textContent = encours;
+  document.getElementById('statRetard').textContent = retard;
+}
+
+function matchFilter(o){
+  if(filter === 'tous') return true;
+  return getStatut(o) === filter;
+}
+
+function renderList(){
+  const list = document.getElementById('list');
+  let items = objectifs.filter(matchFilter);
+
+  if(items.length === 0){
+    list.innerHTML = `
+      <div class="empty">
+        <div class="ico">🎯</div>
+        <h3>Aucun objectif</h3>
+        <p>${filter === 'tous' ? 'Fixe ton premier objectif pour suivre ta progression.' : 'Aucun objectif dans ce filtre.'}</p>
+        <button class="btn btn-gold" style="margin:0 auto;" onclick="openForm()">＋ Nouvel objectif</button>
+      </div>
+    `;
+    return;
+  }
+
+  const typeLabels = {ca:'💰 CA', ventes:'🛒 Ventes', clients:'👤 Clients'};
+
+  list.innerHTML = items.map(o => {
+    const actuel = calculerActuel(o);
+    const cible = Number(o.cible) || 1;
+    const pct = Math.min(100, Math.round((actuel / cible) * 100));
+    const statut = getStatut(o);
+    const statutLabel = getStatutLabel(statut);
+
+    // Couleur selon le statut
+    let pctClass = 'warn';
+    if(statut === 'atteint') pctClass = 'ok';
+    else if(statut === 'retard') pctClass = 'bad';
+
+    // Formatage de l'actuel
+    let actuelStr, cibleStr;
+    if(o.type === 'ca'){
+      actuelStr = BIPE.fmt(actuel);
+      cibleStr = BIPE.fmt(cible);
+    } else {
+      actuelStr = actuel;
+      cibleStr = cible;
+    }
+
+    const unite = o.type === 'ca' ? 'DT' : (o.type === 'ventes' ? 'ventes' : 'clients');
+
+    return `
+      <div class="objectif-card ${statut}">
+        <div class="objectif-head">
+          <div class="objectif-titre-block">
+            <div class="objectif-titre">${BIPE.esc(o.titre)}</div>
+            <div class="objectif-periode">📅 ${getPeriodeLabel(o.periode)}</div>
+          </div>
+          <span class="objectif-type">${typeLabels[o.type] || o.type}</span>
+        </div>
+
+        <div class="objectif-valeurs">
+          <div class="actuel">${actuelStr} <small>/ ${cibleStr} ${unite}</small></div>
+          <div class="pct ${pctClass}">${pct}%</div>
+        </div>
+
+        <div class="progress-bar">
+          <div class="progress-fill ${pctClass}" style="width:${pct}%;"></div>
+        </div>
+
+        <div class="objectif-meta">
+          <span class="badge-statut badge-${statut}">${statutLabel}</span>
+          ${o.note ? `<span style="color:var(--txt-dim);font-size:.82rem;">${BIPE.esc(o.note)}</span>` : ''}
+        </div>
+
+        <div class="objectif-actions">
+          <button class="icon-btn" onclick="openForm('${o.id}')" title="Modifier">✏️</button>
+          <button class="icon-btn danger" onclick="deleteObjectif('${o.id}')" title="Supprimer">🗑</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ---------- Filtres ---------- */
+function setFilter(f){
+  filter = f;
+  document.querySelectorAll('.filter-chip').forEach(b => {
+    b.classList.toggle('active', b.dataset.filter === f);
+  });
+  renderList();
+}
+
+/* ---------- Aperçu (formulaire) ---------- */
+function updatePreview(){
+  const type = document.getElementById('fType').value;
+  const periode = document.getElementById('fPeriode').value;
+
+  const obj = { type, periode };
+  const actuel = calculerActuel(obj);
+
+  let actuelStr;
+  if(type === 'ca'){
+    actuelStr = BIPE.fmt(actuel) + ' DT';
+  } else if(type === 'ventes'){
+    actuelStr = actuel + ' vente' + (actuel > 1 ? 's' : '');
+  } else {
+    actuelStr = actuel + ' client' + (actuel > 1 ? 's' : '');
+  }
+
+  document.getElementById('previewActuel').textContent = actuelStr;
+}
+
+/* ---------- Formulaire ---------- */
+function openForm(id){
+  editingId = id || null;
+  const title = document.getElementById('formTitle');
+
+  if(id){
+    const o = objectifs.find(x => x.id === id);
+    if(!o) return;
+    title.textContent = 'Modifier l\'objectif';
+    document.getElementById('fTitre').value = o.titre || '';
+    document.getElementById('fType').value = o.type || 'ca';
+    document.getElementById('fCible').value = o.cible || '';
+    document.getElementById('fPeriode').value = o.periode || 'mois';
+    document.getElementById('fDateDebut').value = o.dateDebut || todayISO();
+    document.getElementById('fNote').value = o.note || '';
+  } else {
+    title.textContent = 'Nouvel objectif';
+    document.getElementById('fTitre').value = '';
+    document.getElementById('fType').value = 'ca';
+    document.getElementById('fCible').value = '';
+    document.getElementById('fPeriode').value = 'mois';
+    document.getElementById('fDateDebut').value = todayISO();
+    document.getElementById('fNote').value = '';
+  }
+
+  updatePreview();
+  ouvrirSheet('sheet-form');
+  setTimeout(() => { try { document.getElementById('fTitre').focus(); } catch(e){} }, 300);
+}
+
+function saveObjectif(){
+  const titre = document.getElementById('fTitre').value.trim();
+  const type = document.getElementById('fType').value;
+  const cible = parseFloat(document.getElementById('fCible').value) || 0;
+  const periode = document.getElementById('fPeriode').value;
+  const dateDebut = document.getElementById('fDateDebut').value;
+  const note = document.getElementById('fNote').value.trim();
+
+  if(!titre){
+    BIPE.toast('⚠ Le titre est obligatoire', true);
+    return;
+  }
+  if(!cible || cible <= 0){
+    BIPE.toast('⚠ La cible doit être supérieure à 0', true);
+    return;
+  }
+
+  if(editingId){
+    const o = objectifs.find(x => x.id === editingId);
+    if(o){
+      o.titre = titre;
+      o.type = type;
+      o.cible = cible;
+      o.periode = periode;
+      o.dateDebut = dateDebut;
+      o.note = note;
+      o.updatedAt = new Date().toISOString();
+    }
+    BIPE.toast('✅ Objectif modifié');
+  } else {
+    objectifs.push({
+      id: 'obj-' + Date.now().toString(36),
+      titre,
+      type,
+      cible,
+      periode,
+      dateDebut,
+      note,
+      createdAt: new Date().toISOString()
+    });
+    BIPE.toast('✅ Objectif créé');
+  }
+
+  save();
+  fermerSheet();
+  render();
+}
+
+function deleteObjectif(id){
+  const o = objectifs.find(x => x.id === id);
+  if(!o) return;
+  if(!confirm(`Supprimer l'objectif "${o.titre}" ?`)) return;
+  objectifs = objectifs.filter(x => x.id !== id);
+  save();
+  render();
+  BIPE.toast('🗑 Objectif supprimé');
+}
+
+function exportObjectifs(){
+  BIPE.exportJSON('objectifs', objectifs);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  load();
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape') fermerSheet();
+  });
+});
+</script>
+</body>
+</html>

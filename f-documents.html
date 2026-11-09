@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>B!PE by MCE — Documents</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="shared.js"></script>
+<style>
+  :root{
+    --black:#000000;
+    --black-2:#0a0a0a;
+    --black-3:#141414;
+    --line:#2a2a2a;
+    --line-soft:#1f1f1f;
+    --gold:#d4af37;
+    --gold-bright:#f0d060;
+    --gold-soft:#e8c96a;
+    --gold-dim:#8a7433;
+    --gold-deep:#5a4a1f;
+    --txt:#f5f0e1;
+    --txt-muted:#9a9384;
+    --txt-dim:#5a564e;
+    --ok:#6b9a5a;
+    --warn:#c9a040;
+    --bad:#b84040;
+    --info:#7cc4e8;
+    --radius:16px;
+    --radius-sm:12px;
+    --parme:#b19cd9;
+    --parme-soft:#a78bfa;
+    --parme-deep:#3d2a5c;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+
+  html,body{height:100%;overscroll-behavior:none}
+
+  body{
+    font-family:'Baloo Bhaijaan 2', -apple-system, "Segoe UI", sans-serif;
+    background:var(--black);
+    color:var(--txt);
+    line-height:1.6;
+    font-weight:500;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(177,156,217,.04) 0%, transparent 60%);
+    background-attachment:fixed;
+  }
+
+  .app{
+    max-width:min(1100px, 92vw);
+    margin:0 auto;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    padding-bottom:clamp(24px, 4vw, 40px);
+  }
+
+  /* ===== HEADER ===== */
+  .header{
+    position:sticky;
+    top:0;
+    z-index:50;
+    background:rgba(0,0,0,.92);
+    backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--line-soft);
+    padding:clamp(12px, 2vw, 16px) clamp(16px, 3vw, 20px);
+    display:flex;
+    align-items:center;
+    gap:clamp(8px, 1.5vw, 16px);
+  }
+  .header .back{
+    width:clamp(40px, 6vw, 48px);
+    height:clamp(40px, 6vw, 48px);
+    border-radius:14px;
+    background:var(--black-3);
+    border:1px solid var(--line);
+    color:var(--parme);
+    font-size:clamp(1.2rem, 2vw, 1.6rem);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    flex-shrink:0;
+    text-decoration:none;
+    transition:transform .15s;
+  }
+  .header .back:active{transform:scale(.92)}
+  .header .title-block{flex:1; min-width:0;}
+  .header .logo{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(1.4rem, 3vw, 1.8rem);
+    font-weight:700;
+    color:#f0d060;
+    line-height:1.2;
+    letter-spacing:.02em;
+  }
+  .header .logo .b,
+  .header .logo .pe{color:var(--txt);}
+  .header .logo .excl{
+    color:var(--gold);
+    font-size:1.3em;
+    vertical-align:middle;
+    text-shadow:0 0 20px rgba(212,175,55,.5);
+  }
+  .header .subtitle{
+    font-size:clamp(.6rem, 1vw, .7rem);
+    color:var(--parme);
+    font-weight:600;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+  }
+  .header .menu{
+    width:clamp(40px, 6vw, 48px);
+    height:clamp(40px, 6vw, 48px);
+    border-radius:14px;
+    background:var(--black-3);
+    border:1px solid var(--line);
+    color:var(--parme);
+    font-size:clamp(1.1rem, 2vw, 1.4rem);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    flex-shrink:0;
+    transition:transform .15s;
+  }
+  .header .menu:active{transform:scale(.92)}
+
+  /* ===== CONTENT ===== */
+  .content{
+    flex:1;
+    padding:clamp(16px, 3vw, 24px) clamp(16px, 3vw, 20px);
+  }
+
+  /* ===== CARD ===== */
+  .card{
+    background:var(--black-2);
+    border:2px solid var(--line);
+    border-radius:var(--radius);
+    padding:clamp(18px, 3vw, 24px);
+    margin-bottom:clamp(14px, 2vw, 20px);
+  }
+
+  /* ===== SÉLECTEUR TYPE TACTILE ===== */
+  .type-selector{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:clamp(8px, 1.5vw, 12px);
+    margin-bottom:clamp(18px, 3vw, 24px);
+  }
+  .type-btn{
+    padding:clamp(14px, 2vw, 18px) clamp(8px, 1.5vw, 12px);
+    border-radius:var(--radius-sm);
+    background:var(--black-3);
+    border:2px solid var(--line);
+    color:var(--txt-muted);
+    font-family:'Baloo Bhaijaan 2', sans-serif;
+    font-size:clamp(.9rem, 1.2vw, 1.05rem);
+    font-weight:700;
+    cursor:pointer;
+    text-align:center;
+    transition:transform .15s, border-color .15s;
+  }
+  .type-btn:active{transform:scale(.95)}
+  .type-btn.selected{
+    border-color:var(--parme);
+    background:rgba(177,156,217,.1);
+    color:var(--parme);
+  }
+
+  /* ===== SOURCE SELECTOR ===== */
+  .source-tabs{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:clamp(8px, 1.5vw, 12px);
+    margin-bottom:clamp(18px, 3vw, 24px);
+  }
+  .source-tab{
+    padding:clamp(10px, 1.5vw, 14px) clamp(12px, 2vw, 16px);
+    border-radius:var(--radius-sm);
+    background:var(--black-3);
+    border:2px solid var(--line);
+    color:var(--txt-muted);
+    font-family:'Baloo Bhaijaan 2', sans-serif;
+    font-size:clamp(.85rem, 1.1vw, 1rem);
+    font-weight:700;
+    cursor:pointer;
+    text-align:center;
+    transition:transform .15s, border-color .15s;
+  }
+  .source-tab:active{transform:scale(.95)}
+  .source-tab.active{
+    border-color:var(--parme);
+    background:rgba(177,156,217,.1);
+    color:var(--parme);
+  }
+
+  /* ===== LISTE SOURCES ===== */
+  .source-list{
+    display:flex;
+    flex-direction:column;
+    gap:clamp(8px, 1.5vw, 10px);
+    margin-bottom:clamp(18px, 3vw, 24px);
+    max-height:400px;
+    overflow-y:auto;
+    padding-right:4px;
+  }
+  .source-list::-webkit-scrollbar{width:5px}
+  .source-list::-webkit-scrollbar-thumb{background:var(--line); border-radius:3px;}
+
+  .source-card{
+    background:var(--black-3);
+    border:2px solid var(--line);
+    border-radius:var(--radius-sm);
+    padding:clamp(12px, 2vw, 16px);
+    cursor:pointer;
+    transition:transform .15s, border-color .15s;
+  }
+  .source-card:active{transform:scale(.98); border-color:var(--parme)}
+  .source-card.selected{
+    border-color:var(--parme);
+    background:rgba(177,156,217,.05);
+  }
+  .source-card .top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:12px;
+    margin-bottom:6px;
+  }
+  .source-card .num{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(.85rem, 1.1vw, .95rem);
+    font-weight:700;
+    color:var(--parme);
+  }
+  .source-card .montant{
+    font-family:'Fredoka', sans-serif;
+    font-size:clamp(.9rem, 1.2vw, 1.05rem);
+    font-weight:700;
+    color:var(--txt);
+    white-space:nowrap;
+  }
+  .source-card .meta{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    font-size:clamp(.75rem, .9vw, .85rem);
+    color:var(--txt-muted);
+  }
+
+  /* ===== BOUTON GÉNÉRER ===== */
+  .btn-primary{
+    width:100%;
+    height:clamp(56px, 8vw, 64px);
+    border-radius:var(--radius);
+    background:linear-gradient(180deg, var(--parme), var(--parme-soft));
+    color:#0a0a0a;
+    border:none;
+    font-family:'Baloo Bhaijaan 2', sans-serif;
+    font-size:clamp(1.1rem, 1.5vw, 1.25rem);
+    font-weight:700;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    transition:transform .15s, filter .15s;
+    box-shadow:0 4px 16px rgba(177,156,217,.2);
+  }
+  .btn-primary:active{transform:scale(.97); filter:brightness(1.1)}
+  .btn-primary:disabled{opacity:.4; cursor:not-allowed; transform:none; box-shadow:none;}
+
+  /* ===== APERÇU DOCUMENT ===== */
+  .doc-preview{
+    background:#fdfbf5;
+    color:#1a1509;
+    border-radius:12px;
+    padding:clamp(20px, 4vw, 40px) clamp(16px, 3vw, 30px);
+    margin-top:clamp(20px, 3vw, 30px);
+    font-family:Georgia, 'Times New Roman', serif;
+    box-shadow:0 6px 30px rgba(0,0,0,.5);
+    display:none;
+    font-size:clamp(12px, 1.5vw, 15px);
+    line-height:1.5;
+  }
+  .doc-preview.show{display:block}
+
+  .doc-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    border-bottom:2px solid var(--gold);
+    padding-bottom:clamp(12px, 2vw, 18px);
+    margin-bottom:clamp(16px, 2.5vw, 24px);
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  .doc-header .company h3{
+    font-size:clamp(1rem, 1.5vw, 1.2rem);
+    color:#1a1509;
+    margin-bottom:4px;
+    font-family:'Fredoka', sans-serif;
+  }
+  .doc-header .company p{
+    font-size:.8em;
+    color:#555;
+    line-height:1.5;
+  }
+  .doc-header .doc-title{
+    text-align:right;
+  }
+  .doc-header .doc-title h2{
+    font-size:clamp(1.1rem, 1.8vw, 1.4rem);
+    color:var(--gold-dim);
+    margin-bottom:4px;
+    letter-spacing:.05em;
+    font-family:'Fredoka', sans-serif;
+  }
+  .doc-header .doc-title .num{
+    font-size:.9em;
+    color:#1a1509;
+    font-weight:600;
+  }
+  .doc-header .doc-title .dates{
+    font-size:.8em;
+    color:#666;
+    margin-top:4px;
+  }
+
+  .doc-parties{
+    display:flex;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:clamp(16px, 2.5vw, 24px);
+    flex-wrap:wrap;
+  }
+  .doc-parties .party{
+    flex:1;
+    min-width:140px;
+  }
+  .doc-parties .party .lab{
+    font-size:.7em;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--gold-dim);
+    font-weight:700;
+    margin-bottom:4px;
+    font-family:'Fredoka', sans-serif;
+  }
+  .doc-parties .party p{
+    font-size:.9em;
+    line-height:1.5;
+    color:#333;
+  }
+
+  table.doc-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:.9em;
+    margin-bottom:clamp(16px, 2.5vw, 24px);
+    font-family:'Baloo Bhaijaan 2', sans-serif;
+  }
+  table.doc-table th{
+    background:#f0e9d8;
+    color:#1a1509;
+    padding:8px 10px;
+    text-align:left;
+    font-size:.75em;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    border-bottom:2px solid var(--gold);
+  }
+  table.doc-table td{
+    padding:8px 10px;
+    border-bottom:1px solid #ddd;
+    color:#333;
+  }
+  table.doc-table .num{text-align:right;font-variant-numeric:tabular-nums}
+
+  .doc-totaux{
+    display:flex;
+    justify-content:flex-end;
+    margin-bottom:clamp(16px, 2.5vw, 24px);
+  }
+  .doc-totaux table{
+    width:60%;
+    border-collapse:collapse;
+    font-size:.95em;
+    font-family:'Baloo Bhaijaan 2', sans-serif;
+    min-width:200px;
+  }
+  .doc-totaux td{padding:5px 10px;}
+  .doc-totaux td:first-child{color:#666;}
+  .doc-totaux td:last-child{
+    text-align:right;
+    font-variant-numeric:tabular-nums;
+    font-weight:600;
+  }
+  .doc-totaux tr.total-final td{
+    border-top:2px solid var(--gold);
+    padding-top:8px;
+    font-size:1.1em;
+    color:var(--gold-dim);
+    font-weight:700;
+  }
+
+  .doc-signature{
+    margin-top:clamp(20px, 3vw, 30px);
+    display:flex;
+    justify-content:flex-end;
+    font-family:'Baloo Bhaijaan 2', sans-serif;
+    font-size:.85em;
+    color:#555;
+  }
+  .doc-signature .box{
+    width:180px;
+    border-top:1px solid #999;
+    padding-top:4px;
+    text-align:center;
+  }
+
+  .doc-footer{
+    border-top:1px solid #ddd;
+    padding-top:12px;
+    font-size:.75em;
+    color:#777;
+    text-align:center;
+    font-family:'Baloo Bhaijaan 2', sans-serif;
+    line-height:1.6;
+    margin-top:clamp(20px, 3vw, 30px);
+  }
+
+  /* ===== ACTIONS APERÇU ===== */
+  .preview-actions{
+    display:none;
+    margin-top:16px;
+    gap:10px;
+  }
+  .preview-actions.show{display:flex; flex-direction:column;}
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width:600px){
+    .doc-header{flex-direction:column;}
+    .doc-header .doc-title{text-align:left;}
+    .doc-totaux table{width:100%;}
+  }
+
+  /* ===== PRINT ===== */
+  @media print{
+    body{background:#fff;padding:0;}
+    .app{max-width:none;}
+    .no-print{display:none !important;}
+    .doc-preview{
+      display:block !important;
+      box-shadow:none;
+      border-radius:0;
+      padding:20px 30px;
+      margin:0;
+    }
+  }
+</style>
+</head>
+<body data-groupe="g1">
+
+<div class="app">
+
+  <!-- ===== HEADER ===== -->
+  <div class="header no-print">
+    <a href="groupe-commercial.html" class="back">←</a>
+    <div class="title-block">
+      <div class="logo">
+        <span class="b">B</span><span class="excl">!</span><span class="pe">PE</span>
+      </div>
+      <div class="subtitle">Documents</div>
+    </div>
+    <button class="menu" onclick="BIPE.openMenu()">⋮</button>
+  </div>
+
+  <!-- ===== CONTENT ===== -->
+  <div class="content no-print">
+
+    <div class="card">
+      <h2 style="font-family:'Fredoka', sans-serif; font-size:clamp(1.1rem, 1.5vw, 1.3rem); color:var(--parme); margin-bottom:16px;">1. Type de document</h2>
+      <div class="type-selector" id="typeSelector">
+        <button class="type-btn selected" data-type="facture" onclick="selectType('facture')">📄 Facture</button>
+        <button class="type-btn" data-type="devis" onclick="selectType('devis')">📋 Devis</button>
+        <button class="type-btn" data-type="bon" onclick="selectType('bon')">📦 Bon livraison</button>
+        <button class="type-btn" data-type="recu" onclick="selectType('recu')">🧾 Reçu</button>
+      </div>
+
+      <h2 style="font-family:'Fredoka', sans-serif; font-size:clamp(1.1rem, 1.5vw, 1.3rem); color:var(--parme); margin-bottom:16px;">2. Source des données</h2>
+      <div class="source-tabs">
+        <button class="source-tab active" data-source="ventes" onclick="selectSource('ventes')">💰 Ventes</button>
+        <button class="source-tab" data-source="achats" onclick="selectSource('achats')">🛍 Achats</button>
+      </div>
+
+      <h2 style="font-family:'Fredoka', sans-serif; font-size:clamp(1.1rem, 1.5vw, 1.3rem); color:var(--parme); margin-bottom:16px;">3. Sélectionner l'élément</h2>
+      <div class="source-list" id="sourceList">
+        <div class="empty" style="padding:20px;">Aucun élément disponible.</div>
+      </div>
+
+      <button class="btn-primary" id="btnGenerer" onclick="genererDocument()" disabled>
+        <span>📄</span> Générer le document
+      </button>
+    </div>
+
+    <!-- APERÇU -->
+    <div class="doc-preview" id="docPreview"></div>
+
+    <div class="preview-actions" id="previewActions">
+      <button class="btn-primary" onclick="window.print()" style="background:#d4af37; color:#0a0a0a;">
+        🖨 Imprimer / PDF
+      </button>
+      <button class="btn-secondary" onclick="fermerApercu()" style="background:var(--black-2); border:2px solid var(--line); color:var(--txt); border-radius:12px; padding:12px; font-family:'Baloo Bhaijaan 2', sans-serif; font-weight:600;">
+        ✕ Fermer l'aperçu
+      </button>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   B!PE — f-documents.html
+   Générateur de documents (Groupe 1 - Parme)
+   ============================================================ */
+
+/* ---------- Vérifier la session ---------- */
+BIPE.checkSession();
+
+/* ---------- État ---------- */
+let currentType = 'facture';
+let currentSource = 'ventes';
+let selectedId = null;
+
+/* ---------- Sélection du type ---------- */
+function selectType(t){
+  currentType = t;
+  document.querySelectorAll('#typeSelector .type-btn').forEach(b=>{
+    b.classList.toggle('selected', b.dataset.type === t);
+  });
+  selectedId = null;
+  document.getElementById('btnGenerer').disabled = true;
+  fermerApercu();
+  renderList();
+}
+
+/* ---------- Sélection de la source ---------- */
+function selectSource(s){
+  currentSource = s;
+  document.querySelectorAll('.source-tab').forEach(b=>{
+    b.classList.toggle('active', b.dataset.source === s);
+  });
+  selectedId = null;
+  document.getElementById('btnGenerer').disabled = true;
+  fermerApercu();
+  renderList();
+}
+
+/* ---------- Sélection d'un élément ---------- */
+function selectItem(id){
+  selectedId = id;
+  document.querySelectorAll('.source-card').forEach(c=>{
+    c.classList.toggle('selected', c.dataset.id === id);
+  });
+  document.getElementById('btnGenerer').disabled = false;
+}
+
+/* ---------- Render Liste des sources ---------- */
+function renderList(){
+  const list = document.getElementById('sourceList');
+  const sourceData = currentSource === 'ventes' 
+    ? BIPE.storage.get(BIPE.KEYS.ventes, []) 
+    : BIPE.storage.get(BIPE.KEYS.achats, []);
+
+  if(!sourceData.length){
+    list.innerHTML = `
+      <div class="empty" style="padding:20px;">
+        Aucun${currentSource === 'ventes' ? 'e vente' : ' achat'} disponible.<br>
+        <small>Enregistre d'abord dans le module ${currentSource === 'ventes' ? 'Ventes' : 'Achats'}.</small>
+      </div>`;
+    return;
+  }
+
+  const sorted = [...sourceData].sort((a,b)=> (b.date||'').localeCompare(a.date||''));
+
+  list.innerHTML = sorted.map(item=>{
+    const tiers = currentSource === 'ventes' ? item.client : item.fournisseur;
+    const montant = item.ttc || item.montant || 0;
+    const num = item.numero || item.piece || item.id;
+    
+    return `
+      <div class="source-card ${selectedId === item.id ? 'selected' : ''}" data-id="${item.id}" onclick="selectItem('${item.id}')">
+        <div class="top">
+          <div class="num">${BIPE.esc(num)}</div>
+          <div class="montant">${BIPE.fmt(montant)} DT</div>
+        </div>
+        <div class="meta">
+          <span>${BIPE.esc(tiers || '—')}</span>
+          <span>${BIPE.fmtDate(item.date)}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ---------- Générer le document ---------- */
+function genererDocument(){
+  if(!selectedId){
+    BIPE.toast('Sélectionne d\'abord un élément', true);
+    return;
+  }
+
+  const sourceData = currentSource === 'ventes' 
+    ? BIPE.storage.get(BIPE.KEYS.ventes, []) 
+    : BIPE.storage.get(BIPE.KEYS.achats, []);
+    
+  const item = sourceData.find(x=> x.id === selectedId);
+  if(!item){
+    BIPE.toast('Élément introuvable', true);
+    return;
+  }
+
+  const params = BIPE.getParams();
+  const typeLabels = {
+    'facture': 'FACTURE',
+    'devis': 'DEVIS',
+    'bon': 'BON DE LIVRAISON',
+    'recu': 'REÇU'
+  };
+
+  const prefixes = {
+    'facture': params.prefixFacture || 'FAC',
+    'devis': params.prefixDevis || 'DEV',
+    'bon': params.prefixBon || 'BL',
+    'recu': params.prefixRecu || 'REC'
+  };
+
+  const tiers = currentSource === 'ventes' ? item.client : item.fournisseur;
+  const libelleTiers = currentSource === 'ventes' ? 'Client' : 'Fournisseur';
+  const titreDoc = typeLabels[currentType];
+
+  const ht = item.ht != null ? item.ht : item.montant || 0;
+  const tva = item.tva != null ? item.tva : 0;
+  const ttc = item.ttc != null ? item.ttc : (ht + tva);
+
+  const numDoc = prefixes[currentType] + '-' + (item.numero || item.piece || item.id);
+
+  // Construction du HTML du document
+  const html = `
+    <div class="doc-header">
+      <div class="company">
+        <h3>${BIPE.esc(params.nom || 'Ma Société')}</h3>
+        <p>
+          ${params.adresse ? BIPE.esc(params.adresse) + '<br>' : ''}
+          ${params.tel ? 'Tél : ' + BIPE.esc(params.tel) + '<br>' : ''}
+          ${params.email ? 'Email : ' + BIPE.esc(params.email) + '<br>' : ''}
+          ${params.matricule ? 'MF : ' + BIPE.esc(params.matricule) : ''}
+        </p>
+      </div>
+      <div class="doc-title">
+        <h2>${titreDoc}</h2>
+        <div class="num">N° ${BIPE.esc(numDoc)}</div>
+        <div class="dates">
+          Date : ${BIPE.fmtDate(item.date)}<br>
+          ${item.echeance ? 'Échéance : ' + BIPE.fmtDate(item.echeance) : ''}
+        </div>
+      </div>
+    </div>
+
+    <div class="doc-parties">
+      <div class="party">
+        <div class="lab">${libelleTiers}</div>
+        <p><b>${BIPE.esc(tiers || '—')}</b></p>
+      </div>
+      <div class="party">
+        <div class="lab">Mode de règlement</div>
+        <p>${BIPE.esc(item.mode || '—')}</p>
+      </div>
+    </div>
+
+    <table class="doc-table">
+      <thead>
+        <tr>
+          <th>Désignation</th>
+          <th class="num">Qté</th>
+          <th class="num">P.U.</th>
+          <th class="num">Total HT</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>${BIPE.esc(item.designation || '—')}</td>
+          <td class="num">${item.qte || 1}</td>
+          <td class="num">${BIPE.fmt(item.pu || ht)} DT</td>
+          <td class="num">${BIPE.fmt(ht)} DT</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="doc-totaux">
+      <table>
+        <tr><td>Total HT</td><td>${BIPE.fmt(ht)} DT</td></tr>
+        <tr><td>TVA</td><td>${BIPE.fmt(tva)} DT</td></tr>
+        <tr class="total-final"><td>Total TTC</td><td>${BIPE.fmt(ttc)} DT</td></tr>
+      </table>
+    </div>
+
+    ${item.notes ? `<div style="font-size:.85em;color:#555;margin-bottom:16px;font-family:'Baloo Bhaijaan 2',sans-serif"><b>Notes :</b> ${BIPE.esc(item.notes)}</div>` : ''}
+
+    <div class="doc-signature">
+      <div class="box">
+        Signature &amp; cachet
+      </div>
+    </div>
+
+    <div class="doc-footer">
+      ${BIPE.esc(params.nom || 'B!PE')} — Document généré localement par B!PE<br>
+      ${params.adresse ? BIPE.esc(params.adresse) + ' — ' : ''}
+      ${params.tel ? 'Tél : ' + BIPE.esc(params.tel) : ''}
+    </div>
+  `;
+
+  const preview = document.getElementById('docPreview');
+  preview.innerHTML = html;
+  preview.classList.add('show');
+  document.getElementById('previewActions').classList.add('show');
+
+  // Scroll vers l'aperçu
+  setTimeout(() => {
+    preview.scrollIntoView({behavior:'smooth', block:'start'});
+  }, 100);
+
+  BIPE.toast('Document généré ✅');
+}
+
+/* ---------- Fermer l'aperçu ---------- */
+function fermerApercu(){
+  const preview = document.getElementById('docPreview');
+  preview.classList.remove('show');
+  preview.innerHTML = '';
+  document.getElementById('previewActions').classList.remove('show');
+}
+
+/* ---------- Init ---------- */
+document.addEventListener('DOMContentLoaded', () => {
+  renderList();
+});
+</script>
+</body>
+</html>
